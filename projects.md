@@ -131,7 +131,7 @@ Context: Tessi Group R&D department.
 
 Achievements
 
-
+Mai 2026: 2nd place at the Toastmasters european championship of public seaking in french
 October 2025: 1st place, TotalEnergies GRP Espark × REN Data Race hackathon
 Oct 2024 – now: Member of TDF Databricks starter kit management committee
 Sep 2023 – Sep 2024: Member of TDF Azure Functions starter kit management committee
