@@ -96,39 +96,6 @@ Context: Tessi Group R&D department.
 
 ---
 
-## Main Certifications
-
-- Azure Data Engineer Associate
-- AWS Data Engineer Associate
-- Databricks Data Engineer Associate
-- Google Professional Data Engineer
-- AWS Solutions Architect Associate
-
----
-
-## Education
-
-- **2016** – Grenoble-INP ENSIMAG (France), Engineering Degree | Major in Big Data & Machine Learning
-- **2012** – Completed two-year post-baccalaureate program (Mathematics & Physics, Morocco), designed to prepare students for the competitive entrance exams for Grandes Écoles.
-- **2010** – High school diploma (Morocco)
-
----
-
-## Activities
-
-- Public Speaking (Toastmasters member since 2018)
-- Coding katas (TDD, TCR, …)
-- Article writing on Data & AI topics (Medium.com)
-- European First Aid Certificate
-
----
-
-## Languages
-
-- Arabic
-- English
-- French
-
 Achievements
 
 Mai 2026: 2nd place at the Toastmasters european championship of public seaking in french

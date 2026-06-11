@@ -68,7 +68,9 @@ HR payroll ops, regulatory reporting, gender equality KPI tracking.
 - Google Professional Data Engineer (2023)
 - Databricks Data Engineer Associate (2024)
 - AWS Data Engineer Associate (2024)
+- Databricks Data Enginner Professional (2024)
 - Azure Data Engineer Associate (2024)
+- Databricks Generative AI Associate (2024)
 
 ## Core Skills
 - **Cloud:** Azure (Expert), AWS (S3, EC2, IAM – working knowledge)
