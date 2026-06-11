@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mohammed Taha El Ahmar — Recruiter Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f8f6;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --border-strong: rgba(0,0,0,0.18);
+      --text-primary: #16211c;
+      --text-secondary: #5a6b63;
+      --text-tertiary: #9aada5;
+      --teal: #1D9E75;
+      --teal-light: #E1F5EE;
+      --teal-dark: #0F6E56;
+      --teal-deeper: #085041;
+      --input-bg: #f2f5f3;
+      --msg-bot-bg: #f2f5f3;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 20px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e1612;
+        --surface: #161f1a;
+        --border: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.15);
+        --text-primary: #e8f0ec;
+        --text-secondary: #8aada0;
+        --text-tertiary: #4d6b5e;
+        --teal-light: #0a2e20;
+        --teal-deeper: #9FE1CB;
+        --input-bg: #1c2820;
+        --msg-bot-bg: #1c2820;
+      }
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .page { width: 100%; max-width: 680px; }
+
+    /* ── Hero ── */
+    .hero { margin-bottom: 2rem; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500;
+      color: var(--teal-dark); background: var(--teal-light);
+      border-radius: 20px; padding: 4px 12px; margin-bottom: 1rem;
+    }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+    .hero-name { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; color: var(--text-primary); }
+    .hero-title { font-size: 15px; color: var(--text-secondary); margin-top: 5px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; }
+    .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+    .meta-item svg { flex-shrink: 0; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tag {
+      font-size: 11px; font-weight: 500;
+      color: var(--teal-dark); background: var(--teal-light);
+      border-radius: 20px; padding: 3px 11px;
+    }
+
+    /* ── Chat card ── */
+    .chat-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 0.5px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600; color: #fff; flex-shrink: 0;
+    }
+    .header-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .header-status { font-size: 12px; color: var(--teal); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+    .header-right { margin-left: auto; font-size: 18px; color: var(--text-tertiary); }
+
+    /* ── Messages ── */
+    .messages {
+      padding: 1.25rem;
+      display: flex; flex-direction: column; gap: 14px;
+      min-height: 360px; max-height: 440px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+    .msg { max-width: 88%; display: flex; flex-direction: column; gap: 3px; }
+    .msg.bot { align-self: flex-start; }
+    .msg.user { align-self: flex-end; }
+
+    .bubble {
+      padding: 10px 15px;
+      font-size: 14px; line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .msg.bot .bubble {
+      background: var(--msg-bot-bg); color: var(--text-primary);
+      border-radius: var(--radius-lg); border-bottom-left-radius: 4px;
+    }
+    .msg.user .bubble {
+      background: var(--teal); color: #fff;
+      border-radius: var(--radius-lg); border-bottom-right-radius: 4px;
+    }
+    .msg-time { font-size: 11px; color: var(--text-tertiary); }
+    .msg.user .msg-time { text-align: right; }
+
+    /* typing */
+    .typing-dots {
+      display: flex; align-items: center; gap: 4px;
+      padding: 12px 15px;
+      background: var(--msg-bot-bg);
+      border-radius: var(--radius-lg); border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+    .typing-dots span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-tertiary);
+      animation: dot-bounce 1.2s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+
+    /* ── Suggestions ── */
+    .suggestions { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 1.25rem 1rem; }
+    .sugg {
+      font-size: 12px; font-weight: 500;
+      color: var(--text-secondary); background: var(--input-bg);
+      border: 0.5px solid var(--border);
+      border-radius: 20px; padding: 6px 13px;
+      cursor: pointer; transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .sugg:hover { background: var(--teal-light); color: var(--teal-dark); border-color: var(--teal); }
+
+    /* ── Input ── */
+    .input-row {
+      display: flex; gap: 8px;
+      padding: 1rem 1.25rem;
+      border-top: 0.5px solid var(--border);
+    }
+    .chat-input {
+      flex: 1; font-family: inherit; font-size: 14px;
+      padding: 10px 16px;
+      background: var(--input-bg); color: var(--text-primary);
+      border: 0.5px solid var(--border);
+      border-radius: 22px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .chat-input::placeholder { color: var(--text-tertiary); }
+    .chat-input:focus { border-color: var(--teal); }
+    .send-btn {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: var(--teal); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .send-btn:hover { opacity: 0.88; }
+    .send-btn:active { transform: scale(0.95); }
+    .send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    /* ── Booking card ── */
+    .booking-card {
+      margin-top: 1.25rem;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.25rem 1.5rem;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .booking-left { display: flex; align-items: center; gap: 14px; }
+    .booking-icon {
+      width: 44px; height: 44px; border-radius: var(--radius-md);
+      background: var(--teal-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .booking-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .booking-sub { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+    .book-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: inherit; font-size: 13px; font-weight: 500; color: #fff;
+      background: var(--teal); border: none; border-radius: 22px;
+      padding: 9px 20px; cursor: pointer; text-decoration: none;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .book-btn:hover { opacity: 0.88; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 12px; color: var(--text-tertiary);
+    }
+    .footer a { color: var(--text-tertiary); text-decoration: none; }
+    .footer a:hover { color: var(--teal); }
+
+    @media (max-width: 480px) {
+      body { padding: 1.25rem 0.75rem 3rem; }
+      .hero-name { font-size: 22px; }
+      .messages { max-height: 360px; }
+      .booking-card { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="page">
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="badge"><div class="badge-dot"></div> Open to opportunities</div>
+    <h1 class="hero-name">Mohammed Taha El Ahmar</h1>
+    <p class="hero-title">Senior Cloud Data Engineer &nbsp;·&nbsp; Paris, France</p>
+    <div class="hero-meta">
+      <span class="meta-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+        7+ years experience
+      </span>
+      <span class="meta-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        5 cloud certifications
+      </span>
+      <span class="meta-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        TotalEnergies &nbsp;·&nbsp; ex-Deloitte
+      </span>
+    </div>
+    <div class="tags">
+      <span class="tag">PySpark</span>
+      <span class="tag">Azure Databricks</span>
+      <span class="tag">Python</span>
+      <span class="tag">Terraform</span>
+      <span class="tag">Delta Lake</span>
+      <span class="tag">GenAI / RAG</span>
+      <span class="tag">AWS</span>
+      <span class="tag">CI/CD</span>
+    </div>
+  </header>
+
+  <!-- Chat -->
+  <section class="chat-card" aria-label="Recruiter chatbot">
+    <div class="chat-header">
+      <div class="avatar" aria-hidden="true">MT</div>
+      <div>
+        <div class="header-name">Ask me anything</div>
+        <div class="header-status"><div class="status-dot"></div> AI assistant &nbsp;·&nbsp; powered by Claude</div>
+      </div>
+      <div class="header-right">✦</div>
+    </div>
+
+    <div class="messages" id="messages" aria-live="polite" aria-label="Conversation">
+      <div class="msg bot">
+        <div class="bubble">Hi! I'm an AI assistant that knows everything about Mohammed Taha's background.
+
+Ask me about his experience, tech stack, certifications, or what kind of role he's looking for — I'll answer on his behalf. 👋</div>
+        <div class="msg-time" aria-label="Sent just now">Just now</div>
+      </div>
+    </div>
+
+    <div class="suggestions" id="suggestions" aria-label="Suggested questions">
+      <button class="sugg" onclick="sendSuggestion(this)">What's his main tech stack?</button>
+      <button class="sugg" onclick="sendSuggestion(this)">What kind of roles is he looking for?</button>
+      <button class="sugg" onclick="sendSuggestion(this)">Tell me about his certifications</button>
+      <button class="sugg" onclick="sendSuggestion(this)">What's his experience with GenAI?</button>
+      <button class="sugg" onclick="sendSuggestion(this)">Does he speak English?</button>
+    </div>
+
+    <div class="input-row">
+      <label for="chat-input" class="sr-only">Your question</label>
+      <input
+        class="chat-input"
+        id="chat-input"
+        type="text"
+        placeholder="Ask about experience, skills, availability…"
+        autocomplete="off"
+        onkeydown="if(event.key==='Enter') sendMessage()"
+      />
+      <button class="send-btn" id="send-btn" onclick="sendMessage()" aria-label="Send message">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- Booking -->
+  <section class="booking-card" aria-label="Book a call">
+    <div class="booking-left">
+      <div class="booking-icon" aria-hidden="true">
+        <svg width="22" height="22" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div>
+        <div class="booking-title">Book a discussion slot</div>
+        <div class="booking-sub">30-min intro call &nbsp;·&nbsp; free &nbsp;·&nbsp; directly in his calendar</div>
+      </div>
+    </div>
+    <!-- ✏️ Replace the href below with your actual Cal.com or Calendly link -->
+    <a class="book-btn" href="https://cal.com/mohammed-taha-el-ahmar" target="_blank" rel="noopener">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Book a call
+    </a>
+  </section>
+
+  <footer class="footer">
+    <a href="https://linkedin.com/in/mohammed-taha-el-ahmar" target="_blank" rel="noopener">LinkedIn</a>
+    &nbsp;·&nbsp;
+    <a href="mailto:med.taha.elahmar@gmail.com">med.taha.elahmar@gmail.com</a>
+  </footer>
+
+</main>
+
+<style>
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+</style>
+
+<script>
+  // ─────────────────────────────────────────────
+  // ✏️  CONFIGURATION — edit these two lines only
+  // ─────────────────────────────────────────────
+  const WORKER_URL = 'https://recruiter-proxy.YOUR-SUBDOMAIN.workers.dev'; // from Cloudflare dashboard
+  const CAL_LINK   = 'https://cal.com/mohammed-taha-el-ahmar';             // your Cal.com or Calendly URL
+  // ─────────────────────────────────────────────
+
+  document.querySelector('.book-btn').href = CAL_LINK;
+
+  const SYSTEM_PROMPT = `
+You are an AI assistant representing Mohammed Taha El Ahmar, a Senior Cloud Data Engineer based in Paris, France.
+Answer recruiters' questions in a professional, warm, and concise tone — as if you are his knowledgeable personal assistant.
+Be specific and reference real projects, technologies, and achievements from the resume below.
+Never invent information not listed. If something is not covered, say he'd be happy to discuss it directly on a call.
+When relevant, invite the recruiter to book a 30-minute intro call at: ${CAL_LINK}
+
+== PROFILE ==
+Name: Mohammed Taha El Ahmar
+Title: Senior Cloud Data Engineer
+Location: Paris, France
+Email: med.taha.elahmar@gmail.com
+Phone: +33 6 65 29 14 78
+LinkedIn: linkedin.com/in/mohammed-taha-el-ahmar
+Summary: 7+ years designing scalable data pipelines, optimizing big data infrastructure, and driving data-informed decisions.
+
+== CURRENT ROLE ==
+Senior Cloud Data Engineer — TotalEnergies, Paris (July 2023 – Present)
+
+Project 1 (June 2024 – now): Centralized Data Hub for Refinery & Chemistry data products.
+- Scalable data ingestion & transformation pipelines (PySpark, Azure Data Lake)
+- GenAI-powered Text-to-SQL backend using an internal RAG client
+- Lakehouse performance optimization with Delta Lake
+- Databricks compute cost reduction via cluster tuning
+- Data quality and observability frameworks
+- CI/CD automation with GitHub Actions, Terraform, Liquibase
+Tech: PySpark, Python, Pytest, Azure Databricks, Databricks SQL Warehouse, Azure Data Lake, GitHub Actions, Terraform, Liquibase
+
+Project 2 (11 months): Maintenance planning app for Oil & Gas extraction platforms.
+- Daily batch ETL with Azure Functions, Durable Functions, Azure Data Lake
+- ETL code refactoring (clean architecture, improved test coverage)
+- CI/CD pipelines (GitHub Actions, Gitflow)
+- Terraform IaC across Azure environments
+- Internal training: Databricks, GenAI, Data quality
+Tech: Python, Pytest, SQL, Azure Functions & Durable Functions, Azure Service Bus, Gitflow, Azure Data Lake, Azure SQL Database, Terraform, Docker
+
+== PREVIOUS ROLE ==
+Senior Data Engineer — Deloitte Consulting, Paris (2017 – June 2023)
+
+Toyota (1 year): Databricks ETL pipelines for operational and marketing analytics.
+- Spark/Databricks notebooks → scalable big data ETL
+- Data quality checks on Azure SQL Database
+- Training for client data analysts
+Tech: Python, PySpark, Databricks, Azure Blob Storage, Azure SQL Database
+
+Sanofi (6 months): ETL for competitive pricing scenario analysis.
+- Python pricing model with graph analytics (networkit, networkx)
+- Unit tests with pytest; ETL on Databricks + AWS S3
+Tech: Python (pandas, numpy, networkit, networkx, pytest, koalas), Gitlab, Databricks, AWS S3
+
+French Ministry of Justice (2.5 years): HR payroll, regulatory reporting, gender equality KPI tracking.
+- BI reports: SAP BusinessObjects, Power BI, SQL Developer
+- AI document parser using OCR & NLP (Textract, NLTK, Spacy)
+- Skills management PoC (NLP)
+- Employee churn forecasting (ML)
+- Employee-to-job matching PoC (NLP semantic similarity)
+Tech: SQL Developer, SAP BusinessObjects, Power BI, Cloudera, Python (NLTK, Spacy, Tkinter, Pandas, Numpy, Textract)
+
+== EARLIER EXPERIENCE ==
+Data Analyst — Michelin, Clermont-Ferrand (2016, 1 year)
+SQL analytics for Order to Cash B2B platform; Agile / Lean delivery.
+
+Big Data Engineer Intern — Tessi, Grenoble (2015)
+Spark vs MapReduce benchmark; Spark + Cassandra pipeline; MLlib forecasting & clustering; Zeppelin dashboards.
+
+== CERTIFICATIONS ==
+- AWS Solutions Architect Associate (2022)
+- Google Professional Data Engineer (2023)
+- Databricks Data Engineer Associate (2024)
+- AWS Data Engineer Associate (2024)
+- Azure Data Engineer Associate (2024)
+
+== CORE SKILLS ==
+Cloud: Azure (Expert), AWS (S3, EC2, IAM – working knowledge)
+Languages: Python, PySpark, SQL
+DevOps: GitHub Actions, Terraform, Gitflow, Docker, Kubernetes
+Data & ML Tools: Databricks, Azure Data Lake, Power BI, SAP BO, MLlib, Spacy, NLTK
+Practices: CI/CD, TDD, Observability, Cost Optimization, NLP, Agile Delivery
+
+== EDUCATION ==
+2016 – Grenoble-INP ENSIMAG (France), Engineering Degree, Major in Big Data & Machine Learning
+2012 – Post-baccalaureate prep (Math & Physics, Morocco) for Grandes Écoles
+2010 – High school diploma (Morocco)
+
+== ACHIEVEMENTS ==
+- October 2025: 1st place, TotalEnergies GRP Espark × REN Data Race hackathon
+- Oct 2024 – now: Member of TDF Databricks starter kit management committee
+- Sep 2023 – Sep 2024: Member of TDF Azure Functions starter kit management committee
+- 2024 – now: Delivering internal workshops on Data quality, Databricks certifications, AWS Storage, Code testing
+
+== ACTIVITIES ==
+- Public Speaking (Toastmasters member since 2018)
+- Coding katas (TDD, TCR)
+- Article writing on Data & AI (Medium.com)
+
+== LANGUAGES ==
+English (fluent), French (fluent), Arabic (native)
+  `.trim();
+
+  const history = [];
+  let loading = false;
+
+  function now() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function addMessage(role, text) {
+    const feed = document.getElementById('messages');
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = now();
+    wrap.appendChild(bubble);
+    wrap.appendChild(time);
+    feed.appendChild(wrap);
+    feed.scrollTop = feed.scrollHeight;
+  }
+
+  function showTyping() {
+    const feed = document.getElementById('messages');
+    const wrap = document.createElement('div');
+    wrap.id = 'typing';
+    wrap.className = 'msg bot';
+    wrap.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    feed.appendChild(wrap);
+    feed.scrollTop = feed.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+  }
+
+  function hideSuggestions() {
+    const s = document.getElementById('suggestions');
+    if (s) s.style.display = 'none';
+  }
+
+  function sendSuggestion(btn) {
+    hideSuggestions();
+    doSend(btn.textContent.trim());
+  }
+
+  function sendMessage() {
+    const inp = document.getElementById('chat-input');
+    const text = inp.value.trim();
+    if (!text || loading) return;
+    inp.value = '';
+    hideSuggestions();
+    doSend(text);
+  }
+
+  async function doSend(text) {
+    loading = true;
+    document.getElementById('send-btn').disabled = true;
+    addMessage('user', text);
+    history.push({ role: 'user', content: text });
+    showTyping();
+
+    try {
+      const res = await fetch(WORKER_URL + '/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: SYSTEM_PROMPT,
+          messages: history
+        })
+      });
+
+      const data = await res.json();
+      removeTyping();
+
+      if (data.error) {
+        addMessage('bot', '⚠️ ' + (data.error.message || 'API error. Check your API key.'));
+      } else {
+        const reply = data.content?.[0]?.text ?? 'Sorry, I couldn\'t get a response.';
+        addMessage('bot', reply);
+        history.push({ role: 'assistant', content: reply });
+      }
+    } catch (err) {
+      removeTyping();
+      addMessage('bot', '⚠️ Network error. Please try again.');
+    }
+
+    loading = false;
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('chat-input').focus();
+  }
+</script>
+</body>
+</html>
