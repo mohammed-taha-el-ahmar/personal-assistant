@@ -1,40 +1,133 @@
 Key Projects — Mohammed Taha El Ahmar
 
-GenAI Text-to-SQL (TotalEnergies, 2024–present)
+### Senior Data Engineer (Full time)
+**TotalEnergies · Paris · Jul 2023 – Present**
 
-Built a GenAI-powered backend that allows business users to query refinery and chemistry data using natural language. Uses an internal RAG client to retrieve relevant schema context and generate accurate SQL. Reduced time-to-insight for non-technical stakeholders significantly.
+**Context: Data Lake House for Refinery and Chemistry data products (June 2024 – Present)**
 
-Tech: Python, Azure Databricks, RAG, LLM integration, Databricks SQL Warehouse
+- Built a GenAI-powered backend that allows business users to query refinery and chemistry data using natural language. Uses an internal RAG client to retrieve relevant schema context and generate accurate SQL. Reduced time-to-insight for non-technical stakeholders significantly.
+- Implemented data ingestion and transformation jobs triggered using predefined schedules.
+- Optimized end user data query performance using data modeling and delta table storage management best practices.
+- Reduced Databricks usage cost through compute tuning.
+- Developed code quality and data validation features.
+- Evolved CI/CD pipelines.
 
-Centralized Data Hub (TotalEnergies, 2024–present)
+**Technologies:** PySpark, Python, Pytest, Databricks SQL Warehouse, Azure Databricks, GitHub Actions, Azure Data Lake, Terraform, Liquibase.
 
-Architected and built a multi-source data hub to unify lifecycle management of Refinery and Chemistry data products. Includes ingestion, transformation, quality, observability, and serving layers.
+---
 
-Tech: PySpark, Azure Data Lake, Delta Lake, Terraform, GitHub Actions, Liquibase, Pytest
+**Context: Maintenance planning web application for Oil & Gas extraction platforms (11 months)**
 
-Maintenance Planning ETL Platform (TotalEnergies, 2023–2024)
+- Implemented daily batch ETL workflows using Azure services.
+- Improved existing ETL code robustness and test quality with architectural best practices.
+- Developed CI/CD pipelines.
+- Evolved & deployed infrastructure services using Terraform IaC capabilities.
+- Delivered introductory trainings for Data Engineers on: Databricks, Docker, and Kubernetes.
 
-Designed and implemented a daily batch ETL system supporting a maintenance planning application for Oil & Gas extraction platforms. Led refactoring of legacy code and upskilled the team on best practices.
+**Technologies:** Python, Pytest, SQL, Azure Functions & Durable Functions, Azure Service Bus, Gitflow, GitHub Actions, Azure Data Lake, Azure SQL Database, Terraform, APIM.
 
-Tech: Azure Functions, Durable Functions, Azure Service Bus, Azure SQL Database, Docker, Terraform
+---
 
-AI Document Parser (French Ministry of Justice, Deloitte, 2020–2021)
+### Senior Data Engineer (Full time)
+**Deloitte Consulting · Paris · 2017 – Jun 2023**
 
-Built a production AI tool to extract structured data from unstructured PDF administrative documents using OCR and NLP. Reduced manual data entry time for HR compliance operations.
+**Toyota – 1 year consulting assignment**
 
-Tech: Python, Textract, NLTK, Spacy, Pandas
+Context: Development and improvement of existing ETL workflows for operational and marketing data analysis.
 
-Employee-Job Matching PoC (French Ministry of Justice, Deloitte)
+- Improved ad hoc notebooks on Spark Databricks to perform big data ETL pipelines.
+- Performed data quality checks in collaboration with data analysts: SQL data querying in Azure SQL Database to detect and fix inconsistencies in data flows.
+- Training of client data analysts to perform data transformations and troubleshooting in Databricks.
 
-Proof of concept using NLP semantic similarity algorithms to match civil servant profiles to internal job vacancies. Presented to HR leadership as a strategic tool for internal mobility.
+**Technologies:** Python, PySpark, Databricks, Azure Blob Storage, Azure SQL Database.
 
-Tech: Python, Spacy, NLTK, semantic similarity models
+---
 
-Pricing Evaluation Model (Sanofi, Deloitte)
+**Sanofi – 6 months consulting assignment**
 
-Extended a Python-based competitive pricing model with graph analytics to support new product launch strategy. Delivered in Agile mode with full test coverage.
+Context: Programming of an ETL workflow for competitive pricing scenario analysis and launch of new customer products.
 
-Tech: Python, networkit, networkx, pandas, Databricks, AWS S3
+- Developed and integrated new features to a pricing scenario evaluation model with graph analysis in Python (Agile mode).
+- Increased test coverage.
+- Deployed ETL workflows in Databricks.
+
+**Technologies:** Python (pandas, numpy, networkit, networkx, pytest, koalas), Gitlab, Databricks, AWS S3.
+
+---
+
+**French Ministry of Justice – 2.5 years consulting assignment**
+
+Context: HR payroll management, regulatory reporting of employee inclusion indicators, gender equality label KPIs.
+
+- Developed ad-hoc and scheduled BI reports and KPIs using SAP BO, Power BI, and SQL Developer.
+- Implemented data extraction AI use case from PDF documents using NLP & OCR Python libraries.
+- Implemented a skills management PoC with natural language processing technologies.
+- Conducted forecast study on employee churn using Machine Learning models.
+- Developed an AI PoC for matching between employee profiles and internal mobility vacancies using NLP techniques.
+
+**Technologies:** SQL Developer, SAP Business Object, MS Power BI, Cloudera, Anaconda, Python (NLTK, Spacy, Tkinter, Pandas, Numpy, Textract).
+
+---
+
+### Data Analyst (1 year contract)
+**Michelin · Clermont-Ferrand · 2016**
+
+Context: Order to Cash B2B Tire Ordering Platform.
+
+- Developed SQL queries for Order to Cash data analysis from multiple source platforms.
+- Process analysis and specifications of business needs.
+- Project planning and progress monitoring with Lean & Agile methodology.
+
+**Technologies:** SQL Developer, JIRA, bash scripts.
+
+---
+
+### Big Data Engineer (Internship)
+**Tessi · Grenoble · 2015**
+
+Context: Tessi Group R&D department.
+
+- Conducted a comparative study between Apache Spark and Apache MapReduce.
+- Implemented a Big Data processing and analysis system with Spark and Cassandra.
+- Developed Machine Learning forecasting and clustering models with Spark MLlib.
+- Built data visualization dashboards with Apache Zeppelin.
+
+**Technologies:** Apache Spark, Cassandra, Zeppelin, Hadoop MapReduce.
+
+---
+
+## Main Certifications
+
+- Azure Data Engineer Associate
+- AWS Data Engineer Associate
+- Databricks Data Engineer Associate
+- Google Professional Data Engineer
+- AWS Solutions Architect Associate
+
+---
+
+## Education
+
+- **2016** – Grenoble-INP ENSIMAG (France), Engineering Degree | Major in Big Data & Machine Learning
+- **2012** – Completed two-year post-baccalaureate program (Mathematics & Physics, Morocco), designed to prepare students for the competitive entrance exams for Grandes Écoles.
+- **2010** – High school diploma (Morocco)
+
+---
+
+## Activities
+
+- Public Speaking (Toastmasters member since 2018)
+- Coding katas (TDD, TCR, …)
+- Article writing on Data & AI topics (Medium.com)
+- European First Aid Certificate
+
+---
+
+## Languages
+
+- Arabic
+- English
+- French
 
 Achievements
 

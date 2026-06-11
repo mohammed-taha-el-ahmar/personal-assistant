@@ -27,6 +27,7 @@ Energy (TotalEnergies), Consulting (Deloitte), Automotive (Toyota), Pharmaceutic
 
 **Does he have experience with GenAI?**
 Yes — at TotalEnergies he built a GenAI-powered Text-to-SQL backend using an internal RAG client, enabling natural language querying of data assets.
+He has also built an agent to accelerate the development of data products. His work enabled the business to cut the time to deploy new data products to half.
 
 **Has he managed teams or mentored engineers?**
 He has delivered internal training sessions and workshops on Databricks, GenAI, Data quality, AWS Storage, and code testing. He is also a member of two starter kit management committees at TotalEnergies.
