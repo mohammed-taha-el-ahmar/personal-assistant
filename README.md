@@ -1,1 +1,1 @@
-# personal-chatbot
+# personal-assistant
