@@ -38,4 +38,9 @@ Yes — English, French, and Arabic, all at a professional/fluent level.
 ## Booking
 
 **How can I schedule a call with him?**
-Book a free 30-minute intro call directly at: https://cal.com/mohammed-taha-el-ahmar
+Book a free 30-minute intro call directly at: https://cal.eu/mohammed-taha-el-ahmar
+
+## Certifications
+
+**How can I check his certifications?**
+Access his certifications / credentials at: https://credentials.databricks.com/profile/mohammedtahaelahmar398779/wallet
