@@ -44,12 +44,3 @@ Book a free 30-minute intro call directly at: https://cal.eu/mohammed-taha-el-ah
 
 **How can I check his certifications?**
 Access his certifications / credentials at: https://credentials.databricks.com/profile/mohammedtahaelahmar398779/wallet
-
-**What are his certifications**
-- AWS Solutions Architect Associate (2022)
-- Google Professional Data Engineer (2023)
-- Databricks Data Engineer Associate (2024)
-- AWS Data Engineer Associate (2024)
-- Databricks Data Enginner Professional (2024)
-- Azure Data Engineer Associate (2024)
-- Databricks Generative AI Associate (2024)
