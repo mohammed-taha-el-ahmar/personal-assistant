@@ -1,0 +1,75 @@
+{
+  "roles": [
+    {
+      "title": "Senior Cloud Data Engineer · TotalEnergies",
+      "subtitle": "Paris · Jul 2023 – Present",
+      "bullets": [
+        "Designed and deployed scalable data ingestion and transformation pipelines using PySpark and Azure Data Lake.",
+        "Developed a GenAI-powered Text-to-SQL backend leveraging an internal RAG client to enable natural language query capabilities.",
+        "Optimized lakehouse performance through robust data modeling and Delta Lake table management best practices.",
+        "Reduced Databricks compute costs through advanced cluster tuning and workload optimization.",
+        "Integrated data quality and observability frameworks to monitor and ensure pipeline reliability.",
+        "Enhanced CI/CD processes and automated infrastructure provisioning with Terraform and GitHub Actions."
+      ]
+    },
+    {
+      "title": "Senior Cloud Data Engineer · TotalEnergies",
+      "subtitle": "Maintenance planning app · Oil & Gas extraction · 11 months",
+      "bullets": [
+        "Designed and implemented daily batch ETL workflows using Azure Functions, Durable Functions, and Azure Data Lake.",
+        "Refactored existing ETL code to enhance robustness, scalability, and test coverage following clean architecture principles.",
+        "Built and maintained CI/CD pipelines using GitHub Actions and Gitflow to streamline deployments and reduce release errors.",
+        "Developed and deployed infrastructure services using Terraform for infrastructure-as-code automation across Azure environments.",
+        "Delivered internal training sessions for Data Engineers on Databricks, GenAI, and Data quality."
+      ]
+    },
+    {
+      "title": "Senior Data Engineer · Deloitte Consulting",
+      "subtitle": "Toyota · 1 year consulting assignment",
+      "bullets": [
+        "Refactored and enhanced Spark Databricks notebooks to build scalable big data ETL pipelines.",
+        "Executed data quality checks and performed advanced SQL queries on Azure SQL Database to ensure data accuracy.",
+        "Delivered hands-on training to client data analysts on data transformation techniques and troubleshooting within Databricks."
+      ]
+    },
+    {
+      "title": "Senior Data Engineer · Deloitte Consulting",
+      "subtitle": "Sanofi · 6 months consulting assignment",
+      "bullets": [
+        "Developed and integrated new features into a Python-based pricing evaluation model using graph analytics with networkit and networkx.",
+        "Improved test coverage and code reliability by implementing robust unit tests with pytest.",
+        "Deployed production-ready ETL workflows on Databricks, ensuring scalability and integration with business use cases."
+      ]
+    },
+    {
+      "title": "Senior Data Engineer · Deloitte Consulting",
+      "subtitle": "French Ministry of Justice · 2.5 years consulting assignment",
+      "bullets": [
+        "Designed and delivered ad-hoc and scheduled BI reports using SAP BusinessObjects, Power BI, and SQL Developer.",
+        "Built an AI-powered document parser to extract structured data from unstructured PDF files using OCR and NLP (Textract, NLTK, Spacy).",
+        "Developed a proof of concept for skills management using natural language processing to identify, map, and match competencies.",
+        "Conducted an employee churn forecasting study using machine learning models to support HR strategic planning.",
+        "Built an AI PoC to match employee profiles to internal job vacancies using NLP algorithms for semantic similarity and role fit."
+      ]
+    },
+    {
+      "title": "Data Analyst · Michelin",
+      "subtitle": "Clermont-Ferrand · 2016 · 1 year contract",
+      "bullets": [
+        "Developed and optimized SQL queries to analyze Order to Cash workflows across multiple source systems.",
+        "Collaborated with stakeholders to analyze business processes and define functional specifications.",
+        "Participated in project planning and progress tracking using Lean and Agile methodologies."
+      ]
+    },
+    {
+      "title": "Big Data Engineer · Tessi",
+      "subtitle": "Grenoble · 2015 · Internship",
+      "bullets": [
+        "Conducted a comparative performance study of Apache Spark vs. Hadoop MapReduce.",
+        "Designed and implemented a big data processing pipeline using Apache Spark and Cassandra.",
+        "Built and trained forecasting and clustering models using Spark MLlib.",
+        "Developed interactive dashboards and data visualizations with Apache Zeppelin."
+      ]
+    }
+  ]
+}
