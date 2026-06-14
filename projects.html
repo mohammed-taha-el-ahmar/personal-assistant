@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects & Technical Demos — Mohammed Taha El Ahmar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="projects.css" />
+</head>
+<body>
+
+<main class="page">
+
+  <a class="nav-link back-link" href="index.html">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to chatbot
+  </a>
+
+  <header class="page-header">
+    <div class="badge"><div class="badge-dot"></div> Hands-on technical demos</div>
+    <h1>Projects &amp; Technical Demos</h1>
+    <p>
+      A small set of self-contained data engineering builds, each focused on a real
+      operational problem rather than a tech-stack showcase. Click any project to see
+      the architecture, the key decisions behind it, and links to the code.
+    </p>
+  </header>
+
+  <div class="search-bar">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input
+      type="text"
+      id="project-search"
+      placeholder="Filter by keyword — e.g. Kafka, data quality, Snowflake…"
+      autocomplete="off"
+      oninput="filterProjects(this.value)"
+    />
+  </div>
+
+  <div class="project-list" id="project-list">
+    <div class="resume-loading" id="projects-loading">Loading projects…</div>
+  </div>
+
+  <p class="no-results" id="no-results" hidden>No projects match "<span id="no-results-query"></span>". Try a different keyword.</p>
+
+  <footer class="footer">
+    <a href="https://linkedin.com/in/mohammed-taha-el-ahmar" target="_blank" rel="noopener">LinkedIn</a>
+    &nbsp;·&nbsp;
+    <a href="mailto:med.taha.elahmar@gmail.com">med.taha.elahmar@gmail.com</a>
+  </footer>
+
+</main>
+
+<script src="projects.js"></script>
+</body>
+</html>
