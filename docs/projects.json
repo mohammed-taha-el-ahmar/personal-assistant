@@ -22,7 +22,7 @@
       "status": "in_progress",
       "value": "A daily ingestion pipeline that catches bad data before it reaches dashboards — and explains exactly what broke and why.",
       "icon": "airflow",
-      "media": { "type": "gif",     "url": "https://openobserve.ai/assets/airflow_flow_972c686fac.gif" },
+      "media": { "type": "gif",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/self-healing-pipeline/main/docs/img/workflow.png" },
       "architecture": "Source API → Airflow DAG (extract → validate → load) → Data quality gate (pass → warehouse table / fail → quarantine + Slack alert)",
       "decisions": [
         "Airflow over cron — needed dependency management, automatic retries with backoff, and the ability to backfill any historical date on demand.",
