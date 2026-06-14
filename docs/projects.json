@@ -6,7 +6,7 @@
       "status": "planned",
       "value": "Detects equipment anomalies in real time from streaming sensor data, before they become costly failures.",
       "icon": "kafka",
-      "media": null,
+      "media": { "type": "youtube",   "url": "https://www.youtube.com/watch?v=kCLjBcKrbfM" },
       "architecture": "Sensor simulator → Kafka (partitioned by device) → Spark Structured Streaming → Delta Lake (bronze / silver / gold) → Alert dashboard",
       "decisions": [
         "Kafka over a simpler queue — needed ordered delivery per device and the ability to replay historical streams for backtesting alert thresholds.",
@@ -22,7 +22,7 @@
       "status": "in_progress",
       "value": "A daily ingestion pipeline that catches bad data before it reaches dashboards — and explains exactly what broke and why.",
       "icon": "airflow",
-      "media": null,
+      "media": { "type": "gif",     "url": "https://openobserve.ai/assets/airflow_flow_972c686fac.gif" },
       "architecture": "Source API → Airflow DAG (extract → validate → load) → Data quality gate (pass → warehouse table / fail → quarantine + Slack alert)",
       "decisions": [
         "Airflow over cron — needed dependency management, automatic retries with backoff, and the ability to backfill any historical date on demand.",
@@ -30,7 +30,7 @@
         "Idempotent task design — every run for a given date can be safely re-executed without creating duplicates, which is what makes backfills safe."
       ],
       "tags": ["Apache Airflow", "Python", "Great Expectations", "Postgres", "Docker Compose"],
-      "github": null
+      "github": "https://github.com/mohammed-taha-el-ahmar/self-healing-pipeline"
     },
     {
       "id": "dbt",
