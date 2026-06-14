@@ -284,6 +284,15 @@ body {
 }
 .bubble a:hover { opacity: 0.8; }
 
+/* ── Cross-page navigation link ── */
+.nav-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary); text-decoration: none;
+  transition: color 0.15s;
+}
+.nav-link:hover { color: var(--teal-dark); }
+
 @media (max-width: 480px) {
   body { padding: 1.25rem 0.75rem 3rem; }
   .hero-name { font-size: 22px; }
