@@ -1,0 +1,68 @@
+{
+  "projects": [
+    {
+      "id": "kafka",
+      "title": "Real-Time IoT Anomaly Detection Pipeline",
+      "status": "planned",
+      "value": "Detects equipment anomalies in real time from streaming sensor data, before they become costly failures.",
+      "icon": "kafka",
+      "media": null,
+      "architecture": "Sensor simulator → Kafka (partitioned by device) → Spark Structured Streaming → Delta Lake (bronze / silver / gold) → Alert dashboard",
+      "decisions": [
+        "Kafka over a simpler queue — needed ordered delivery per device and the ability to replay historical streams for backtesting alert thresholds.",
+        "Structured Streaming over batch — sub-minute detection latency is the entire point; a 15-minute batch window would defeat the purpose.",
+        "Medallion architecture in Delta Lake — raw events preserved untouched in bronze for replay/debugging, cleaned in silver, aggregated alerts in gold."
+      ],
+      "tags": ["Kafka", "Spark Structured Streaming", "Delta Lake", "Python", "Docker Compose"],
+      "github": null
+    },
+    {
+      "id": "airflow",
+      "title": "Self-Healing Daily Pipeline with Airflow",
+      "status": "in_progress",
+      "value": "A daily ingestion pipeline that catches bad data before it reaches dashboards — and explains exactly what broke and why.",
+      "icon": "airflow",
+      "media": null,
+      "architecture": "Source API → Airflow DAG (extract → validate → load) → Data quality gate (pass → warehouse table / fail → quarantine + Slack alert)",
+      "decisions": [
+        "Airflow over cron — needed dependency management, automatic retries with backoff, and the ability to backfill any historical date on demand.",
+        "Quarantine on failure, not fail-fast — bad batches are isolated for inspection rather than blocking the whole pipeline, so good data still flows.",
+        "Idempotent task design — every run for a given date can be safely re-executed without creating duplicates, which is what makes backfills safe."
+      ],
+      "tags": ["Apache Airflow", "Python", "Great Expectations", "Postgres", "Docker Compose"],
+      "github": null
+    },
+    {
+      "id": "dbt",
+      "title": "Analytics Engineering with dbt + Snowflake",
+      "status": "planned",
+      "value": "Transforms raw operational data into trusted, tested business metrics — with full lineage so any number can be traced back to its source.",
+      "icon": "dbt",
+      "media": null,
+      "architecture": "Raw source tables → Snowflake → dbt (staging → intermediate → marts) → tested, documented models → BI tool",
+      "decisions": [
+        "Layered modeling (staging / intermediate / marts) — keeps raw-to-business-logic transformations traceable and each layer independently testable.",
+        "dbt tests as the contract — not_null, relationships, and custom business logic tests run on every build, so broken assumptions fail loudly, not silently in a dashboard.",
+        "Incremental models for high-volume tables — avoids full table rebuilds, keeping both cost and run time bounded as data grows."
+      ],
+      "tags": ["dbt", "Snowflake", "SQL", "GitHub Actions"],
+      "github": null
+    },
+    {
+      "id": "capstone",
+      "title": "End-to-End Mini Data Platform",
+      "status": "planned",
+      "value": "A complete, observable data platform provisioned from scratch in one command — showing how ingestion, transformation, orchestration, and reporting fit together.",
+      "icon": "capstone",
+      "media": null,
+      "architecture": "docker-compose up → Ingestion (API/Kafka) → Orchestration (Airflow) → Transformation (dbt) → Warehouse → Dashboard — all observable from one place",
+      "decisions": [
+        "Composed from Projects 1-3 rather than built from scratch — demonstrates how independently useful components combine into a coherent platform.",
+        "One-command provisioning via Docker Compose — prioritizes reproducibility and onboarding speed over production-grade scaling, which is the right tradeoff for a demo environment.",
+        "End-to-end traceability — a data quality failure in any layer can be traced back to the originating event, closing the loop between detection and root cause."
+      ],
+      "tags": ["Kafka", "Airflow", "dbt", "Snowflake", "Docker Compose", "Terraform"],
+      "github": null
+    }
+  ]
+}
