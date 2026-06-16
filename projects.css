@@ -173,12 +173,27 @@
   overflow: hidden;
 }
 .project-media-wrap img,
-.project-media-wrap video,
-.project-media-wrap iframe {
+.project-media-wrap video {
   width: 100%; height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
   border: none;
+  transition: transform 1.2s ease;
+}
+.project-media-wrap iframe {
+  width: 100%; height: 100%;
+  display: block;
+  border: none;
+}
+.project-media-wrap:hover img,
+.project-media-wrap:hover video {
+  transform: scale(1.08);
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-media-wrap img,
+  .project-media-wrap video {
+    transition: none;
+  }
 }
 .project-icon-badge {
   position: absolute; bottom: 10px; left: 10px;
