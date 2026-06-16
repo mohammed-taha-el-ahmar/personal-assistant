@@ -6,7 +6,7 @@
       "status": "planned",
       "value": "Detects equipment anomalies in real time from streaming sensor data, before they become costly failures.",
       "icon": "kafka",
-      "media": null,
+      "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/iot-anomaly-pipeline/main/docs/img/kafka-spark.jpg" },
       "architecture": "Sensor simulator → Kafka (partitioned by device) → Spark Structured Streaming → Delta Lake (bronze / silver / gold) → Alert dashboard",
       "decisions": [
         "Kafka over a simpler queue — needed ordered delivery per device and the ability to replay historical streams for backtesting alert thresholds.",
