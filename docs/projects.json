@@ -35,7 +35,7 @@
     {
       "id": "dbt",
       "title": "Analytics Engineering with dbt + Snowflake",
-      "status": "in_progress",
+      "status": "planned",
       "value": "Transforms raw operational data into trusted, tested business metrics — with full lineage so any number can be traced back to its source.",
       "icon": "dbt",
       "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/main/docs/img/dbt+snowflake.jpg" },
@@ -51,7 +51,7 @@
     {
       "id": "aws-data-pipeline",
       "title": "Serverless Data Lakehouse on AWS",
-      "status": "in_progress",
+      "status": "planned",
       "value": "Ingests a live API into a queryable S3 data lake — Glue handles schema and transformation, Redshift Spectrum queries the lake directly with no load step.",
       "icon": "aws",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/aws-data-pipeline/main/docs/img/aws-architecture.jpg" },
@@ -64,6 +64,57 @@
       ],
       "tags": ["AWS", "Lambda", "Glue", "Redshift Spectrum", "S3", "Terraform", "Python"],
       "github": "https://github.com/mohammed-taha-el-ahmar/aws-data-pipeline"
+    },
+    {
+      "id": "gcp-data-pipeline",
+      "title": "Event-Driven Pipeline on GCP",
+      "status": "planned",
+      "value": "Streams live API data through Cloud Functions into BigQuery — fully serverless, with Eventarc wiring so each stage triggers the next without a scheduler in between.",
+      "icon": "gcp",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/gcp-data-pipeline/main/docs/img/gcp-architecture.jpg" },
+      "architecture": "API → Cloud Scheduler → Cloud Function (ingest) → Cloud Storage raw/ → Eventarc trigger → Cloud Function (transform) → BigQuery → Looker Studio / Front",
+      "decisions": [
+        "Cloud Functions Gen2 over Cloud Run — the workload is small and bursty; Gen2 gives Eventarc integration and a 10-min timeout without the container-management overhead of Cloud Run.",
+        "Eventarc (object-finalize) for stage coupling — the transform function fires on new objects in GCS, so ingestion and transformation are decoupled; either can be replaced or retried independently.",
+        "BigQuery streaming inserts from the transform function — avoids a load job for single-row writes, keeping latency low at this scale while still landing data in a warehouse that supports full SQL and easy BI tool integration.",
+        "Terraform for the full stack — GCS buckets, both Cloud Functions, BigQuery dataset + table, Cloud Scheduler job, all provisioned and destroyed from one configuration."
+      ],
+      "tags": ["GCP", "Cloud Functions", "BigQuery", "Cloud Storage", "Eventarc", "Terraform", "Python"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/gcp-data-pipeline"
+    },
+    {
+      "id": "azure-data-pipeline",
+      "title": "ADF-Orchestrated Pipeline on Azure",
+      "status": "planned",
+      "value": "Uses Azure Data Factory as the orchestration backbone — a Copy Activity lands raw data, an Azure Function transforms it, and Azure SQL serves it, showing the native Azure integration pattern most teams actually use.",
+      "icon": "azure",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/azure-data-pipeline/main/docs/img/azure-architecture.jpg" },
+      "architecture": "API → ADF Pipeline (Copy Activity) → ADLS Gen2 raw/ → Blob trigger → Azure Function (transform) → Azure SQL Database (serverless) → Power BI / Front",
+      "decisions": [
+        "Data Factory as the entry point — ADF's Copy Activity handles REST-to-ADLS ingestion natively, so the ingest step is a managed service rather than custom code, which is the idiomatic Azure pattern.",
+        "ADLS Gen2 with hierarchical namespace — enables both blob-trigger wiring for the Azure Function and future compatibility with Synapse/Databricks without migrating storage.",
+        "Azure SQL serverless with auto-pause — the warehouse costs nothing when idle (auto-pauses after 60 min), making it demo-safe while still being a real relational engine with full T-SQL support.",
+        "Terraform for infrastructure, ADF authoring UI for pipeline logic — the pipeline JSON skeleton is committed for reference, but linked services and datasets are created in the ADF UI where they're testable, matching how most teams actually work with Data Factory."
+      ],
+      "tags": ["Azure", "Data Factory", "ADLS Gen2", "Azure Functions", "Azure SQL", "Terraform", "Python"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/azure-data-pipeline"
+    },
+    {
+      "id": "k8s-airflow-data-platform",
+      "title": "Airflow on Kubernetes — Orchestration Capstone",
+      "status": "planned",
+      "value": "Runs the same ingest + transform logic as the cloud-native projects, but you own the orchestration layer — showing when and why you'd choose a portable scheduler over vendor-specific triggers.",
+      "icon": "kubernetes",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/k8s-airflow-data-platform/main/docs/img/k8s-architecture.jpg" },
+      "architecture": "Airflow (Helm on K8s) → Task: ingest pod → object storage → Task: transform pod → warehouse",
+      "decisions": [
+        "kind/minikube over managed K8s — demonstrates the same Airflow-on-Kubernetes pattern without EKS/GKE/AKS cost; the Helm chart and manifests are portable to any cluster.",
+        "Same shared/ module as the cloud repos — the ingest and transform logic is identical, making the architectural comparison honest: only the orchestration and deployment layer changes.",
+        "PythonOperator first, KubernetesPodOperator as an extension point — starts simple, with a clear upgrade path to per-task isolation in its own pod for heavier workloads.",
+        "Warehouse-agnostic by design — the DAG can load into local Postgres (via the docker/ stack), or any of the three cloud warehouses via credentials passed as Kubernetes secrets."
+      ],
+      "tags": ["Kubernetes", "Airflow", "Helm", "Docker", "Python"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/k8s-airflow-data-platform"
     }
   ]
 }
