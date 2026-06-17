@@ -19,7 +19,7 @@
     {
       "id": "airflow",
       "title": "Self-Healing Daily Pipeline with Airflow",
-      "status": "in_progress",
+      "status": "live",
       "value": "A daily ingestion pipeline that catches bad data before it reaches dashboards — and explains exactly what broke and why.",
       "icon": "airflow",
       "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/self-healing-pipeline/main/docs/img/demo-self-healing-pipeline.gif" },
