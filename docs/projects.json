@@ -3,7 +3,7 @@
     {
       "id": "kafka",
       "title": "Real-Time IoT Anomaly Detection Pipeline",
-      "status": "planned",
+      "status": "in_progress",
       "value": "Detects equipment anomalies in real time from streaming sensor data, before they become costly failures.",
       "icon": "kafka",
       "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/iot-anomaly-pipeline/main/docs/img/kafka-spark.jpg" },
