@@ -3,10 +3,10 @@
     {
       "id": "kafka",
       "title": "Real-Time IoT Anomaly Detection Pipeline",
-      "status": "in_progress",
+      "status": "live",
       "value": "Detects equipment anomalies in real time from streaming sensor data, before they become costly failures.",
       "icon": "kafka",
-      "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/iot-anomaly-pipeline/main/docs/img/kafka-spark.jpg" },
+      "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/iot-anomaly-pipeline/main/docs/img/iot-anomalie-pipeline-demo.gif" },
       "architecture": "Sensor simulator → Kafka (partitioned by device) → Spark Structured Streaming → Delta Lake (bronze / silver / gold) → Alert dashboard",
       "decisions": [
         "Kafka over a simpler queue — needed ordered delivery per device and the ability to replay historical streams for backtesting alert thresholds.",
@@ -14,7 +14,7 @@
         "Medallion architecture in Delta Lake — raw events preserved untouched in bronze for replay/debugging, cleaned in silver, aggregated alerts in gold."
       ],
       "tags": ["Kafka", "Spark Structured Streaming", "Delta Lake", "Python", "Docker Compose"],
-      "github": null
+      "github": "https://github.com/mohammed-taha-el-ahmar/iot-anomaly-pipeline"
     },
     {
       "id": "airflow",
@@ -102,7 +102,7 @@
     {
       "id": "k8s-airflow-data-platform",
       "title": "Airflow on Kubernetes — Orchestration Capstone",
-      "status": "planned",
+      "status": "in_progress",
       "value": "Runs the same ingest + transform logic as the cloud-native projects, but you own the orchestration layer — showing when and why you'd choose a portable scheduler over vendor-specific triggers.",
       "icon": "kubernetes",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/k8s-airflow-data-platform/main/docs/img/k8s-architecture.jpg" },
