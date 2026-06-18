@@ -35,7 +35,7 @@
     {
       "id": "dbt",
       "title": "Analytics Engineering with dbt + Snowflake",
-      "status": "planned",
+      "status": "in_progress",
       "value": "Transforms raw operational data into trusted, tested business metrics — with full lineage so any number can be traced back to its source.",
       "icon": "dbt",
       "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/main/docs/img/dbt+snowflake.jpg" },
@@ -102,10 +102,10 @@
     {
       "id": "k8s-airflow-data-platform",
       "title": "Airflow on Kubernetes — Orchestration Capstone",
-      "status": "in_progress",
+      "status": "live",
       "value": "Runs the same ingest + transform logic as the cloud-native projects, but you own the orchestration layer — showing when and why you'd choose a portable scheduler over vendor-specific triggers.",
       "icon": "kubernetes",
-      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/k8s-airflow-data-platform/main/docs/img/k8s-architecture.jpg" },
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/k8s-airflow-data-platform/main/docs/img/k8s-airflow-data-platform-demo.gif" },
       "architecture": "Airflow (Helm on K8s) → Task: ingest pod → object storage → Task: transform pod → warehouse",
       "decisions": [
         "kind/minikube over managed K8s — demonstrates the same Airflow-on-Kubernetes pattern without EKS/GKE/AKS cost; the Helm chart and manifests are portable to any cluster.",
