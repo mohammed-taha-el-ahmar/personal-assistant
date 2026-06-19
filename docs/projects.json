@@ -35,10 +35,10 @@
     {
       "id": "dbt",
       "title": "Analytics Engineering with dbt + Snowflake",
-      "status": "in_progress",
+      "status": "live",
       "value": "Transforms raw operational data into trusted, tested business metrics — with full lineage so any number can be traced back to its source.",
       "icon": "dbt",
-      "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/main/docs/img/dbt+snowflake.jpg" },
+      "media": { "type": "image",     "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/main/docs/img/dbt-snowflake-demo.gif" },
       "architecture": "Raw source tables → Snowflake → dbt (staging → intermediate → marts) → tested, documented models → BI tool",
       "decisions": [
         "Layered modeling (staging / intermediate / marts) — keeps raw-to-business-logic transformations traceable and each layer independently testable.",
@@ -51,7 +51,7 @@
     {
       "id": "aws-data-pipeline",
       "title": "Serverless Data Lakehouse on AWS",
-      "status": "planned",
+      "status": "in_progress",
       "value": "Ingests a live API into a queryable S3 data lake — Glue handles schema and transformation, Redshift Spectrum queries the lake directly with no load step.",
       "icon": "aws",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/aws-data-pipeline/main/docs/img/aws-architecture.jpg" },
