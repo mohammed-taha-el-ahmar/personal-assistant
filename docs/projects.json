@@ -51,10 +51,10 @@
     {
       "id": "aws-data-pipeline",
       "title": "Serverless Data Lakehouse on AWS",
-      "status": "in_progress",
+      "status": "live",
       "value": "Ingests a live API into a queryable S3 data lake — Glue handles schema and transformation, Redshift Spectrum queries the lake directly with no load step.",
       "icon": "aws",
-      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/aws-data-pipeline/main/docs/img/aws-architecture.jpg" },
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/aws-data-pipeline/main/docs/img/aws-data-pipeline-demo.gif" },
       "architecture": "API → Lambda (ingest) → S3 raw/ → Glue Crawler → Glue Catalog → Glue ETL (Spark) → S3 processed/ (Parquet) → Glue Crawler → Redshift Spectrum → API Gateway → Front",
       "decisions": [
         "Right tool per stage — Lambda for cheap scheduled ingestion, Glue (Spark) for bulk transformation and schema management. Each service does what it's good at, not duplicating the other.",
@@ -85,7 +85,7 @@
     {
       "id": "azure-data-pipeline",
       "title": "ADF-Orchestrated Pipeline on Azure",
-      "status": "planned",
+      "status": "in_progress",
       "value": "Uses Azure Data Factory as the orchestration backbone — a Copy Activity lands raw data, an Azure Function transforms it, and Azure SQL serves it, showing the native Azure integration pattern most teams actually use.",
       "icon": "azure",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/azure-data-pipeline/main/docs/img/azure-architecture.jpg" },
