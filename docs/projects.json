@@ -49,6 +49,22 @@
       "github": "https://github.com/mohammed-taha-el-ahmar/analytics-engineering-dbt"
     },
     {
+      "id": "dbt-nl-sql-agent",
+      "title": "NL-to-SQL Agent over dbt Marts",
+      "status": "in-progress",
+      "value": "Lets anyone query trusted dbt marts in plain English — the agent grounds itself in dbt's own schema metadata, validates every query before it touches a database, and self-corrects when it gets the SQL wrong.",
+      "icon": "agent",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/dbt-nl-sql-agent/docs/img/dbt-nl-sql-agent-demo.gif" },
+      "architecture": "Plain-English question → Groq agent → SQL generated against dbt manifest schema → sqlglot guard (read-only, catalog-bound, row-limited) → DuckDB demo / Snowflake prod → self-correction on failure → result + attempt trail",
+      "decisions": [
+        "Schema grounding from dbt's own manifest.json, not a hand-maintained file — the agent's vocabulary can never drift further from reality than the last `dbt docs generate`.",
+        "Read-only SQL guard via sqlglot — every candidate query is parsed and rejected unless it's a single SELECT against catalog-approved tables, before it ever reaches a database.",
+        "Bounded self-correction loop — failed validation or execution feeds the real error back to the model for up to 3 attempts, surfaced in the UI as an attempt trail rather than hidden behind the final answer."
+      ],
+      "tags": ["dbt", "Snowflake", "DuckDB", "Groq", "FastAPI", "Agentic AI"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/dbt-nl-sql-agent"
+    },
+    {
       "id": "aws-data-pipeline",
       "title": "Serverless Data Lakehouse on AWS",
       "status": "live",
