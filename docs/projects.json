@@ -51,7 +51,7 @@
     {
       "id": "dbt-nl-sql-agent",
       "title": "NL-to-SQL Agent over dbt Marts",
-      "status": "in-progress",
+      "status": "live",
       "value": "Lets anyone query trusted dbt marts in plain English — the agent grounds itself in dbt's own schema metadata, validates every query before it touches a database, and self-corrects when it gets the SQL wrong.",
       "icon": "agent",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/dbt-nl-sql-agent/docs/img/dbt-nl-sql-agent-demo.gif" },
