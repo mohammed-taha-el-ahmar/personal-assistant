@@ -33,6 +33,22 @@
       "github": "https://github.com/mohammed-taha-el-ahmar/self-healing-pipeline"
     },
     {
+      "id": "airflow-rca-agent",
+      "title": "Agentic Root-Cause Investigator for the Self-Healing Pipeline",
+      "status": "live",
+      "value": "When bad data lands in quarantine, an LLM-powered agent investigates why — pulling its own evidence from logs, validation results, and schema diffs — and ships a structured incident report to Slack without a human opening a single tab.",
+      "icon": "agent",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/self-healing-pipeline/airflow-rca-agent/docs/img/rca-agent-demo.gif" },
+      "architecture": "Quarantine event → Airflow task (trigger_rule=all_done) → pre-check: quarantine count == 0 → skip / > 0 → Groq tool-calling agent → evidence tools (quarantine table, GE results, Airflow logs, schema diff) → structured JSON verdict → Markdown report + Slack alert",
+      "decisions": [
+        "Read-only tools, no auto-remediation — the agent diagnoses and reports; a human always owns the fix. Letting an LLM write to production tables without an approval gate is the kind of decision that's easy to regret.",
+        "Cheap pre-check before every LLM call — quarantine count is queried first so clean runs never spend an API call, keeping the demo cost-free at scale.",
+        "Hard iteration cap with a circuit breaker — the tool-calling loop raises InvestigationError rather than spinning indefinitely if the model can't converge, same discipline as any retriable production operation."
+      ],
+      "tags": ["Apache Airflow", "Groq", "Tool-Calling Agent", "Great Expectations", "Postgres", "Slack"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/self-healing-pipeline/airflow-rca-agent"
+    },
+    {
       "id": "dbt",
       "title": "Analytics Engineering with dbt + Snowflake",
       "status": "live",
