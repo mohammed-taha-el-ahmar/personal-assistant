@@ -100,7 +100,7 @@
     {
       "id": "gcp-data-pipeline",
       "title": "Event-Driven Pipeline on GCP",
-      "status": "planned",
+      "status": "private",
       "value": "Streams live API data through Cloud Functions into BigQuery — fully serverless, with Eventarc wiring so each stage triggers the next without a scheduler in between.",
       "icon": "gcp",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/gcp-data-pipeline/main/docs/img/gcp-architecture.jpg" },
