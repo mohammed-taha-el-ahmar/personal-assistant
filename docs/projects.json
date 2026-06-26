@@ -117,18 +117,21 @@
     {
       "id": "azure-data-pipeline",
       "title": "ADF-Orchestrated Pipeline on Azure",
-      "status": "in_progress",
-      "value": "Uses Azure Data Factory as the orchestration backbone — a Copy Activity lands raw data, an Azure Function transforms it, and Azure SQL serves it, showing the native Azure integration pattern most teams actually use.",
+      "status": "live",
+      "value": "Uses Azure Data Factory as the orchestration backbone — an HTTP Copy Activity lands raw data in ADLS Gen2, an Event Grid-triggered Azure Function transforms it, and Azure SQL serves it via a live dashboard on Static Web Apps, showing the native Azure integration pattern most teams actually use.",
       "icon": "azure",
-      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/azure-data-pipeline/main/docs/img/azure-architecture.jpg" },
-      "architecture": "API → ADF Pipeline (Copy Activity) → ADLS Gen2 raw/ → Blob trigger → Azure Function (transform) → Azure SQL Database (serverless) → Power BI / Front",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/azure-data-pipeline/main/docs/img/azure-data-pipeline-demo.gif" },
+      "architecture": "API → ADF Pipeline (HTTP Copy Activity) → ADLS Gen2 raw/ → Event Grid → Azure Function (transform) → Azure SQL Database (serverless) → Static Web App Dashboard",
       "decisions": [
-        "Data Factory as the entry point — ADF's Copy Activity handles REST-to-ADLS ingestion natively, so the ingest step is a managed service rather than custom code, which is the idiomatic Azure pattern.",
-        "ADLS Gen2 with hierarchical namespace — enables both blob-trigger wiring for the Azure Function and future compatibility with Synapse/Databricks without migrating storage.",
+        "Data Factory with HTTP connector — ADF's REST connector fails on gzip-encoded APIs like Open-Meteo, so the pipeline uses the HTTP connector (JsonSource + HttpReadSettings) which handles compression transparently.",
+        "ADLS Gen2 with hierarchical namespace — enables Synapse/Databricks compatibility, but requires Event Grid-based blob triggers instead of classic polling, which doesn't detect blobs on HNS-enabled accounts.",
+        "Event Grid system topic for blob trigger — wires BlobCreated events from the ADLS storage account to the Azure Function's webhook endpoint, replacing the unreliable polling trigger and enabling near-instant processing.",
         "Azure SQL serverless with auto-pause — the warehouse costs nothing when idle (auto-pauses after 60 min), making it demo-safe while still being a real relational engine with full T-SQL support.",
-        "Terraform for infrastructure, ADF authoring UI for pipeline logic — the pipeline JSON skeleton is committed for reference, but linked services and datasets are created in the ADF UI where they're testable, matching how most teams actually work with Data Factory."
+        "Terraform for infrastructure, CLI for ADF wiring — linked services, datasets, and pipelines are created via `az datafactory` CLI commands (reproducible and scriptable), while the Event Grid topic is created separately and must be deleted before `terraform destroy`.",
+        "Auto-wrapping in the transform function — ADF writes the raw API response directly, but the shared transform logic expects the wrapped envelope format from ingest.py, so the function detects and wraps automatically for compatibility.",
+        "Remote build for function deployment — `--build remote` ensures pip installs run against Azure's Python 3.12, avoiding ModuleNotFound errors from local/remote version mismatches."
       ],
-      "tags": ["Azure", "Data Factory", "ADLS Gen2", "Azure Functions", "Azure SQL", "Terraform", "Python"],
+      "tags": ["Azure", "Data Factory", "ADLS Gen2", "Azure Functions", "Event Grid", "Azure SQL", "Static Web Apps", "Terraform", "Python"],
       "github": "https://github.com/mohammed-taha-el-ahmar/azure-data-pipeline"
     },
     {
