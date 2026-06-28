@@ -116,7 +116,7 @@
       ],
       "tags": ["Azure", "Event Hubs", "Stream Analytics", "Synapse Analytics", "ADLS Gen2", "FastAPI", "Terraform", "Pharmacovigilance", "Real-Time", "Python"],
       "github": "https://github.com/mohammed-taha-el-ahmar/clinical-trial-signal-detection"
-    }
+    },
     {
       "id": "gcp-data-pipeline",
       "title": "Event-Driven Pipeline on GCP",
