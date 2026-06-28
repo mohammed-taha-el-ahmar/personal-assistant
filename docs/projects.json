@@ -94,9 +94,29 @@
         "Redshift Spectrum over the Glue Catalog — the warehouse queries Parquet in S3 directly as external tables, avoiding a COPY/load step and any Glue↔Redshift networking, with IAM as the only integration surface.",
         "Terraform for the whole stack — S3, Lambda, Glue (catalog + crawlers + job + workflow), Redshift Serverless and its Spectrum IAM role all provisioned and destroyed from one IaC tree, keeping cost bounded between demos."
       ],
-      "tags": ["AWS", "Lambda", "Glue", "Redshift Spectrum", "S3", "Terraform", "Python"],
+      "tags": ["AWS", "Lambda", "Glue", "Redshift Spectrum", "S3", "Terraform", "Python", "LocalStack"],
       "github": "https://github.com/mohammed-taha-el-ahmar/aws-data-pipeline"
     },
+    {
+      "id": "clinical-trial-signal-detection",
+      "title": "Clinical Trial Signal Detection (Real-Time Pharmacovigilance)",
+      "status": "live",
+      "value": "A real-time pharmacovigilance pipeline that monitors adverse event streams across clinical trial sites — Event Hub ingests reports, Stream Analytics applies tumbling-window detection in seconds, Synapse SQL Pool persists signals, and a FastAPI dashboard surfaces safety alerts live, cutting signal detection latency from days to minutes.",
+      "icon": "azure",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/clinical-trial-signal-detection/main/docs/img/clinical-trial-signal-detection-demo.gif" },
+      "architecture": "Trial Sites → Event Hub (adverse-events) → Stream Analytics (10-min tumbling window, GROUP BY + HAVING) → Event Hub (signal-alerts) + ADLS Gen2 (bronze/) → Synapse Dedicated SQL Pool → FastAPI + vanilla JS Dashboard",
+      "decisions": [
+        "Tumbling windows over sliding — produces non-overlapping, auditable signal periods that map 1:1 to regulatory dossier timelines; simpler to reason about in ASA SQL which lacks nested analytic functions.",
+        "Count threshold in ASA, incidence rate downstream — ASA SQL doesn't support nested aggregates or analytic functions over GROUP BY; the heavy math (rate per arm population) is computed in the Synapse gold layer and local detector for full accuracy.",
+        "Single GROUP BY + HAVING pattern in ASA — CTE-to-CTE JOINs on the same stream fail in ASA, NEWID() is unsupported, and SUM(COUNT(*)) OVER(PARTITION BY) won't compile; a flat GROUP BY with CONCAT for synthetic IDs is the only reliable approach.",
+        "Synapse-first data loading with fixture fallback — API startup calls fetch_events() from Synapse; if data exists it serves real pipeline content, otherwise falls back to in-memory fixtures, enabling the same codebase to run locally at zero cost and in Azure with live data.",
+        "Dedicated SQL pool with no expression-based DEFAULTs — Synapse dedicated pools don't support DEFAULT GETUTCDATE() in DDL; columns use NULL and timestamps are set by the writer, which also avoids clock-skew issues between ASA and Synapse.",
+        "pyodbc import guard with graceful degradation — the Synapse client wraps pyodbc in try/except at module level (_PYODBC_AVAILABLE flag), so CI and local dev run fully in-memory without requiring ODBC driver installation.",
+        "Local detector mirrors ASA query — unit tests validate the same tumbling-window logic without an Azure dependency; 42 tests run in <1s with all Azure calls mocked via conftest monkeypatch of _SYNAPSE_AVAILABLE."
+      ],
+      "tags": ["Azure", "Event Hubs", "Stream Analytics", "Synapse Analytics", "ADLS Gen2", "FastAPI", "Terraform", "Pharmacovigilance", "Real-Time", "Python"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/clinical-trial-signal-detection"
+    }
     {
       "id": "gcp-data-pipeline",
       "title": "Event-Driven Pipeline on GCP",
