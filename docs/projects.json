@@ -120,18 +120,21 @@
     {
       "id": "gcp-data-pipeline",
       "title": "Event-Driven Pipeline on GCP",
-      "status": "private",
-      "value": "Streams live API data through Cloud Functions into BigQuery — fully serverless, with Eventarc wiring so each stage triggers the next without a scheduler in between.",
+      "status": "live",
+      "value": "Streams live weather data through Cloud Functions into BigQuery — fully serverless, with Eventarc wiring so each stage triggers the next. A Cloud Run frontend displays the latest observation in real time.",
       "icon": "gcp",
-      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/gcp-data-pipeline/main/docs/img/gcp-architecture.jpg" },
-      "architecture": "API → Cloud Scheduler → Cloud Function (ingest) → Cloud Storage raw/ → Eventarc trigger → Cloud Function (transform) → BigQuery → Looker Studio / Front",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/gcp-data-pipeline/main/docs/img/gcp-architecture-demo.gif" },
+      "architecture": "Open-Meteo API → Cloud Scheduler → Cloud Function (ingest) → Cloud Storage raw/ → Eventarc trigger → Cloud Function (transform) → BigQuery → Cloud Function (latest) → Cloud Run (frontend)",
       "decisions": [
-        "Cloud Functions Gen2 over Cloud Run — the workload is small and bursty; Gen2 gives Eventarc integration and a 10-min timeout without the container-management overhead of Cloud Run.",
+        "Cloud Functions Gen2 over Cloud Run for compute — the workload is small and bursty; Gen2 gives Eventarc integration and a 10-min timeout without container-management overhead.",
         "Eventarc (object-finalize) for stage coupling — the transform function fires on new objects in GCS, so ingestion and transformation are decoupled; either can be replaced or retried independently.",
-        "BigQuery streaming inserts from the transform function — avoids a load job for single-row writes, keeping latency low at this scale while still landing data in a warehouse that supports full SQL and easy BI tool integration.",
-        "Terraform for the full stack — GCS buckets, both Cloud Functions, BigQuery dataset + table, Cloud Scheduler job, all provisioned and destroyed from one configuration."
+        "BigQuery streaming inserts from the transform function — avoids a load job for single-row writes, keeping latency low while landing data in a warehouse with full SQL and BI tool support.",
+        "Cloud Run for the frontend — serves a static nginx container with the dashboard; zero-to-scale, no infrastructure to manage, and the `latest` Cloud Function provides the JSON API behind it.",
+        "Terraform for the full stack — GCS buckets, Cloud Functions, BigQuery dataset + table, Cloud Scheduler, Eventarc triggers, Cloud Run, Artifact Registry, and IAM — all provisioned and destroyed from one configuration.",
+        "uv + ruff for developer tooling — fast dependency resolution with lockfile, consistent formatting and linting across local dev and CI, zero-config via pyproject.toml.",
+        "Shared module pattern — ingest and transform logic lives in shared/ and is reused unchanged across AWS, Azure, and GCP implementations; a packaging script bundles it into each function zip."
       ],
-      "tags": ["GCP", "Cloud Functions", "BigQuery", "Cloud Storage", "Eventarc", "Terraform", "Python"],
+      "tags": ["GCP", "Cloud Functions", "BigQuery", "Cloud Storage", "Eventarc", "Cloud Run", "Terraform", "Python", "uv", "Ruff", "CI/CD", "Docker"],
       "github": "https://github.com/mohammed-taha-el-ahmar/gcp-data-pipeline"
     },
     {
