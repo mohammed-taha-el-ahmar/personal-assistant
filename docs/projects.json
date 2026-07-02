@@ -123,7 +123,7 @@
       "status": "live",
       "value": "Streams live weather data through Cloud Functions into BigQuery — fully serverless, with Eventarc wiring so each stage triggers the next. A Cloud Run frontend displays the latest observation in real time.",
       "icon": "gcp",
-      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/gcp-data-pipeline/main/docs/img/gcp-architecture-demo.gif" },
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/gcp-data-pipeline/main/docs/img/gcp-data-pipeline-demo.gif" },
       "architecture": "Open-Meteo API → Cloud Scheduler → Cloud Function (ingest) → Cloud Storage raw/ → Eventarc trigger → Cloud Function (transform) → BigQuery → Cloud Function (latest) → Cloud Run (frontend)",
       "decisions": [
         "Cloud Functions Gen2 over Cloud Run for compute — the workload is small and bursty; Gen2 gives Eventarc integration and a 10-min timeout without container-management overhead.",
