@@ -1,6 +1,47 @@
 {
   "projects": [
     {
+      "id": "docusense-ai-azure",
+      "title": "DocuSense — Document Intent Classifier + LLM Reasoning (Azure ML)",
+      "status": "live",
+      "value": "A two-route document intelligence service on Azure ML managed endpoints — a millisecond-scale LightGBM intent classifier handles 80% of traffic without calling GPT, while the reasoning route chains PII scrub, hybrid RAG retrieval, tool calling, structured outputs, and citation/safety guardrails through GPT-5.1, with LLM-as-judge evals running nightly to catch prompt regressions before they reach production.",
+      "icon": "azure",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/docusense-ai-azure/main/docs/img/docusense-demo.gif" },
+      "architecture": "POST /classify → LightGBM head (embeddings) → fast route | POST /reason → Presidio PII scrub → Azure AI Search (hybrid vector + keyword) → GPT-5.1 (tool calling + json_schema structured output) → citation guardrail + Azure Content Safety → response | AML Training Pipeline: blob storage → train classifier → evaluate (gate on F1) → register model | Nightly: App Insights traces → LLM-as-judge (rubric scorer) → baseline comparison → GitHub issue on regression",
+      "decisions": [
+        "Fast + slow routing with confidence threshold — LightGBM over hashed bag-of-words embeddings resolves 80% of requests in <5ms without an LLM call; only documents below the confidence gate escalate to the GPT reasoning path, cutting per-request cost by 10×.",
+        "Structured outputs via json_schema response_format — the ReasoningResponse Pydantic model generates the OpenAI JSON schema at build time, guaranteeing parseable responses with zero regex extraction; the same model serves as the API contract and the LLM constraint.",
+        "Positional args in AML components — AML strips --flag names that collide with declared input/output names; all pipeline entrypoints use typer.Argument (positional) and accept booleans as strings to survive AML's command rewriting.",
+        "Semantic ranker as opt-in, not default — Azure AI Search semantic ranker requires Standard tier and explicit index configuration; the retriever defaults to pure vector + keyword hybrid which works on any tier, with semantic ranking enabled only when explicitly configured.",
+        "ScriptedFakeLLM for deterministic CI — every test and eval uses a fake LLM with scripted responses, keeping the full suite offline and under 3 seconds; real Azure OpenAI is only invoked in the nightly prompt regression workflow with explicit cost controls.",
+        "Credential injection at submit/deploy time — neither pipeline containers nor endpoint containers carry .env files; submit_training_job.py and deploy_endpoint.py read local .env via pydantic-settings and inject credentials as environment variables, keeping secrets out of YAML and Git.",
+        "LLM-as-judge with baseline comparison — the Judge class scores responses on 4 rubric dimensions (1–5), compares the mean against a committed baseline JSON, and fails CI if the delta exceeds a configurable threshold; local mode uses a fake judge for zero-cost iteration."
+      ],
+      "tags": ["Azure", "Azure ML", "Azure OpenAI", "AI Search", "Content Safety", "LightGBM", "FastAPI", "Terraform", "RAG", "Structured Outputs", "Tool Calling", "Guardrails", "LLM-as-Judge", "MLflow", "Python"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/docusense-ai-azure"
+    },
+    {
+      "id": "signalflow-mlops-azure",
+      "title": "SignalFlow — Predictive Maintenance MLOps on Azure",
+      "status": "live",
+      "value": "An end-to-end MLOps platform that trains a binary failure-risk classifier on industrial sensor telemetry, registers versions in Azure ML Model Registry with pipeline-gated quality checks, deploys behind a managed online endpoint with blue/green traffic shifting, and monitors data drift on a schedule — all provisioned by Terraform and driven by GitHub Actions, cutting the path from experiment to production deployment to a single `git tag`.",
+      "icon": "azure",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/signalflow-mlops-azure/main/docs/img/signalflow-demo.gif" },
+      "architecture": "Sensor Parquet → Azure ML Pipeline (prepare → train → gate) → Model Registry (PR-AUC gated) → Managed Online Endpoint (blue/green) → FastAPI + vanilla JS Dashboard (local/Azure toggle) · Evidently drift monitor → App Insights + GitHub Issue · Terraform (workspace, storage, ACR, Key Vault, Log Analytics, compute cluster)",
+      "decisions": [
+        "Positional arguments over --flag options in AML components — Azure ML strips flag names that collide with declared input/output names; using typer.Argument (positional) is the only reliable pattern for component CLIs.",
+        "Single feature implementation shared by training and serving — `build_feature_frame()` is called identically in the pipeline train step and the online scoring script, eliminating training/serving skew by construction rather than by convention.",
+        "PR-AUC threshold gate instead of accuracy — class imbalance (rare failures) makes accuracy misleading; the pipeline gate step rejects models below a PR-AUC floor and tags every registered version with recall-at-precision-90.",
+        "PYTHONPATH wrapper over pip install in AML — `aml_run.sh` sets PYTHONPATH=src so the signalflow package is importable without building a wheel, keeping component images cacheable and iteration fast.",
+        "Skip mlflow.log_artifact when tracking_uri is azureml:// — AML auto-captures outputs via component mount points; calling log_artifact triggers a conflicting azureml_artifacts_builder path that breaks with mlflow-skinny pre-installed in AML images.",
+        "Server-side proxy for Azure endpoint in local frontend — Azure ML managed endpoints don't return CORS headers; the FastAPI server exposes /proxy/score that forwards requests server-side via httpx, letting the same vanilla JS dashboard score against both local and cloud models.",
+        "Fallback model path resolution in score.py — registered models from the pipeline have a nested model/ folder while local models sit at root; init() checks both paths, making the same scoring script work across registration methods without reconfiguration.",
+        "Soft-delete-aware Terraform lifecycle — Azure ML workspaces enter soft-delete on destroy; the infra docs and CI include a forceToPurge REST call before re-provisioning, preventing the opaque 'Soft-deleted workspace exists' error on subsequent applies."
+      ],
+      "tags": ["Azure ML", "MLOps", "LightGBM", "Terraform", "GitHub Actions", "FastAPI", "MLflow", "Evidently", "Blue/Green Deployment", "Python"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/signalflow-mlops-azure"
+    },
+    {
       "id": "kafka",
       "title": "Real-Time IoT Anomaly Detection Pipeline",
       "status": "live",
