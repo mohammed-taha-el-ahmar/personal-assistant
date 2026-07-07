@@ -6,7 +6,7 @@
       "status": "private",
       "value": "A two-route document intelligence service on Azure ML managed endpoints — a millisecond-scale LightGBM intent classifier handles 80% of traffic without calling GPT, while the reasoning route chains PII scrub, hybrid RAG retrieval, tool calling, structured outputs, and citation/safety guardrails through GPT-5.1, with LLM-as-judge evals running nightly to catch prompt regressions before they reach production.",
       "icon": "azure",
-      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/docusense-ai-azure/main/docs/img/docusense-demo.gif" },
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/docusense-ai-azure/main/docs/img/docusense-ai-azure-demo.png" },
       "architecture": "POST /classify → LightGBM head (embeddings) → fast route | POST /reason → Presidio PII scrub → Azure AI Search (hybrid vector + keyword) → GPT-5.1 (tool calling + json_schema structured output) → citation guardrail + Azure Content Safety → response | AML Training Pipeline: blob storage → train classifier → evaluate (gate on F1) → register model | Nightly: App Insights traces → LLM-as-judge (rubric scorer) → baseline comparison → GitHub issue on regression",
       "decisions": [
         "Fast + slow routing with confidence threshold — LightGBM over hashed bag-of-words embeddings resolves 80% of requests in <5ms without an LLM call; only documents below the confidence gate escalate to the GPT reasoning path, cutting per-request cost by 10×.",
