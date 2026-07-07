@@ -3,7 +3,7 @@
     {
       "id": "docusense-ai-azure",
       "title": "DocuSense — Document Intent Classifier + LLM Reasoning (Azure ML)",
-      "status": "live",
+      "status": "private",
       "value": "A two-route document intelligence service on Azure ML managed endpoints — a millisecond-scale LightGBM intent classifier handles 80% of traffic without calling GPT, while the reasoning route chains PII scrub, hybrid RAG retrieval, tool calling, structured outputs, and citation/safety guardrails through GPT-5.1, with LLM-as-judge evals running nightly to catch prompt regressions before they reach production.",
       "icon": "azure",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/docusense-ai-azure/main/docs/img/docusense-demo.gif" },
@@ -23,7 +23,7 @@
     {
       "id": "signalflow-mlops-azure",
       "title": "SignalFlow — Predictive Maintenance MLOps on Azure",
-      "status": "live",
+      "status": "private",
       "value": "An end-to-end MLOps platform that trains a binary failure-risk classifier on industrial sensor telemetry, registers versions in Azure ML Model Registry with pipeline-gated quality checks, deploys behind a managed online endpoint with blue/green traffic shifting, and monitors data drift on a schedule — all provisioned by Terraform and driven by GitHub Actions, cutting the path from experiment to production deployment to a single `git tag`.",
       "icon": "azure",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/signalflow-mlops-azure/main/docs/img/signalflow-demo.gif" },
