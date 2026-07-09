@@ -23,10 +23,10 @@
     {
       "id": "signalflow-mlops-azure",
       "title": "SignalFlow — Predictive Maintenance MLOps on Azure",
-      "status": "private",
+      "status": "live",
       "value": "An end-to-end MLOps platform that trains a binary failure-risk classifier on industrial sensor telemetry, registers versions in Azure ML Model Registry with pipeline-gated quality checks, deploys behind a managed online endpoint with blue/green traffic shifting, and monitors data drift on a schedule — all provisioned by Terraform and driven by GitHub Actions, cutting the path from experiment to production deployment to a single `git tag`.",
       "icon": "azure",
-      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/signalflow-mlops-azure/main/docs/img/signalflow-demo.gif" },
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/signalflow-mlops-azure/main/docs/img/signalflow-mlops-azure-demo.png" },
       "architecture": "Sensor Parquet → Azure ML Pipeline (prepare → train → gate) → Model Registry (PR-AUC gated) → Managed Online Endpoint (blue/green) → FastAPI + vanilla JS Dashboard (local/Azure toggle) · Evidently drift monitor → App Insights + GitHub Issue · Terraform (workspace, storage, ACR, Key Vault, Log Analytics, compute cluster)",
       "decisions": [
         "Positional arguments over --flag options in AML components — Azure ML strips flag names that collide with declared input/output names; using typer.Argument (positional) is the only reliable pattern for component CLIs.",
