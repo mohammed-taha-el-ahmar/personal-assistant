@@ -6,7 +6,7 @@
       "status": "in-progress",
       "value": "A hierarchical multi-agent system for data-platform incident response — an Incident Commander supervisor delegates in parallel to four specialist agents (Metrics Forensics, Lineage Detective, Change Correlator, Runbook Historian), each running its own bounded tool-calling loop against real backends, and synthesises a structured brief with hypothesis, severity, blast radius, and remediation in seconds instead of manual swivel-chairing across warehouse, lineage graph, deploy feed, and runbook wiki.",
       "icon": "aws",
-      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/incidentcouncil/main/docs/img/incidentcouncil-demo.gif" },
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/incidentcouncil/main/docs/img/incidentcouncil-demo.png" },
       "architecture": "Incident Alert → FastAPI → Incident Commander (Claude 3.5 Sonnet / Groq llama-3.3-70b) → [Metrics Specialist (DuckDB / Athena) | Lineage Specialist (JSON manifest / S3) | Changes Specialist (deploy+IAM feed / DynamoDB) | Runbooks Specialist (TF-IDF / Bedrock KB on OpenSearch Serverless)] → Structured Brief + Attempt Trail UI",
       "decisions": [
         "Hierarchical delegation over flat tool list — the supervisor sees only invoke_metrics/lineage/changes/runbooks; it cannot query DuckDB or search runbooks directly, enforcing separation of concerns and keeping each specialist's context window focused on its domain.",
