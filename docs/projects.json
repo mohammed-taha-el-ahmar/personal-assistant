@@ -1,6 +1,26 @@
 {
   "projects": [
     {
+      "id": "incident-council",
+      "title": "IncidentCouncil (Hierarchical Multi-Agent Incident Response)",
+      "status": "in-progress",
+      "value": "A hierarchical multi-agent system for data-platform incident response — an Incident Commander supervisor delegates in parallel to four specialist agents (Metrics Forensics, Lineage Detective, Change Correlator, Runbook Historian), each running its own bounded tool-calling loop against real backends, and synthesises a structured brief with hypothesis, severity, blast radius, and remediation in seconds instead of manual swivel-chairing across warehouse, lineage graph, deploy feed, and runbook wiki.",
+      "icon": "aws",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/incidentcouncil/main/docs/img/incidentcouncil-demo.gif" },
+      "architecture": "Incident Alert → FastAPI → Incident Commander (Claude 3.5 Sonnet / Groq llama-3.3-70b) → [Metrics Specialist (DuckDB / Athena) | Lineage Specialist (JSON manifest / S3) | Changes Specialist (deploy+IAM feed / DynamoDB) | Runbooks Specialist (TF-IDF / Bedrock KB on OpenSearch Serverless)] → Structured Brief + Attempt Trail UI",
+      "decisions": [
+        "Hierarchical delegation over flat tool list — the supervisor sees only invoke_metrics/lineage/changes/runbooks; it cannot query DuckDB or search runbooks directly, enforcing separation of concerns and keeping each specialist's context window focused on its domain.",
+        "Bounded tool-calling loops per specialist — each specialist runs up to N rounds of tool calls independently and reports a structured finding; gracefully degrades with 'ran out of rounds' instead of hanging, preventing runaway token spend.",
+        "Contract parity between LocalCouncil and BedrockCouncil — both implement handle(alert) → CouncilResponse; FastAPI, UI, and tests are backend-agnostic, swapping local Groq for AWS Bedrock Agents changes nothing downstream.",
+        "ScriptedFakeLLM for deterministic CI — the LLM is scripted with ordered Say/Call turns so 47 tests run in <1s with zero network calls; tools still execute against real DuckDB, real TF-IDF index, and real JSON fixtures.",
+        "Static parity between specialist tool_schemas and Lambda _REGISTRY — if a specialist adds a tool locally, the corresponding Lambda handler must implement it before CI turns green; catches local↔cloud drift at build time.",
+        "TF-IDF locally, Bedrock KB in cloud — the runbook specialist's tool schema (search_runbooks(query, k) → matches) is identical in both modes; local uses scikit-learn TF-IDF, cloud uses OpenSearch Serverless with Titan Embed v2 at 400-token chunks with 20% overlap.",
+        "Supervisor synthesis fallback — if the final LLM message fails JSON parse, LocalCouncil produces a valid IncidentBrief with the raw text as hypothesis rather than crashing; robustness over strictness at the boundary."
+      ],
+      "tags": ["Multi-Agent", "LLM", "Groq", "AWS Bedrock", "OpenSearch Serverless", "Lambda", "DynamoDB", "Terraform", "FastAPI", "DuckDB", "TF-IDF", "Python", "Incident Response"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/incidentcouncil"
+    },
+    {
       "id": "docusense-ai-azure",
       "title": "DocuSense — Document Intent Classifier + LLM Reasoning (Azure ML)",
       "status": "live",
