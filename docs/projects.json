@@ -3,7 +3,7 @@
     {
       "id": "incident-council",
       "title": "IncidentCouncil (Hierarchical Multi-Agent Incident Response)",
-      "status": "in_progress",
+      "status": "live",
       "value": "A hierarchical multi-agent system for data-platform incident response — an Incident Commander supervisor delegates in parallel to four specialist agents (Metrics Forensics, Lineage Detective, Change Correlator, Runbook Historian), each running its own bounded tool-calling loop against real backends, and synthesises a structured brief with hypothesis, severity, blast radius, and remediation in seconds instead of manual swivel-chairing across warehouse, lineage graph, deploy feed, and runbook wiki.",
       "icon": "aws",
       "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/incidentcouncil/main/docs/img/incidentcouncil-demo.png" },
