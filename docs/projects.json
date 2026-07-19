@@ -1,6 +1,26 @@
 {
   "projects": [
     {
+      "id": "pulsecart",
+      "title": "Real-time e-commerce clickstream personalization on AWS",
+      "status": "complete",
+      "value": "Streaming pipeline that ranks top-K products per click end-to-end in under a second: Kinesis ingest → Lambda enrichment with DynamoDB feature lookup → LightGBM ranker → Redshift streaming ingestion → sub-second recommendation API. 60+ tests pass offline with zero cloud calls.",
+      "icon": "aws",
+      "media": { "type": "image", "url": "https://raw.githubusercontent.com/mohammed-taha-el-ahmar/pulsecart/main/docs/img/pulsecart-demo.png" },
+      "architecture": "POST /events → FastAPI Producer → Kinesis (raw) → Lambda Enricher [DynamoDB feature lookup (user + product) | In-memory session features | LightGBM ranker (top-K)] → Kinesis (enriched) → Redshift Streaming Ingestion (MV) → dbt (staging → marts) → FastAPI Recommender API + Dashboard",
+      "decisions": [
+        "Scorer parity contract — SageMakerScorer / LocalLightGBMScorer / ScriptedFakeScorer all implement score(ScoreRequest) → ScoreResponse; the enricher never branches on which scorer is active, so production Lambda and offline CI execute identical code paths.",
+        "Offline-first fakes over mocks — FakeKinesisStream, FakeDynamoTable, and ScriptedFakeScorer implement real behavior (append-only log, BatchGetItem, deterministic scores) rather than asserting call patterns; refactoring internals never breaks tests.",
+        "Redshift Streaming MV as raw landing zone — the MV lands only timestamp + JSON_PARSE(SUPER); all extraction, casting, and business logic lives in dbt, keeping the MV compatible with AUTO REFRESH and avoiding mutable-function restrictions.",
+        "LightGBM in-Lambda over SageMaker endpoint — ~130ms cold inference with the model bundled as ranker.joblib avoids SageMaker always-on cost; the SageMakerScorer path exists for production scale but is bypassed by setting endpoint to 'none'.",
+        "S3-based Lambda deployment from day one — the enricher zip (numpy + scipy + sklearn + lightgbm) exceeds 50MB inline; deploying via S3 with filebase64sha256 hash avoids the RequestEntityTooLargeException cliff.",
+        "Native library pinning to amazonlinux:2 — Lambda Python 3.11 runs on AL2 (glibc 2.26); extracting libgomp from amazonlinux:2023 causes GLIBC_2.32 errors; the build script Docker-extracts from the correct base.",
+        "trace_id minted at ingest, propagated end-to-end — every Kinesis record, scorer response, and Redshift row carries the same trace_id; any recommendation on the dashboard maps back to the originating click in one query."
+      ],
+      "tags": ["Kinesis", "Lambda", "DynamoDB", "Redshift Serverless", "Streaming Ingestion", "LightGBM", "dbt", "FastAPI", "Terraform", "Python", "Real-Time ML", "Personalization"],
+      "github": "https://github.com/mohammed-taha-el-ahmar/pulsecart"
+    },
+    {
       "id": "incident-council",
       "title": "IncidentCouncil (Hierarchical Multi-Agent Incident Response)",
       "status": "live",
