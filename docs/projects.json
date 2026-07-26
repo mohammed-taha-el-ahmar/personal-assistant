@@ -18,7 +18,8 @@
         "trace_id minted at ingest, propagated end-to-end — every Kinesis record, scorer response, and Redshift row carries the same trace_id; any recommendation on the dashboard maps back to the originating click in one query."
       ],
       "tags": ["Kinesis", "Lambda", "DynamoDB", "Redshift Serverless", "Streaming Ingestion", "LightGBM", "dbt", "FastAPI", "Terraform", "Python", "Real-Time ML", "Personalization"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/pulsecart"
+      "github": "https://github.com/mohammed-taha-el-ahmar/pulsecart",
+      "article": "https://medium.com/p/697b339e022e/edit"
     },
     {
       "id": "incident-council",
@@ -38,7 +39,8 @@
         "Supervisor synthesis fallback — if the final LLM message fails JSON parse, LocalCouncil produces a valid IncidentBrief with the raw text as hypothesis rather than crashing; robustness over strictness at the boundary."
       ],
       "tags": ["Multi-Agent", "LLM", "Groq", "AWS Bedrock", "OpenSearch Serverless", "Lambda", "DynamoDB", "Terraform", "FastAPI", "DuckDB", "TF-IDF", "Python", "Incident Response"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/incidentcouncil"
+      "github": "https://github.com/mohammed-taha-el-ahmar/incidentcouncil",
+      "article": null
     },
     {
       "id": "docusense-ai-azure",
@@ -58,7 +60,8 @@
         "LLM-as-judge with baseline comparison — the Judge class scores responses on 4 rubric dimensions (1–5), compares the mean against a committed baseline JSON, and fails CI if the delta exceeds a configurable threshold; local mode uses a fake judge for zero-cost iteration."
       ],
       "tags": ["Azure", "Azure ML", "Azure OpenAI", "AI Search", "Content Safety", "LightGBM", "FastAPI", "Terraform", "RAG", "Structured Outputs", "Tool Calling", "Guardrails", "LLM-as-Judge", "MLflow", "Python"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/docusense-ai-azure"
+      "github": "https://github.com/mohammed-taha-el-ahmar/docusense-ai-azure",
+      "article": null
     },
     {
       "id": "signalflow-mlops-azure",
@@ -79,7 +82,8 @@
         "Soft-delete-aware Terraform lifecycle — Azure ML workspaces enter soft-delete on destroy; the infra docs and CI include a forceToPurge REST call before re-provisioning, preventing the opaque 'Soft-deleted workspace exists' error on subsequent applies."
       ],
       "tags": ["Azure ML", "MLOps", "LightGBM", "Terraform", "GitHub Actions", "FastAPI", "MLflow", "Evidently", "Blue/Green Deployment", "Python"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/signalflow-mlops-azure"
+      "github": "https://github.com/mohammed-taha-el-ahmar/signalflow-mlops-azure",
+      "article": null
     },
     {
       "id": "kafka",
@@ -95,7 +99,8 @@
         "Medallion architecture in Delta Lake — raw events preserved untouched in bronze for replay/debugging, cleaned in silver, aggregated alerts in gold."
       ],
       "tags": ["Kafka", "Spark Structured Streaming", "Delta Lake", "Python", "Docker Compose"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/iot-anomaly-pipeline"
+      "github": "https://github.com/mohammed-taha-el-ahmar/iot-anomaly-pipeline",
+      "article": null
     },
     {
       "id": "airflow",
@@ -111,7 +116,8 @@
         "Idempotent task design — every run for a given date can be safely re-executed without creating duplicates, which is what makes backfills safe."
       ],
       "tags": ["Apache Airflow", "Python", "Great Expectations", "Postgres", "Docker Compose"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/self-healing-pipeline"
+      "github": "https://github.com/mohammed-taha-el-ahmar/self-healing-pipeline",
+      "article": null
     },
     {
       "id": "airflow-rca-agent",
@@ -127,7 +133,8 @@
         "Hard iteration cap with a circuit breaker — the tool-calling loop raises InvestigationError rather than spinning indefinitely if the model can't converge, same discipline as any retriable production operation."
       ],
       "tags": ["Apache Airflow", "Groq", "Tool-Calling Agent", "Great Expectations", "Postgres", "Slack"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/self-healing-pipeline/airflow-rca-agent"
+      "github": "https://github.com/mohammed-taha-el-ahmar/self-healing-pipeline/airflow-rca-agent",
+      "article": null
     },
     {
       "id": "dbt",
@@ -143,7 +150,8 @@
         "Incremental models for high-volume tables — avoids full table rebuilds, keeping both cost and run time bounded as data grows."
       ],
       "tags": ["dbt", "Snowflake", "SQL", "GitHub Actions"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/analytics-engineering-dbt"
+      "github": "https://github.com/mohammed-taha-el-ahmar/analytics-engineering-dbt",
+      "article": null
     },
     {
       "id": "dbt-nl-sql-agent",
@@ -159,7 +167,8 @@
         "Bounded self-correction loop — failed validation or execution feeds the real error back to the model for up to 3 attempts, surfaced in the UI as an attempt trail rather than hidden behind the final answer."
       ],
       "tags": ["dbt", "Snowflake", "DuckDB", "Groq", "FastAPI", "Agentic AI"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/dbt-nl-sql-agent"
+      "github": "https://github.com/mohammed-taha-el-ahmar/analytics-engineering-dbt/dbt-nl-sql-agent",
+      "article": null
     },
     {
       "id": "aws-data-pipeline",
@@ -176,7 +185,8 @@
         "Terraform for the whole stack — S3, Lambda, Glue (catalog + crawlers + job + workflow), Redshift Serverless and its Spectrum IAM role all provisioned and destroyed from one IaC tree, keeping cost bounded between demos."
       ],
       "tags": ["AWS", "Lambda", "Glue", "Redshift Spectrum", "S3", "Terraform", "Python", "LocalStack"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/aws-data-pipeline"
+      "github": "https://github.com/mohammed-taha-el-ahmar/aws-data-pipeline",
+      "article": null
     },
     {
       "id": "clinical-trial-signal-detection",
@@ -196,7 +206,8 @@
         "Local detector mirrors ASA query — unit tests validate the same tumbling-window logic without an Azure dependency; 42 tests run in <1s with all Azure calls mocked via conftest monkeypatch of _SYNAPSE_AVAILABLE."
       ],
       "tags": ["Azure", "Event Hubs", "Stream Analytics", "Synapse Analytics", "ADLS Gen2", "FastAPI", "Terraform", "Pharmacovigilance", "Real-Time", "Python"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/clinical-trial-signal-detection"
+      "github": "https://github.com/mohammed-taha-el-ahmar/clinical-trial-signal-detection",
+      "article": null
     },
     {
       "id": "gcp-data-pipeline",
@@ -216,7 +227,8 @@
         "Shared module pattern — ingest and transform logic lives in shared/ and is reused unchanged across AWS, Azure, and GCP implementations; a packaging script bundles it into each function zip."
       ],
       "tags": ["GCP", "Cloud Functions", "BigQuery", "Cloud Storage", "Eventarc", "Cloud Run", "Terraform", "Python", "uv", "Ruff", "CI/CD", "Docker"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/gcp-data-pipeline"
+      "github": "https://github.com/mohammed-taha-el-ahmar/gcp-data-pipeline",
+      "article": null
     },
     {
       "id": "azure-data-pipeline",
@@ -236,7 +248,8 @@
         "Remote build for function deployment — `--build remote` ensures pip installs run against Azure's Python 3.12, avoiding ModuleNotFound errors from local/remote version mismatches."
       ],
       "tags": ["Azure", "Data Factory", "ADLS Gen2", "Azure Functions", "Event Grid", "Azure SQL", "Static Web Apps", "Terraform", "Python"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/azure-data-pipeline"
+      "github": "https://github.com/mohammed-taha-el-ahmar/azure-data-pipeline",
+      "article": null
     },
     {
       "id": "k8s-airflow-data-platform",
@@ -253,7 +266,8 @@
         "Warehouse-agnostic by design — the DAG can load into local Postgres (via the docker/ stack), or any of the three cloud warehouses via credentials passed as Kubernetes secrets."
       ],
       "tags": ["Kubernetes", "Airflow", "Helm", "Docker", "Python"],
-      "github": "https://github.com/mohammed-taha-el-ahmar/k8s-airflow-data-platform"
+      "github": "https://github.com/mohammed-taha-el-ahmar/k8s-airflow-data-platform",
+      "article": null
     }
   ]
 }
