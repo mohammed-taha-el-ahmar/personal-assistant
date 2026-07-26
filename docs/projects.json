@@ -19,7 +19,7 @@
       ],
       "tags": ["Kinesis", "Lambda", "DynamoDB", "Redshift Serverless", "Streaming Ingestion", "LightGBM", "dbt", "FastAPI", "Terraform", "Python", "Real-Time ML", "Personalization"],
       "github": "https://github.com/mohammed-taha-el-ahmar/pulsecart",
-      "article": "https://medium.com/p/697b339e022e/edit"
+      "article": "https://medium.com/@med.taha.elahmar/building-a-real-time-e-commerce-personalization-pipeline-on-aws-697b339e022e"
     },
     {
       "id": "incident-council",
