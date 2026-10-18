@@ -1,4 +1,4 @@
-// Gavel & Timer – app logic. Text and language content live in i18n.js.
+// Toastmasters Tools – app logic. Text and language content live in i18n.js.
 
 // ---------- language ----------
 function detectLang(){
@@ -107,7 +107,8 @@ const filledChip=on=>on?`<span class="chip ok">${t('roles.filled')}</span>`:`<sp
 
 // ---------- shared club data (roles, agenda, voting) ----------
 // Shared live through Firebase Firestore when firebase-config.js is filled in and the URL carries ?club=<code>.
-const SH={on:false,fs:null,ref:null,uid:null,club:'',writable:true,error:'',roles:{},ballots:[],agendaTimer:0,agendaDirty:false};
+const SH={on:false,fs:null,ref:null,uid:null,club:'',writable:true,error:'',roles:{},ballots:[],agendaTimer:0,agendaDirty:false,
+  user:null,officer:undefined,clubExists:undefined,officers:[],history:[],reports:{}};
 const cleanClub=v=>String(v||'').toLowerCase().trim().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'').slice(0,40);
 function clubFromUrl(){try{return cleanClub(new URLSearchParams(location.search).get('club'))}catch(e){return ''}}
 function myName(){try{return localStorage.getItem('gt-name')||''}catch(e){return ''}}
@@ -121,7 +122,7 @@ function setQuery(params){
 function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.searchParams.set('club',SH.club);if(LANG!=='en')u.searchParams.set('lang',LANG);return u.toString()}
 let pendingRender=false;
 function softRender(){
-  if(!['roles','agenda','vote'].includes(tab))return;
+  if(!['roles','agenda','vote','office'].includes(tab))return;
   const a=document.activeElement;
   if(a&&a.matches&&a.matches('input,textarea,select')){pendingRender=true;return}
   render();
@@ -136,16 +137,28 @@ async function initShared(){
   if(!SH.club||!configured()){updateStatus();return}
   try{
     if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);
-    const cred=await firebase.auth().signInAnonymously();SH.uid=cred.user.uid;SH.fs=firebase.firestore();
+    SH.fs=firebase.firestore();
+    // Members are signed in anonymously; club officers sign in with Google (see office.js).
+    await new Promise((resolve,reject)=>{let first=true;
+      firebase.auth().onAuthStateChanged(async u=>{
+        if(!u){try{await firebase.auth().signInAnonymously()}catch(e){if(first){first=false;reject(e)}}return}
+        SH.uid=u.uid;SH.user={email:(u.email||'').toLowerCase(),anon:u.isAnonymous,verified:!!u.emailVerified};
+        if(first){first=false;resolve()}
+        if(typeof officeAuthChanged==='function')officeAuthChanged();
+        if(SH.on)render();
+      });
+    });
   }catch(e){SH.error='connect';updateStatus();render();return}
   const base='clubs/'+SH.club;
-  SH.ref={roles:SH.fs.doc(base+'/meeting/roles'),agenda:SH.fs.doc(base+'/meeting/agenda'),vote:SH.fs.doc(base+'/meeting/vote'),ballots:SH.fs.collection(base+'/ballots')};
+  SH.ref={roles:SH.fs.doc(base+'/meeting/roles'),agenda:SH.fs.doc(base+'/meeting/agenda'),vote:SH.fs.doc(base+'/meeting/vote'),
+    reports:SH.fs.doc(base+'/meeting/reports'),ballots:SH.fs.collection(base+'/ballots')};
   SH.on=true;S.vote.cats=defaultCats();S.vote.reveal=false;S.vote.cat=0;S.agenda=defaultAgenda();
   const onErr=e=>{SH.error='stopped:'+(e&&e.code||'error');updateStatus()};
   SH.ref.roles.onSnapshot(s=>{SH.roles=s.exists?clone(s.data().roles||{}):{};softRender()},onErr);
   SH.ref.agenda.onSnapshot(s=>{if(SH.agendaDirty)return;S.agenda=s.exists?clone(s.data()):defaultAgenda();if(!Array.isArray(S.agenda.items))S.agenda.items=[];softRender()},onErr);
   SH.ref.vote.onSnapshot(s=>{const d=s.exists?s.data():null;S.vote.cats=d&&Array.isArray(d.cats)?clone(d.cats):defaultCats();S.vote.reveal=!!(d&&d.reveal);
     if(S.vote.cat>=S.vote.cats.length)S.vote.cat=0;softRender()},onErr);
+  SH.ref.reports.onSnapshot(s=>{SH.reports=s.exists?clone(s.data()):{};softRender()},onErr);
   SH.ref.ballots.onSnapshot(q=>{SH.ballots=q.docs.map(d=>({id:d.id,...d.data()}));softRender()},onErr);
   updateStatus();render();
 }
@@ -188,7 +201,7 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['timer','ah','gram','topics','vote','agenda','roles','guides','eval'];
+const TABS=['timer','ah','gram','topics','vote','agenda','roles','guides','eval','office'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):'timer';
 function setTab(x){tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -231,7 +244,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={};
+const VIEWS={office:()=>officeView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>
@@ -248,7 +261,7 @@ VIEWS.timer=()=>{const p=preset();const tm=S.timer;
     <div class="marks">${marksHtml(p)}</div>
     <div class="btns"><button class="primary" id="tbtn" data-act="t-toggle">${t('timer.start')}</button><button data-act="t-log">${esc(t('timer.stop'))}</button><button data-act="t-reset">${t('timer.reset')}</button><button data-act="t-full">${t('timer.full')}</button></div>
   </div>
-  <div class="box"><div class="phead"><h3>${t('timer.report')}</h3><div class="btns"><button class="small" data-act="t-copy">${t('common.copyReport')}</button><button class="small ghost" data-act="t-clear">${t('timer.clearLog')}</button></div></div>
+  <div class="box"><div class="phead"><h3>${t('timer.report')}</h3><div class="btns"><button class="small" data-act="t-copy">${t('common.copyReport')}</button>${sendBtn('timer')}<button class="small ghost" data-act="t-clear">${t('timer.clearLog')}</button></div></div>
     ${tm.log.length?`<div class="tablewrap"><table><thead><tr><th>${t('common.speaker')}</th><th>${t('timer.colType')}</th><th class="num">${t('timer.colTime')}</th><th>${t('timer.colResult')}</th><th></th></tr></thead><tbody>
     ${tm.log.map((l,i)=>`<tr><td>${esc(l.name)}</td><td>${esc(logType(l))}</td><td class="num">${mmss(l.secs)}</td><td>${l.q===false?`<span class="chip bad">${t('timer.outside')}</span>`:`<span class="chip ok">${t('timer.qualified')}</span>`}</td><td><button class="ghost small" data-act="t-del" data-i="${i}" aria-label="${t('common.remove')}">×</button></td></tr>`).join('')}
     </tbody></table></div>`:`<p class="empty">${t('timer.empty')}</p>`}
@@ -276,7 +289,7 @@ VIEWS.ah=()=>{const a=S.ah;const sp=a.speakers[a.cur];const W=ahWords();
   ${sp?`<div class="box"><div class="phead"><h3>${t('ah.counting',{name:esc(sp.name)})}</h3><div class="btns"><button class="small" data-act="ah-undo" ${a.last?'':'disabled'}>${t('ah.undo')}</button>${editWords?'':`<button class="small ghost" data-act="ah-edit">${t('ah.edit')}</button>`}</div></div>
     ${W.length?`<div class="taps">${W.map(([id,lab])=>`<button class="tap" data-act="ah-tap" data-w="${id}"><b>${sp.c[id]||0}</b><span>${esc(lab)}</span></button>`).join('')}</div>`:`<p class="empty">${t('ah.noWords')}</p>`}</div>`
     :`<div class="box"><p class="empty">${t('ah.addFirst')}</p>${editWords?'':`<div><button class="small ghost" data-act="ah-edit">${t('ah.edit')}</button></div>`}</div>`}
-  <div class="box"><div class="phead"><h3>${t('ah.report')}</h3><div class="btns"><button class="small" data-act="ah-copy">${t('common.copyReport')}</button><button class="small ghost" data-act="ah-zero">${t('ah.reset')}</button></div></div>
+  <div class="box"><div class="phead"><h3>${t('ah.report')}</h3><div class="btns"><button class="small" data-act="ah-copy">${t('common.copyReport')}</button>${sendBtn('ah')}<button class="small ghost" data-act="ah-zero">${t('ah.reset')}</button></div></div>
   ${a.speakers.length?`<div class="tablewrap"><table><thead><tr><th>${t('common.speaker')}</th>${cols.map(([,lab])=>`<th class="num">${esc(lab)}</th>`).join('')}<th class="num">${t('ah.total')}</th><th></th></tr></thead><tbody>
   ${a.speakers.map((s,i)=>`<tr><td>${esc(s.name)}</td>${cols.map(([id])=>`<td class="num">${s.c[id]||''}</td>`).join('')}<td class="num"><b>${ahTotal(s)}</b></td><td><button class="ghost small" data-act="ah-del" data-i="${i}" aria-label="${t('common.remove')} ${esc(s.name)}">×</button></td></tr>`).join('')}
   </tbody></table></div>`:`<p class="empty">${t('ah.none')}</p>`}</div></section>`};
@@ -302,7 +315,7 @@ VIEWS.gram=()=>{const g=S.gram;
     <div class="box"><div class="field"><label class="label" for="g-good">${t('gram.good')}</label><textarea id="g-good" data-bind="gram.good">${esc(g.good)}</textarea></div></div>
     <div class="box"><div class="field"><label class="label" for="g-imp">${t('gram.improve')}</label><textarea id="g-imp" data-bind="gram.improve">${esc(g.improve)}</textarea></div></div>
   </div>
-  <div class="btns"><button class="primary" data-act="g-copy">${t('gram.copy')}</button></div></section>`};
+  <div class="btns"><button class="primary" data-act="g-copy">${t('gram.copy')}</button>${sendBtn('gram')}</div></section>`};
 
 // ---------- TABLE TOPICS ----------
 const TP=()=>TOPICS[LANG]||TOPICS.en;
@@ -386,7 +399,7 @@ VIEWS.agenda=()=>{const a=S.agenda;const times=agendaTimes();const dateStr=fmtDa
     <div class="ah"><span class="label">${t('ag.doc')}</span><h3>${esc(a.club||t('ag.yourClub'))}</h3><p class="muted">${esc(dateStr)}${a.venue?' · '+esc(a.venue):''}</p>${a.theme?`<p>${t('ag.themeIs')} <b>${esc(a.theme)}</b></p>`:''}</div>
     ${a.items.map((it,i)=>`<div class="li"><span class="t">${times[i]}</span><span>${esc(itemTitle(it))}</span><span class="p">${esc(itemPerson(it))}</span></div>`).join('')}
     <div class="li"><span class="t">${times[times.length-1]}</span><span>${t('ag.ends')}</span><span></span></div>
-    <div class="btns"><button class="primary" data-act="a-copy">${t('ag.copy')}</button></div>
+    <div class="btns"><button class="primary" data-act="a-pdf">${t('ag.pdf')}</button><button data-act="a-copy">${t('ag.copy')}</button></div>
   </div></div></section>`};
 
 // ---------- ROLES ----------
@@ -549,6 +562,8 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'r-take':{const n=myName().trim();if(!n){toast(t('roles.nameFirst'));const f=$('#my-name');if(f)f.focus();break}writeRole(b.dataset.k,{n:n.slice(0,60),u:SH.uid});render();break}
   case 'r-release':case 'r-unassign':writeRole(b.dataset.k,null);render();break;
   case 'copy-link':copyText(shareLink());break;
+  case 'a-pdf':currentAgendaPdf();break;
+  default:if(typeof officeAct==='function')officeAct(a,b);
   // eval
   case 'e-rate':{const c=b.dataset.c,n=+b.dataset.n;S.eval.r[c]=S.eval.r[c]===n?0:n;save();render();break}
   case 'e-copy':copyText(evalText());break;

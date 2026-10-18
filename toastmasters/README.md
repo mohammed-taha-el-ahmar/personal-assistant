@@ -3,7 +3,8 @@
 Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
 
 **During the meeting:** speech timer with green/amber/red signals, Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
-**Before the meeting:** agenda builder, role sign-up, role guides, evaluation form.
+**Before the meeting:** agenda builder with PDF download, role sign-up, role guides, evaluation form.
+**Club officers (Bureau):** meeting archive, history of all meetings, member participation.
 
 Roles, the agenda and votes can be shared live with your whole club through Firebase. Everything else stays on each person's device.
 
@@ -15,6 +16,8 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 |---|---|
 | `index.html` | The page layout and styles |
 | `app.js` | How the tools work |
+| `office.js` | The club officers' space: sign-in, archive, history, participation |
+| `pdf.js` | Agenda PDF (uses jsPDF, loaded from cdnjs the first time someone downloads a PDF) |
 | `i18n.js` | All text in English and French, plus each language's filler words, Table Topics questions, role guides and example meeting |
 | `firebase-config.js` | Your Firebase project settings (you fill this in) |
 | `firestore.rules` | Database security rules (you paste these into Firebase) |
@@ -42,10 +45,13 @@ The site already works at this point, with data kept on each device. Steps 2 and
 1. Go to <https://console.firebase.google.com> and click **Create a project**. Google Analytics is not needed.
 2. **Register a web app:** in **Project settings → General → Your apps**, click the web icon `</>`, give it a name, and skip Firebase Hosting. Copy the `firebaseConfig` values it shows into `firebase-config.js`.
 3. **Turn on anonymous sign-in:** **Build → Authentication → Get started → Sign-in method → Anonymous → Enable**. Members never create accounts; each phone gets an anonymous ID so it can cast one ballot per category.
-4. **Allow your GitHub domain:** **Authentication → Settings → Authorized domains → Add domain** → `<your-username>.github.io`.
-5. **Create the database:** **Build → Firestore Database → Create database**. Pick a location close to your club (for example `eur3` for Europe) and start in **production mode**.
-6. **Set the rules:** open the **Rules** tab, replace everything with the contents of `firestore.rules`, and click **Publish**.
-7. Commit the updated `firebase-config.js` to GitHub.
+4. **Turn on Google sign-in (for club officers):** in the same **Sign-in method** tab, choose **Google → Enable**, pick a support email, and **Save**.
+5. **Allow your GitHub domain:** **Authentication → Settings → Authorized domains → Add domain** → `<your-username>.github.io`.
+6. **Create the database:** **Build → Firestore Database → Create database**. Pick a location close to your club (for example `eur3` for Europe) and start in **production mode**.
+7. **Set the rules:** open the **Rules** tab, replace everything with the contents of `firestore.rules`, and click **Publish**.
+8. Commit the updated `firebase-config.js` to GitHub.
+
+If you set up Firebase with an earlier version of this site, publish the new `firestore.rules` and turn on Google sign-in: the officers' space needs both.
 
 The values in `firebase-config.js` are meant to be public. What protects the data is the rules file.
 
@@ -60,9 +66,26 @@ The values in `firebase-config.js` are meant to be public. What protects the dat
 
 Each club code is its own space, so several clubs can use the same site.
 
+### Agenda PDF
+
+In **Agenda**, **Download PDF** saves an A4 agenda with times, roles and the names of who holds them, ready to print or send. It works with or without live sharing.
+
+## 4. The club officers' space (Bureau)
+
+Open the **Club officers** tab (**Bureau** in French) with your club link.
+
+1. **First setup.** Click **Sign in with Google**. If the club has no officers yet, click **Set up the officers' space**: you become the first officer.
+2. **Add the other officers** by their Google email address in **Officers**. Only people on this list can see the space; the history is hidden from everyone else by the database rules, not just by the page.
+3. **During the meeting**, the Timer, Ah-Counter and Grammarian tap **Send to the club officers** under their report.
+4. **After the meeting**, an officer clicks **Archive this meeting**. The agenda, who held each role, the vote results and the reports received are saved to the history. Leave **Then reset…** ticked to clear roles, nominees, votes and reports for the next meeting (the agenda structure is kept).
+5. **Meeting history** lists every archived meeting. Open one to see its details, download it as a PDF (agenda plus votes and reports), or delete it.
+6. **Member participation** counts, from the history, how many roles, speeches and evaluations each member has done and when they last had a role. Names are matched as typed, so ask members to write their name the same way each time.
+
+Members never need to sign in. Only officers use Google sign-in.
+
 ## Things to know
 
-- **Anyone with the club link can edit** roles, the agenda and voting settings. Share the link only in your club's own channels. A club code that is hard to guess (`paris-orators-7f3k`) adds a little privacy.
+- **Anyone with the club link can edit** roles, the agenda and voting settings. The officers' space and the history are protected: only the listed officers can read or change them. Share the link only in your club's own channels. A club code that is hard to guess (`paris-orators-7f3k`) adds a little privacy.
 - **Ballots are anonymous in the app but not encrypted.** The page shows only totals, and only after someone taps Reveal. A technically minded member could still read the raw ballots from the browser, so treat it like a show of hands, not a secret contest ballot. Do not use it for official contest judging.
 - **One ballot per device.** A member who opens the link on two devices or in a private window can vote twice. "Start a new vote" begins a fresh round for that category.
 - **Free tier:** Firebase's Spark plan covers tens of thousands of reads and writes a day, far more than a club meeting uses.

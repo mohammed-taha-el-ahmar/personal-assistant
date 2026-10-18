@@ -1,0 +1,208 @@
+// Toastmasters Tools – club officers' space (Bureau): Google sign-in, officer list, meeting archive, history, participation.
+// Data (see firestore.rules):
+//   clubs/{club}                 {officers:[emails]}   readable and editable by officers only
+//   clubs/{club}/history/{id}    one archived meeting  officers only
+//   clubs/{club}/meeting/reports Timer / Ah-Counter / Grammarian reports sent during the meeting
+
+const OFF={unsubClub:null,unsubHist:null,confirmClose:false,confirmDelete:null,reset:true,busy:false};
+const emailOk=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+const isMember=()=>SH.user&&!SH.user.anon;
+
+// ---------- access ----------
+function stopOfficerSubs(){if(OFF.unsubClub){OFF.unsubClub();OFF.unsubClub=null}if(OFF.unsubHist){OFF.unsubHist();OFF.unsubHist=null}SH.history=[]}
+async function officeAuthChanged(){
+  stopOfficerSubs();
+  if(!SH.fs||!SH.club||!isMember()){SH.officer=undefined;SH.clubExists=undefined;SH.officers=[];return}
+  SH.officer=undefined;softRender();
+  const ref=SH.fs.doc('clubs/'+SH.club);
+  try{
+    const d=await ref.get();
+    SH.clubExists=d.exists;SH.officers=d.exists?(d.data().officers||[]):[];
+    SH.officer=d.exists&&SH.officers.includes(SH.user.email);
+  }catch(e){SH.clubExists=true;SH.officer=false;SH.officers=[]}  // refused: the club has officers and this person is not one
+  if(SH.officer)startOfficerSubs();
+  softRender();
+}
+function startOfficerSubs(){
+  OFF.unsubClub=SH.fs.doc('clubs/'+SH.club).onSnapshot(s=>{
+    SH.officers=s.exists?(s.data().officers||[]):[];SH.officer=SH.officers.includes(SH.user.email);
+    if(!SH.officer)stopOfficerSubs();softRender();
+  },()=>{SH.officer=false;stopOfficerSubs();softRender()});
+  OFF.unsubHist=SH.fs.collection('clubs/'+SH.club+'/history').orderBy('date','desc').limit(300).onSnapshot(q=>{
+    SH.history=q.docs.map(d=>({id:d.id,...d.data()}));softRender();
+  },()=>{});
+}
+async function officeSignIn(){
+  try{await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())}
+  catch(e){
+    if(e&&(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'))return;
+    toast(t(e&&e.code==='auth/unauthorized-domain'?'office.domainFail':'office.popupFail'));
+  }
+}
+async function officeSignOut(){try{await firebase.auth().signOut()}catch(e){}}
+
+// ---------- reports sent by role holders ----------
+function sendBtn(kind){
+  if(!SH.on)return '';
+  const r=SH.reports&&SH.reports[kind];
+  const when=r&&r.at?new Date(r.at).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'}):'';
+  return `<button class="small" data-act="send-report" data-kind="${kind}">${t('rep.send')}</button>${r?`<span class="chip ok" style="align-self:center">${t('rep.sent',{time:when})}</span>`:''}`;
+}
+async function sendReport(kind){
+  let data;
+  if(kind==='timer')data={log:S.timer.log.map(l=>({name:l.name,type:logType(l),secs:l.secs,q:l.q!==false}))};
+  if(kind==='ah')data={speakers:S.ah.speakers.map(s=>({name:s.name,counts:Object.fromEntries(Object.entries(s.c).filter(([,n])=>n).map(([id,n])=>[ahLabel(id),n]))}))};
+  if(kind==='gram'){const g=S.gram;data={word:g.word,type:g.type,def:g.def,ex:g.ex,speakers:g.speakers.map(s=>({name:s.name,n:s.n})),good:g.good,improve:g.improve}}
+  data.at=new Date().toISOString();data.by=myName()||'';
+  try{await SH.ref.reports.set({[kind]:data},{merge:true});toast(t('rep.sentToast'))}catch(e){writeFail(e)}
+}
+
+// ---------- closing a meeting ----------
+const todayISO=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+function currentSnapshot(){
+  const a=S.agenda;const roles={};ROLE_KEYS.forEach(k=>{const n=roleName(k);if(n)roles[k]=n});
+  const votes=S.vote.cats.map((c,i)=>{const {votes,total}=tally(i);return {key:c.key||null,name:c.name||null,cands:c.cands||[],results:votes,total}});
+  return {date:a.date||todayISO(),club:a.club||'',theme:a.theme||'',venue:a.venue||'',start:a.start||'19:00',
+    items:(a.items||[]).map(it=>({k:it.k||null,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0})),
+    roles,votes,reports:clone(SH.reports||{}),closedAt:new Date().toISOString(),closedBy:SH.user.email};
+}
+async function closeMeeting(){
+  if(OFF.busy)return;OFF.busy=true;
+  const snap=currentSnapshot();
+  const id=snap.date+'-'+Date.now().toString(36);
+  try{
+    await SH.fs.doc('clubs/'+SH.club+'/history/'+id).set(snap);
+    if(OFF.reset){
+      SH.roles={};await SH.ref.roles.set({roles:{}});
+      await SH.ref.reports.set({});
+      S.vote.cats.forEach(c=>{c.round=(c.round||0)+1;c.cands=[]});S.vote.reveal=false;await pushVote();
+      S.agenda.date='';S.agenda.theme='';S.agenda.items.forEach(it=>{if(it.k)it.title=null});
+      clearTimeout(SH.agendaTimer);SH.agendaDirty=false;await SH.ref.agenda.set(clone(S.agenda));
+    }
+    toast(t('close.done'));
+  }catch(e){writeFail(e)}
+  OFF.busy=false;OFF.confirmClose=false;render();
+}
+
+// ---------- history helpers ----------
+const histPerson=(m,it)=>it.role?((m.roles||{})[it.role]||t('ag.open')):'';
+const voteLabel=v=>v.key?t('cat.'+v.key):(v.name||'');
+function voteLines(m){
+  return (m.votes||[]).filter(v=>v.total).map(v=>{
+    const sorted=Object.entries(v.results||{}).sort((a,b)=>b[1]-a[1]);
+    return `${voteLabel(v)}: ${sorted.map(([n,c])=>`${n} (${c})`).join(', ')}`;
+  });
+}
+function reportLines(m){
+  const r=m.reports||{},out={timer:[],ah:[],gram:[]};
+  if(r.timer)out.timer=(r.timer.log||[]).map(l=>`${l.name} – ${l.type} – ${mmss(l.secs)} – ${l.q?t('timer.repQ'):t('timer.repOut')}`);
+  if(r.ah)out.ah=(r.ah.speakers||[]).map(s=>{const e=Object.entries(s.counts||{});const n=e.reduce((a,[,c])=>a+c,0);return `${s.name}: ${n?e.map(([w,c])=>`${w} ×${c}`).join(', '):t('ah.clean')}`});
+  if(r.gram){const g=r.gram;out.gram=[t('hist.word',{w:g.word||'–'}),...(g.speakers||[]).filter(s=>s.n).map(s=>`${s.name} ×${s.n}`),g.good?`${t('gram.repGood')}: ${g.good}`:'',g.improve?`${t('gram.repImprove')}: ${g.improve}`:''].filter(Boolean)}
+  return out;
+}
+function historyPdf(m){
+  const rl=reportLines(m);
+  return buildAgendaPdf({club:m.club,date:m.date,venue:m.venue,theme:m.theme,start:m.start,items:m.items||[],person:it=>histPerson(m,it),
+    sections:[{title:t('hist.votes'),lines:voteLines(m)},{title:t('hist.timer'),lines:rl.timer},{title:t('hist.ah'),lines:rl.ah},{title:t('hist.gram'),lines:rl.gram}]},
+    pdfName(m.date));
+}
+function participation(){
+  const map={};
+  SH.history.forEach(m=>Object.entries(m.roles||{}).forEach(([k,name])=>{
+    const key=String(name).trim().toLocaleLowerCase();if(!key)return;
+    const p=map[key]||(map[key]={name:String(name).trim(),roles:0,speeches:0,evals:0,last:''});
+    p.roles++;if(/^s\d$/.test(k))p.speeches++;if(/^e\d$/.test(k))p.evals++;if((m.date||'')>p.last)p.last=m.date||'';
+  }));
+  return Object.values(map).sort((a,b)=>b.roles-a.roles||a.name.localeCompare(b.name));
+}
+
+// ---------- view ----------
+function officeView(){
+  const head=`<div class="phead"><div><h2>${t('office.title')}</h2><p class="muted">${t('office.intro')}</p></div></div>`;
+  if(!SH.on)return `<section class="panel">${head}${liveBox()}${configured()?`<p class="muted">${t('office.needLive')}</p>`:''}</section>`;
+  if(!isMember())return `<section class="panel">${head}<div class="box"><p>${t('office.signInText')}</p><div><button class="primary" data-act="off-signin">${t('office.signIn')}</button></div></div></section>`;
+  const who=`<div class="notice"><span>${t('office.signedAs',{email:esc(SH.user.email)})}</span><button class="small" data-act="off-signout">${t('office.signOut')}</button></div>`;
+  if(!SH.user.email||!SH.user.verified)return `<section class="panel">${head}${who}<div class="box"><p>${t('office.noEmail')}</p></div></section>`;
+  if(SH.officer===undefined)return `<section class="panel">${head}${who}<p class="empty">${t('office.loading')}</p></section>`;
+  if(!SH.officer){
+    return `<section class="panel">${head}${who}<div class="box">${SH.clubExists===false
+      ?`<h3>${t('office.claimTitle')}</h3><p class="muted">${t('office.claimText')}</p><div><button class="primary" data-act="off-claim">${t('office.claim')}</button></div>`
+      :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div></section>`;
+  }
+  return `<section class="panel">${head}${who}${closeBox()}${historyBox()}${participationBox()}${officersBox()}</section>`;
+}
+function closeBox(){
+  const a=S.agenda;const filled=ROLE_KEYS.filter(k=>roleName(k)).length;
+  const ballots=S.vote.cats.reduce((n,c,i)=>n+tally(i).total,0);
+  const rep=k=>SH.reports&&SH.reports[k]?`<span class="chip ok">${t('tab.'+k)} ✓</span>`:`<span class="chip warn">${t('tab.'+k)}: ${t('hist.noReport')}</span>`;
+  return `<div class="box"><div><h3>${t('close.title')}</h3><p class="muted">${t('close.intro')}</p></div>
+    <div class="kv">
+      <div><span class="label">${t('close.date')}</span><b>${esc(a.date?fmtDate(a.date):'–')}</b></div>
+      <div><span class="label">${t('close.rolesFilled')}</span><b>${filled} / ${ROLE_KEYS.length}</b></div>
+      <div><span class="label">${t('close.votes')}</span><b>${ballots}</b></div>
+    </div>
+    <div><span class="label">${t('close.reports')}</span><div class="btns" style="margin-top:6px">${rep('timer')}${rep('ah')}${rep('gram')}</div></div>
+    <label class="check" for="off-reset"><input type="checkbox" id="off-reset" data-act="off-reset" ${OFF.reset?'checked':''}><span>${t('close.reset')}</span></label>
+    <div class="btns">${!a.date?`<span class="muted">${t('close.noDate')}</span>`:OFF.confirmClose
+      ?`<span class="muted" style="align-self:center">${t('close.confirm',{date:esc(fmtDate(a.date))})}</span><button class="primary" data-act="off-close" ${OFF.busy?'disabled':''}>${t('close.yes')}</button><button data-act="off-close-cancel">${t('common.cancel')}</button>`
+      :`<button class="primary" data-act="off-close-ask">${t('close.button')}</button>`}</div>
+  </div>`;
+}
+function historyBox(){
+  const H=SH.history;
+  return `<div class="box"><div class="phead"><h3>${t('hist.title')}</h3><span class="muted">${tn('hist.count',H.length)}</span></div>
+  ${H.length?H.map(m=>{const rl=reportLines(m);const vl=voteLines(m);const nRoles=Object.keys(m.roles||{}).length;const times=timesFor(m.start,m.items||[]);
+    const list=(title,lines)=>`<div><span class="label">${title}</span>${lines.length?`<ul>${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:`<p class="muted">${t('hist.noReport')}</p>`}</div>`;
+    return `<details class="meeting"><summary><b>${esc(fmtDate(m.date))}</b>${m.theme?`<span>${t('ag.themeIs')} ${esc(m.theme)}</span>`:''}<span class="muted">${t('hist.summary',{items:(m.items||[]).length,roles:nRoles})}</span></summary>
+    <div class="mbody">
+      <div><span class="label">${t('hist.agenda')}</span><ul>${(m.items||[]).map((it,i)=>`<li><span style="font-family:var(--mono)">${times[i]}</span> ${esc(itemTitle(it))}${it.role?` – <b>${esc(histPerson(m,it))}</b>`:''}</li>`).join('')}</ul></div>
+      <div><span class="label">${t('hist.votes')}</span>${vl.length?`<ul>${vl.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:`<p class="muted">${t('hist.noVotes')}</p>`}</div>
+      ${list(t('hist.timer'),rl.timer)}${list(t('hist.ah'),rl.ah)}${list(t('hist.gram'),rl.gram)}
+      <div style="grid-column:1/-1" class="btns"><button class="small primary" data-act="off-hpdf" data-id="${esc(m.id)}">${t('ag.pdf')}</button>
+        ${OFF.confirmDelete===m.id?`<span class="muted" style="align-self:center">${t('hist.confirmDelete')}</span><button class="small" data-act="off-hdel" data-id="${esc(m.id)}">${t('hist.yesDelete')}</button><button class="small ghost" data-act="off-hdel-cancel">${t('common.cancel')}</button>`
+          :`<button class="small ghost" data-act="off-hdel-ask" data-id="${esc(m.id)}">${t('hist.delete')}</button>`}
+        <span class="muted" style="align-self:center;margin-left:auto;font-size:.85rem">${t('hist.closedBy',{email:esc(m.closedBy||'')})}</span></div>
+    </div></details>`}).join(''):`<p class="empty">${t('hist.empty')}</p>`}
+  </div>`;
+}
+function participationBox(){
+  const P=participation();if(!P.length)return '';
+  return `<div class="box"><div><h3>${t('part.title')}</h3><p class="muted">${t('part.intro')}</p></div>
+  <div class="tablewrap"><table><thead><tr><th>${t('part.member')}</th><th class="num">${t('part.roles')}</th><th class="num">${t('part.speeches')}</th><th class="num">${t('part.evals')}</th><th>${t('part.last')}</th></tr></thead><tbody>
+  ${P.map(p=>`<tr><td>${esc(p.name)}</td><td class="num">${p.roles}</td><td class="num">${p.speeches||''}</td><td class="num">${p.evals||''}</td><td>${esc(p.last?new Date(p.last+'T12:00').toLocaleDateString(locale(),{day:'numeric',month:'short',year:'numeric'}):'')}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function officersBox(){
+  return `<div class="box"><div><h3>${t('off.title')}</h3><p class="muted">${t('off.intro')}</p></div>
+  <div class="wchips">${SH.officers.map(e=>`<span class="wchip">${esc(e)}${e===SH.user.email?' '+t('off.you'):''}${SH.officers.length>1?`<button class="ghost small" data-act="off-remove" data-email="${esc(e)}" aria-label="${esc(t('off.remove',{email:e}))}">×</button>`:'&nbsp;&nbsp;'}</span>`).join('')}</div>
+  <form class="btns" data-form="off-add" style="flex-wrap:nowrap"><input id="off-email" type="email" placeholder="${t('off.addPh')}" autocomplete="off"><button type="submit">${t('common.add')}</button></form></div>`;
+}
+
+// ---------- actions ----------
+function officeAct(a,b){
+  switch(a){
+  case 'send-report':sendReport(b.dataset.kind);break;
+  case 'off-signin':officeSignIn();break;
+  case 'off-signout':officeSignOut();break;
+  case 'off-claim':SH.fs.doc('clubs/'+SH.club).set({officers:[SH.user.email]}).then(officeAuthChanged).catch(writeFail);break;
+  case 'off-reset':OFF.reset=b.checked;break;
+  case 'off-close-ask':OFF.confirmClose=true;render();break;
+  case 'off-close-cancel':OFF.confirmClose=false;render();break;
+  case 'off-close':closeMeeting();break;
+  case 'off-hpdf':{const m=SH.history.find(h=>h.id===b.dataset.id);if(m)historyPdf(m);break}
+  case 'off-hdel-ask':OFF.confirmDelete=b.dataset.id;render();break;
+  case 'off-hdel-cancel':OFF.confirmDelete=null;render();break;
+  case 'off-hdel':SH.fs.doc('clubs/'+SH.club+'/history/'+b.dataset.id).delete().then(()=>toast(t('hist.deleted'))).catch(writeFail);OFF.confirmDelete=null;render();break;
+  case 'off-remove':{const e=b.dataset.email;if(SH.officers.length<=1){toast(t('off.last'));break}
+    SH.fs.doc('clubs/'+SH.club).update({officers:firebase.firestore.FieldValue.arrayRemove(e)}).catch(writeFail);break}
+  }
+}
+document.addEventListener('change',ev=>{if(ev.target.id==='off-reset')OFF.reset=ev.target.checked});
+document.addEventListener('submit',ev=>{
+  if(ev.target.dataset.form!=='off-add')return;ev.preventDefault();
+  const inp=document.getElementById('off-email');const e=inp.value.trim().toLowerCase();
+  if(!emailOk(e)){toast(t('off.invalid'));return}
+  if(SH.officers.includes(e)){inp.value='';return}
+  if(SH.officers.length>=20){toast(t('off.tooMany'));return}
+  SH.fs.doc('clubs/'+SH.club).update({officers:firebase.firestore.FieldValue.arrayUnion(e)}).then(()=>{inp.value=''}).catch(writeFail);
+});

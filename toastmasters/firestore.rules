@@ -4,10 +4,15 @@ rules_version = '2';
 // Paste this file into Firebase console → Firestore Database → Rules, then Publish.
 //
 // Data layout, one space per club code:
+//   clubs/{club}                  {officers: [emails]}  the club officers (bureau); officers only
+//   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
 //   clubs/{club}/meeting/agenda   the running order
 //   clubs/{club}/meeting/vote     voting categories, nominees, reveal flag
+//   clubs/{club}/meeting/reports  reports sent by the Timer, Ah-Counter and Grammarian
 //   clubs/{club}/ballots/{uid}    one ballot per device; only that device can write it
+//
+// Members are signed in anonymously. Officers sign in with Google and are recognised by their verified email.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -15,12 +20,44 @@ service cloud.firestore {
     function validClub(club) {
       return club.matches('^[a-z0-9-]{3,40}$');
     }
+    function hasVerifiedEmail() {
+      return request.auth != null
+        && request.auth.token.email is string
+        && request.auth.token.email_verified == true;
+    }
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+    function isOfficer(club) {
+      return hasVerifiedEmail()
+        && myEmail() in get(/databases/$(database)/documents/clubs/$(club)).data.officers;
+    }
+
+    // The officers list. Anyone signed in with Google may check whether the club has one yet (empty read),
+    // and the first such person may create it with only their own address. After that, only officers see or change it.
+    match /clubs/{club} {
+      allow get: if validClub(club) && hasVerifiedEmail()
+        && (resource == null || myEmail() in resource.data.officers);
+      allow create: if validClub(club) && hasVerifiedEmail()
+        && request.resource.data.keys().hasOnly(['officers'])
+        && request.resource.data.officers == [myEmail()];
+      allow update: if isOfficer(club)
+        && request.resource.data.keys().hasOnly(['officers'])
+        && request.resource.data.officers is list
+        && request.resource.data.officers.size() >= 1
+        && request.resource.data.officers.size() <= 20;
+      allow list, delete: if false;
+    }
+
+    match /clubs/{club}/history/{meetingId} {
+      allow read, create, update, delete: if validClub(club) && isOfficer(club);
+    }
 
     match /clubs/{club}/meeting/{docId} {
       allow read: if validClub(club);
       allow create, update: if request.auth != null
         && validClub(club)
-        && docId in ['roles', 'agenda', 'vote']
+        && docId in ['roles', 'agenda', 'vote', 'reports']
         && request.resource.data.keys().size() <= 10;
       allow delete: if false;
     }
