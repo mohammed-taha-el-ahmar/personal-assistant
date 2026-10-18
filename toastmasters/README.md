@@ -1,4 +1,4 @@
-# Gavel & Timer
+# Toastmasters Tools
 
 Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
 

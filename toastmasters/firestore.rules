@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Security rules for Gavel & Timer.
+// Security rules for Toastmasters Tools.
 // Paste this file into Firebase console → Firestore Database → Rules, then Publish.
 //
 // Data layout, one space per club code:
