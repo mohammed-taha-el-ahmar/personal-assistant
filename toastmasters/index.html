@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Free meeting tools for Toastmasters clubs: speech timer, Ah-Counter, Grammarian, Table Topics, voting, agenda builder and role sign-up.">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+</style>
+<title>Gavel &amp; Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: sticky header with two grouped tab rows (during / before the meeting); one tool panel at a time; timer goes full-bleed in its signal colour. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18202b; --muted:#566275; --line:#d9dee6;
+  --accent:#0f5e6e; --accent-ink:#ffffff; --accent-soft:#dcecef;
+  --go:#1d8f4e; --warn:#d99a06; --stop:#c8352a; --go-soft:#ddf1e5; --warn-soft:#fbefcf; --stop-soft:#f8dedb;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161d; --surface:#19202a; --ink:#e7ebf1; --muted:#9aa5b6; --line:#2a3340;
+  --accent:#4fb0c1; --accent-ink:#0c1a1e; --accent-soft:#1c3339;
+  --go:#3dbb73; --warn:#f0b32a; --stop:#ef5a4c; --go-soft:#173826; --warn-soft:#3a3013; --stop-soft:#3d1d1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161d; --surface:#19202a; --ink:#e7ebf1; --muted:#9aa5b6; --line:#2a3340;
+  --accent:#4fb0c1; --accent-ink:#0c1a1e; --accent-soft:#1c3339;
+  --go:#3dbb73; --warn:#f0b32a; --stop:#ef5a4c; --go-soft:#173826; --warn-soft:#3a3013; --stop-soft:#3d1d1a; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h2{font-size:1.6rem;font-weight:800}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;padding-block:12px 6px}
+.brand h1{font-size:1.35rem;font-weight:800}
+.lights{display:flex;gap:4px}
+.lights i{width:10px;height:10px;border-radius:50%;display:block}
+.lights i:nth-child(1){background:var(--go)}.lights i:nth-child(2){background:var(--warn)}.lights i:nth-child(3){background:var(--stop)}
+.brand{flex-wrap:wrap}
+.brand .tag{margin-left:auto;font-size:.85rem;color:var(--muted)}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
+.lang button{border:0;border-radius:0;padding:4px 10px;font-size:.8rem;background:none;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+@media (max-width:560px){.brand .tag{display:none}#sync{margin-left:auto}}
+.mine{font-weight:700}
+.ballot button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+nav.tabs{display:flex;gap:18px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin}
+.group{display:flex;flex-direction:column;gap:4px;flex:none}
+.group .row{display:flex;gap:4px}
+.tab{font:inherit;font-size:.92rem;border:1px solid transparent;background:none;color:var(--muted);padding:6px 11px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--ink);background:var(--bg)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.sep{width:1px;background:var(--line);flex:none}
+
+main{padding-block:24px 48px}
+.panel{display:flex;flex-direction:column;gap:20px}
+.phead{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.phead p{max-width:60ch}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;align-items:start}
+.grid2>*{min-width:0}
+
+button,.btn{font:inherit;font-weight:700;font-size:.95rem;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.ghost{background:none;border-color:transparent;color:var(--muted);padding:6px 8px}
+button.ghost:hover{color:var(--ink)}
+button.small{padding:5px 10px;font-size:.85rem}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:72px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:700;padding:2px 9px;border-radius:999px}
+.chip.ok{background:var(--go-soft);color:var(--go)}
+.chip.warn{background:var(--warn-soft);color:var(--ink)}
+.chip.bad{background:var(--stop-soft);color:var(--stop)}
+.notice{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--accent-soft);border-radius:var(--r);padding:10px 14px;font-size:.92rem}
+.notice button{margin-left:auto}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+.empty{color:var(--muted);font-size:.92rem;padding:8px 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:700;z-index:20}
+
+/* Timer */
+.stage{border-radius:14px;padding:28px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;transition:background .3s,color .3s;background:var(--surface);border:1px solid var(--line)}
+.stage.green{background:var(--go);color:#fff;border-color:var(--go)}
+.stage.amber{background:var(--warn);color:#1b1500;border-color:var(--warn)}
+.stage.red,.stage.over{background:var(--stop);color:#fff;border-color:var(--stop)}
+.stage .clock{font-family:var(--mono);font-weight:700;font-size:clamp(4rem,18vw,9rem);line-height:1;font-variant-numeric:tabular-nums}
+.stage .who{font-family:var(--display);font-size:1.3rem;font-weight:600}
+.stage .sig{font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.85rem;opacity:.9}
+.stage:fullscreen{justify-content:center;border-radius:0}
+.stage:fullscreen .clock{font-size:26vw}
+.marks{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-family:var(--mono);font-size:.9rem}
+.marks span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:currentColor}
+.stage:not(.green):not(.amber):not(.red):not(.over) .marks .g{color:var(--go)}
+.stage:not(.green):not(.amber):not(.red):not(.over) .marks .a{color:var(--warn)}
+.stage:not(.green):not(.amber):not(.red):not(.over) .marks .r{color:var(--stop)}
+.stage .btns button{min-width:96px}
+.stage.green button,.stage.amber button,.stage.red button,.stage.over button{background:rgba(255,255,255,.92);color:#18202b;border-color:transparent}
+
+/* Ah counter */
+.speakers{display:flex;flex-wrap:wrap;gap:6px}
+.spk{font:inherit;font-weight:700;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.spk[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.taps{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.tap{display:flex;flex-direction:column;align-items:center;gap:2px;padding:16px 8px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font:inherit;color:var(--ink);cursor:pointer;user-select:none}
+.tap:active{transform:scale(.97);background:var(--accent-soft)}
+.wchips{display:flex;flex-wrap:wrap;gap:6px}
+.wchip{display:inline-flex;align-items:center;gap:2px;padding:2px 2px 2px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-weight:700}
+.wchip button{padding:2px 8px;border-radius:999px}
+.tap b{font-family:var(--mono);font-size:1.8rem;line-height:1}
+.tap span{font-size:.9rem}
+
+/* Table topics */
+.qcard{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:var(--r);padding:28px 24px;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.qcard q{font-family:var(--display);font-size:clamp(1.4rem,3.6vw,2.1rem);font-weight:600;line-height:1.2;quotes:none;text-wrap:balance}
+
+/* Voting */
+.ballot{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.ballot button{padding:20px 10px;font-size:1.1rem;font-family:var(--display)}
+.bar{height:10px;border-radius:5px;background:var(--accent)}
+.bartrack{background:var(--bg);border-radius:5px;flex:1}
+.result{display:grid;grid-template-columns:minmax(80px,140px) 1fr 40px;gap:10px;align-items:center}
+
+/* Agenda */
+.arow{display:grid;grid-template-columns:58px 1fr 150px 64px auto;gap:8px;align-items:center}
+.arow .t{font-family:var(--mono);font-size:.9rem;color:var(--muted)}
+@media (max-width:640px){.arow{grid-template-columns:44px minmax(0,1fr) 104px;row-gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line)}.arow .t{grid-row:1;grid-column:1}.arow [data-k=title]{grid-row:1;grid-column:2}.arow [data-k=dur]{grid-row:1;grid-column:3}.arow .rolesel{grid-row:2;grid-column:2/3}.arow .ctrls{grid-row:2;grid-column:3;justify-content:flex-end}}
+.ctrls{display:flex;gap:2px}
+.agenda-doc{font-size:.95rem}
+.agenda-doc .ah{border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:6px}
+.agenda-doc .ah h3{font-size:1.4rem}
+.agenda-doc .li{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.agenda-doc .li .t{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.agenda-doc .li .p{color:var(--muted);text-align:right}
+
+/* Guides */
+details.guide{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+details.guide summary{cursor:pointer;padding:14px 18px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;list-style:none}
+details.guide summary::-webkit-details-marker{display:none}
+details.guide summary h3::before{content:"+ ";color:var(--accent)}
+details.guide[open] summary h3::before{content:"– "}
+.gbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:0 18px 18px}
+.gbody ul{margin:6px 0 0;padding-left:18px}
+.gbody li{margin-bottom:4px}
+
+/* Evaluation */
+.rate{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--line)}
+.dots{display:flex;gap:4px}
+.dots button{width:34px;height:34px;padding:0;border-radius:50%;font-family:var(--mono);font-size:.85rem}
+.dots button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+pre.out{white-space:pre-wrap;font-family:var(--body);font-size:.92rem;background:var(--bg);border-radius:8px;padding:14px;margin:0;max-height:420px;overflow:auto}
+footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+      <h1>Gavel &amp; Timer</h1>
+      <span class="tag" data-i18n="tagline">Tools for Toastmasters club meetings</span>
+      <span id="sync"></span>
+      <div class="lang" role="group" data-i18n-aria="lang.label" aria-label="Language">
+        <button data-lang="en" lang="en" aria-pressed="true">EN</button><button data-lang="fr" lang="fr" aria-pressed="false">FR</button>
+      </div>
+    </div>
+    <nav class="tabs" data-i18n-aria="nav.tools" aria-label="Tools">
+      <div class="group"><span class="label" data-i18n="nav.during">During the meeting</span><div class="row" role="tablist">
+        <button class="tab" data-tab="timer" data-i18n="tab.timer">Timer</button>
+        <button class="tab" data-tab="ah" data-i18n="tab.ah">Ah-Counter</button>
+        <button class="tab" data-tab="gram" data-i18n="tab.gram">Grammarian</button>
+        <button class="tab" data-tab="topics" data-i18n="tab.topics">Table Topics</button>
+        <button class="tab" data-tab="vote" data-i18n="tab.vote">Voting</button>
+      </div></div>
+      <div class="sep"></div>
+      <div class="group"><span class="label" data-i18n="nav.before">Before the meeting</span><div class="row" role="tablist">
+        <button class="tab" data-tab="agenda" data-i18n="tab.agenda">Agenda</button>
+        <button class="tab" data-tab="roles" data-i18n="tab.roles">Roles</button>
+        <button class="tab" data-tab="guides" data-i18n="tab.guides">Role guides</button>
+        <button class="tab" data-tab="eval" data-i18n="tab.eval">Evaluation form</button>
+      </div></div>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<footer class="wrap">
+  <p data-i18n="footer"></p>
+</footer>
+
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

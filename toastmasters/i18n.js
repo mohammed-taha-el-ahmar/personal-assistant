@@ -1,0 +1,361 @@
+// Gavel & Timer – translations and language-specific content.
+// To add a language: copy the "en" block in each object below, translate it, and add the code to LANGS.
+window.LANGS = ['en', 'fr'];
+
+window.I18N = {
+en: {
+  "tagline": "Tools for Toastmasters club meetings",
+  "nav.tools": "Tools",
+  "nav.during": "During the meeting",
+  "nav.before": "Before the meeting",
+  "tab.timer": "Timer", "tab.ah": "Ah-Counter", "tab.gram": "Grammarian", "tab.topics": "Table Topics", "tab.vote": "Voting",
+  "tab.agenda": "Agenda", "tab.roles": "Roles", "tab.guides": "Role guides", "tab.eval": "Evaluation form",
+  "footer": "An independent tool for club members. Not affiliated with or endorsed by Toastmasters International. With a club link, roles, the agenda and votes are shared with everyone who opens that link. Timer, Ah-Counter, Grammarian and evaluation notes always stay on your device.",
+  "lang.label": "Language",
+
+  "common.add": "Add", "common.addSpeaker": "Add a speaker", "common.copyReport": "Copy report", "common.cancel": "Cancel",
+  "common.remove": "Remove", "common.speaker": "Speaker", "common.copied": "Copied",
+  "common.copyFail": "Copy failed. Select the text and copy it manually.",
+  "sample.text": "An <b>example meeting</b> is loaded so you can see how each tool works.",
+  "sample.clear": "Clear and start fresh", "sample.cleared": "Cleared. Ready for your meeting",
+
+  "status.live": "● Live: {club}", "status.local": "This device only", "status.error": "Not connected",
+  "live.on": "Shared live with everyone who opens your club link. Club code: <b>{club}</b>",
+  "live.copyLink": "Copy club link",
+  "live.notConfigured": "Live sharing is not set up on this copy of the site. Follow the README to connect Firebase. Until then, changes stay on this device.",
+  "live.join": "Share live with your club. Choose a club code:", "live.go": "Go live",
+  "live.tooShort": "Use at least 3 letters or numbers",
+  "live.connectFail": "Could not connect to Firebase. Check firebase-config.js and that Anonymous sign-in is enabled.",
+  "live.stopped": "Live sync stopped ({code}). Reload the page to reconnect.",
+  "live.denied": "The database refused the change. Check the Firestore rules in the README.",
+  "live.saveFail": "Could not save just now. Check your connection and try again.",
+
+  "preset.tt": "Table Topics (1–2 min)", "preset.eval": "Evaluation (2–3 min)", "preset.ice": "Ice Breaker (4–6 min)",
+  "preset.std": "Prepared speech (5–7 min)", "preset.long": "Longer speech (8–10 min)", "preset.ge": "General Evaluator (5–7 min)",
+  "preset.custom": "Custom…", "preset.customN": "Custom ({a}–{b} min)",
+
+  "timer.title": "Speech timer",
+  "timer.intro": "Green at the minimum, amber at the midpoint, red at the maximum. Speakers within 30 seconds either side qualify.",
+  "timer.speakerPh": "Speaker name", "timer.type": "Speech type",
+  "timer.green": "Green", "timer.amber": "Amber", "timer.red": "Red", "timer.min": "min",
+  "timer.next": "Next speaker", "timer.ready": "Ready", "timer.speaking": "Speaking",
+  "timer.sigGreen": "Green: minimum reached", "timer.sigAmber": "Amber: start wrapping up", "timer.sigRed": "Red: time is up", "timer.sigOver": "Over the 30-second grace",
+  "timer.start": "Start", "timer.pause": "Pause", "timer.resume": "Resume", "timer.stop": "Stop & record", "timer.reset": "Reset", "timer.full": "Full screen",
+  "timer.report": "Timer’s report", "timer.clearLog": "Clear log",
+  "timer.colType": "Type", "timer.colTime": "Time", "timer.colResult": "Result",
+  "timer.qualified": "Qualified", "timer.outside": "Outside time",
+  "timer.empty": "Recorded speeches will appear here.",
+  "timer.startFirst": "Start the timer first", "timer.recorded": "Recorded {t}", "timer.noFull": "Full screen is not available here",
+  "timer.speakerN": "Speaker {n}",
+  "timer.reportHead": "TIMER’S REPORT", "timer.repQ": "qualified", "timer.repOut": "outside time",
+
+  "ah.title": "Ah-Counter",
+  "ah.intro": "Pick who is speaking, then tap a word each time you hear it. Undo fixes a mis-tap.",
+  "ah.counting": "Counting for {name}", "ah.undo": "Undo last tap", "ah.addFirst": "Add the first speaker to start counting.",
+  "ah.report": "Ah-Counter’s report", "ah.reset": "Reset counts", "ah.total": "Total", "ah.none": "No speakers yet.",
+  "ah.edit": "Edit words", "ah.done": "Done", "ah.wordsTitle": "Words to count",
+  "ah.wordsIntro": "Add the filler words your club wants to track, or remove ones you don’t need. Your list is saved on this device.",
+  "ah.addWordPh": "Add a word, e.g. basically", "ah.removeWord": "Remove {w}", "ah.restore": "Restore the default words",
+  "ah.dup": "“{w}” is already in the list", "ah.added": "Added “{w}”", "ah.tooMany": "You can add up to 30 words",
+  "ah.noWords": "No words to count yet. Add some with “Edit words”.",
+  "ah.reportHead": "AH-COUNTER’S REPORT", "ah.clean": "no fillers – well done!", "ah.totalN": "total {n}",
+
+  "gram.title": "Grammarian",
+  "gram.intro": "Introduce the word of the day, count who uses it, and note great phrases and slips.",
+  "gram.wod": "Word of the day", "gram.word": "Word", "gram.pos": "Part of speech", "gram.def": "Definition", "gram.ex": "Example sentence",
+  "gram.who": "Who used “{w}”", "gram.theWord": "the word", "gram.addSpeakers": "Add speakers to track usage.",
+  "gram.less": "One less", "gram.more": "One more",
+  "gram.good": "Great language heard", "gram.improve": "To improve", "gram.copy": "Copy Grammarian’s report",
+  "gram.reportHead": "GRAMMARIAN’S REPORT", "gram.repWord": "Word of the day", "gram.repEx": "Example", "gram.repUsed": "Used by",
+  "gram.repNobody": "nobody yet", "gram.repGood": "Great language", "gram.repImprove": "To improve",
+
+  "tt.title": "Table Topics",
+  "tt.intro": "Draw an impromptu question. Questions you draw are set aside so nobody gets a repeat tonight.",
+  "tt.theme": "Theme", "tt.ready": "Ready", "tt.press": "Press “Draw a question” to begin.",
+  "tt.draw": "Draw a question", "tt.time": "Time this answer", "tt.reset": "Put all questions back", "tt.left": "{n} of {total} left",
+  "tt.addTitle": "Add your own questions", "tt.addIntro": "One per line. They join the bank under “Your questions”.",
+  "tt.addPh": "What does resilience look like in daily life?", "tt.add": "Add questions", "tt.saved": "{n} saved", "tt.removeMine": "Remove mine",
+  "tt.added.one": "Added 1 question", "tt.added.many": "Added {n} questions",
+
+  "cat.speaker": "Best Speaker", "cat.evaluator": "Best Evaluator", "cat.topic": "Best Table Topic",
+  "vote.title": "Voting",
+  "vote.introShared": "Every member votes from their own phone by opening the club link. You can change your vote until the results are revealed.",
+  "vote.introLocal": "Pass the phone around. Each member taps a name, then hands it on. Results stay hidden until the vote counter reveals them.",
+  "vote.nominees": "Nominees for {cat} (comma separated)",
+  "vote.yourBallot": "Your ballot: {cat}", "vote.ballot": "Ballot: {cat}",
+  "vote.youVoted": "You voted for <b>{name}</b>.", "vote.change": "Tap another name to change.", "vote.notYet": "You have not voted in this category yet.",
+  "vote.noNomineesShared": "Nominees will appear here once they are added above.", "vote.noNominees": "Add nominees above to open the ballot.",
+  "vote.members.one": "1 member has voted in this category.", "vote.members.many": "{n} members have voted in this category.",
+  "vote.ballots.one": "1 ballot cast for this category.", "vote.ballots.many": "{n} ballots cast for this category.",
+  "vote.recorded": "Vote recorded", "vote.handOn": "Hand the phone to the next member.", "vote.next": "Next ballot",
+  "vote.results": "Results", "vote.hide": "Hide results", "vote.reveal": "Reveal results", "vote.yesReveal": "Yes, reveal",
+  "vote.askAll": "Show results to everyone?", "vote.askHere": "Show results on this screen?",
+  "vote.newVote": "Start a new vote", "vote.resetLocal": "Reset this vote", "vote.noCands": "No nominees.",
+  "vote.hidden": "Hidden until the vote counter reveals them.",
+  "vote.started": "New vote started for {cat}", "vote.cleared": "Votes cleared for this category",
+
+  "ag.title": "Agenda builder",
+  "ag.intro": "Set durations and the start times calculate themselves. Names come from the Roles tab.",
+  "ag.introShared": "Changes are shared with everyone who opens this page.",
+  "ag.club": "Club", "ag.date": "Date", "ag.start": "Start time", "ag.theme": "Theme", "ag.venue": "Venue",
+  "ag.order": "Running order", "ag.item": "Item", "ag.role": "Role", "ag.noRole": "No role", "ag.minutes": "Minutes",
+  "ag.up": "Move up", "ag.down": "Move down", "ag.add": "Add item", "ag.newItem": "New item", "ag.endsAt": "Ends at {t}",
+  "ag.doc": "Meeting agenda", "ag.yourClub": "Your club", "ag.themeIs": "Theme:", "ag.ends": "Meeting ends", "ag.copy": "Copy agenda as text",
+  "ag.open": "(open)",
+  "agi.doors": "Doors open, networking", "agi.welcome": "Welcome and opening", "agi.intro": "Introduction of the evening",
+  "agi.roles": "Role holders explain their roles", "agi.speech1": "Prepared speech 1", "agi.speech2": "Prepared speech 2", "agi.speech3": "Prepared speech 3",
+  "agi.tt": "Table Topics session", "agi.break": "Break", "agi.evals": "Speech evaluations",
+  "agi.reports": "Timer, Ah-Counter and Grammarian reports", "agi.ge": "General evaluation", "agi.close": "Awards and closing",
+
+  "role.toastmaster": "Toastmaster of the Evening", "role.ge": "General Evaluator", "role.timer": "Timer", "role.ah": "Ah-Counter",
+  "role.gram": "Grammarian", "role.ttm": "Table Topics Master", "role.s1": "Speaker 1", "role.s2": "Speaker 2", "role.s3": "Speaker 3",
+  "role.e1": "Evaluator 1", "role.e2": "Evaluator 2", "role.e3": "Evaluator 3", "role.saa": "Sergeant at Arms", "role.pres": "President",
+  "roles.title": "Role sign-up",
+  "roles.introShared": "Members open this page and tap “Take it” to claim a role. You can also type the name of someone who signed up another way.",
+  "roles.introLocal": "Fill in who has each role. Open roles are flagged, and you can copy a ready-made message for your club chat.",
+  "roles.openN": "{n} open", "roles.allFilled": "All roles filled",
+  "roles.myName": "Your name (used when you tap “Take it”)", "roles.myNamePh": "e.g. Camille",
+  "roles.colRole": "Role", "roles.colMember": "Member", "roles.colStatus": "Status",
+  "roles.filled": "Filled", "roles.open": "Open", "roles.unassigned": "Unassigned", "roles.typeName": "Type a name",
+  "roles.take": "Take it", "roles.you": "(you)", "roles.giveUp": "Give it up", "roles.clear": "Clear",
+  "roles.copyOpen": "Copy “open roles” message", "roles.clearAll": "Clear all names", "roles.yesClear": "Yes, clear",
+  "roles.askAll": "Clear every name for everyone?", "roles.askHere": "Clear every name?",
+  "roles.nameFirst": "Enter your name first",
+  "roles.msgOpen": "Roles still open for our meeting{date}{theme}:\n{list}\nReply here to take one!",
+  "roles.msgDate": " on {d}", "roles.msgTheme": " (theme: {t})",
+  "roles.msgFull": "All roles are filled for our next meeting. Thank you, everyone!",
+
+  "guides.title": "Role guides", "guides.intro": "One-page briefings for new members taking a role for the first time.",
+  "guides.before": "Before the meeting", "guides.during": "During the meeting", "guides.after": "When reporting",
+
+  "crit.open": "Opening", "crit.struct": "Structure", "crit.voice": "Vocal variety", "crit.body": "Body language", "crit.eye": "Eye contact", "crit.obj": "Project objectives",
+  "scale.1": "Needs work", "scale.2": "Developing", "scale.3": "Good", "scale.4": "Very good", "scale.5": "Excellent",
+  "ev.title": "Evaluation form", "ev.intro": "Take notes during the speech, then copy a tidy written evaluation to send the speaker.",
+  "ev.speaker": "Speaker", "ev.evaluator": "Evaluator", "ev.project": "Project", "ev.goals": "Speaker’s objectives",
+  "ev.ratings": "Ratings (1–5)", "ev.of5": "{c}: {n} of 5",
+  "ev.commend": "What they did well", "ev.recommend": "One thing to try next time", "ev.encourage": "Encouragement",
+  "ev.written": "Written evaluation", "ev.copy": "Copy evaluation", "ev.new": "New form",
+  "ev.repHead": "SPEECH EVALUATION", "ev.repObjectives": "Objectives", "ev.repRatings": "RATINGS", "ev.notRated": "not rated",
+  "ev.repWell": "WHAT YOU DID WELL", "ev.repTry": "ONE THING TO TRY NEXT TIME", "ev.repKeep": "KEEP GOING"
+},
+
+fr: {
+  "tagline": "Outils pour les réunions de clubs Toastmasters",
+  "nav.tools": "Outils",
+  "nav.during": "Pendant la réunion",
+  "nav.before": "Avant la réunion",
+  "tab.timer": "Chrono", "tab.ah": "Hésitations", "tab.gram": "Grammairien", "tab.topics": "Impromptus", "tab.vote": "Votes",
+  "tab.agenda": "Ordre du jour", "tab.roles": "Rôles", "tab.guides": "Fiches rôles", "tab.eval": "Évaluation",
+  "footer": "Un outil indépendant créé par et pour les membres. Non affilié à Toastmasters International ni approuvé par elle. Avec un lien de club, les rôles, l’ordre du jour et les votes sont partagés avec toutes les personnes qui ouvrent ce lien. Le chrono, le compteur d’hésitations, le grammairien et les notes d’évaluation restent toujours sur votre appareil.",
+  "lang.label": "Langue",
+
+  "common.add": "Ajouter", "common.addSpeaker": "Ajouter un orateur", "common.copyReport": "Copier le rapport", "common.cancel": "Annuler",
+  "common.remove": "Retirer", "common.speaker": "Orateur", "common.copied": "Copié",
+  "common.copyFail": "La copie a échoué. Sélectionnez le texte et copiez-le à la main.",
+  "sample.text": "Une <b>réunion d’exemple</b> est chargée pour vous montrer chaque outil.",
+  "sample.clear": "Tout effacer et commencer", "sample.cleared": "C’est effacé. Prêt pour votre réunion",
+
+  "status.live": "● En direct : {club}", "status.local": "Cet appareil uniquement", "status.error": "Non connecté",
+  "live.on": "Partagé en direct avec toutes les personnes qui ouvrent le lien du club. Code du club : <b>{club}</b>",
+  "live.copyLink": "Copier le lien du club",
+  "live.notConfigured": "Le partage en direct n’est pas activé sur cette copie du site. Suivez le README pour connecter Firebase. En attendant, les modifications restent sur cet appareil.",
+  "live.join": "Partagez en direct avec votre club. Choisissez un code de club :", "live.go": "Passer en direct",
+  "live.tooShort": "Utilisez au moins 3 lettres ou chiffres",
+  "live.connectFail": "Connexion à Firebase impossible. Vérifiez firebase-config.js et que la connexion anonyme est activée.",
+  "live.stopped": "La synchronisation s’est arrêtée ({code}). Rechargez la page pour vous reconnecter.",
+  "live.denied": "La base de données a refusé la modification. Vérifiez les règles Firestore décrites dans le README.",
+  "live.saveFail": "Enregistrement impossible pour le moment. Vérifiez votre connexion et réessayez.",
+
+  "preset.tt": "Sujet impromptu (1–2 min)", "preset.eval": "Évaluation (2–3 min)", "preset.ice": "Brise-glace (4–6 min)",
+  "preset.std": "Discours préparé (5–7 min)", "preset.long": "Discours long (8–10 min)", "preset.ge": "Évaluateur général (5–7 min)",
+  "preset.custom": "Personnalisé…", "preset.customN": "Personnalisé ({a}–{b} min)",
+
+  "timer.title": "Chronomètre",
+  "timer.intro": "Vert au minimum, orange au milieu, rouge au maximum. Un orateur est qualifié s’il reste dans les 30 secondes de marge de chaque côté.",
+  "timer.speakerPh": "Nom de l’orateur", "timer.type": "Type d’intervention",
+  "timer.green": "Vert", "timer.amber": "Orange", "timer.red": "Rouge", "timer.min": "min",
+  "timer.next": "Prochain orateur", "timer.ready": "Prêt", "timer.speaking": "En cours",
+  "timer.sigGreen": "Vert : minimum atteint", "timer.sigAmber": "Orange : pensez à conclure", "timer.sigRed": "Rouge : le temps est écoulé", "timer.sigOver": "Au-delà des 30 secondes de marge",
+  "timer.start": "Démarrer", "timer.pause": "Pause", "timer.resume": "Reprendre", "timer.stop": "Arrêter et noter", "timer.reset": "Remettre à zéro", "timer.full": "Plein écran",
+  "timer.report": "Rapport du chronométreur", "timer.clearLog": "Vider la liste",
+  "timer.colType": "Type", "timer.colTime": "Temps", "timer.colResult": "Résultat",
+  "timer.qualified": "Qualifié", "timer.outside": "Hors temps",
+  "timer.empty": "Les interventions chronométrées apparaîtront ici.",
+  "timer.startFirst": "Démarrez d’abord le chrono", "timer.recorded": "Noté : {t}", "timer.noFull": "Le plein écran n’est pas disponible ici",
+  "timer.speakerN": "Orateur {n}",
+  "timer.reportHead": "RAPPORT DU CHRONOMÉTREUR", "timer.repQ": "qualifié", "timer.repOut": "hors temps",
+
+  "ah.title": "Compteur d’hésitations",
+  "ah.intro": "Choisissez qui parle, puis touchez un mot à chaque fois que vous l’entendez. « Annuler » corrige une erreur.",
+  "ah.counting": "Comptage pour {name}", "ah.undo": "Annuler le dernier", "ah.addFirst": "Ajoutez un premier orateur pour commencer.",
+  "ah.report": "Rapport du compteur d’hésitations", "ah.reset": "Remettre à zéro", "ah.total": "Total", "ah.none": "Aucun orateur pour l’instant.",
+  "ah.edit": "Modifier les mots", "ah.done": "Terminé", "ah.wordsTitle": "Mots à compter",
+  "ah.wordsIntro": "Ajoutez les mots de remplissage que votre club veut surveiller, ou retirez ceux dont vous n’avez pas besoin. Votre liste est enregistrée sur cet appareil.",
+  "ah.addWordPh": "Ajouter un mot, ex. en gros", "ah.removeWord": "Retirer {w}", "ah.restore": "Rétablir les mots par défaut",
+  "ah.dup": "« {w} » est déjà dans la liste", "ah.added": "« {w} » ajouté", "ah.tooMany": "Vous pouvez ajouter jusqu’à 30 mots",
+  "ah.noWords": "Aucun mot à compter pour l’instant. Ajoutez-en avec « Modifier les mots ».",
+  "ah.reportHead": "RAPPORT DU COMPTEUR D’HÉSITATIONS", "ah.clean": "aucune hésitation, bravo !", "ah.totalN": "total {n}",
+
+  "gram.title": "Grammairien",
+  "gram.intro": "Présentez le mot du jour, comptez qui l’utilise, et notez les belles formules comme les maladresses.",
+  "gram.wod": "Mot du jour", "gram.word": "Mot", "gram.pos": "Nature", "gram.def": "Définition", "gram.ex": "Phrase d’exemple",
+  "gram.who": "Qui a utilisé « {w} »", "gram.theWord": "le mot", "gram.addSpeakers": "Ajoutez des orateurs pour suivre l’usage du mot.",
+  "gram.less": "Un de moins", "gram.more": "Un de plus",
+  "gram.good": "Belles formules entendues", "gram.improve": "À améliorer", "gram.copy": "Copier le rapport du grammairien",
+  "gram.reportHead": "RAPPORT DU GRAMMAIRIEN", "gram.repWord": "Mot du jour", "gram.repEx": "Exemple", "gram.repUsed": "Utilisé par",
+  "gram.repNobody": "personne pour l’instant", "gram.repGood": "Belles formules", "gram.repImprove": "À améliorer",
+
+  "tt.title": "Sujets impromptus",
+  "tt.intro": "Tirez une question au hasard. Les questions tirées sont mises de côté pour éviter les doublons dans la soirée.",
+  "tt.theme": "Thème", "tt.ready": "Prêt", "tt.press": "Appuyez sur « Tirer une question » pour commencer.",
+  "tt.draw": "Tirer une question", "tt.time": "Chronométrer la réponse", "tt.reset": "Remettre toutes les questions", "tt.left": "{n} sur {total} restantes",
+  "tt.addTitle": "Ajoutez vos propres questions", "tt.addIntro": "Une par ligne. Elles rejoignent la banque sous « Vos questions ».",
+  "tt.addPh": "À quoi ressemble la résilience au quotidien ?", "tt.add": "Ajouter les questions", "tt.saved": "{n} enregistrées", "tt.removeMine": "Retirer les miennes",
+  "tt.added.one": "1 question ajoutée", "tt.added.many": "{n} questions ajoutées",
+
+  "cat.speaker": "Meilleur discours", "cat.evaluator": "Meilleure évaluation", "cat.topic": "Meilleur impromptu",
+  "vote.title": "Votes",
+  "vote.introShared": "Chaque membre vote depuis son téléphone en ouvrant le lien du club. Vous pouvez changer votre vote jusqu’à l’annonce des résultats.",
+  "vote.introLocal": "Faites passer le téléphone. Chaque membre touche un nom, puis le passe au suivant. Les résultats restent cachés jusqu’à ce que le responsable les affiche.",
+  "vote.nominees": "Nommés pour « {cat} » (séparés par des virgules)",
+  "vote.yourBallot": "Votre bulletin : {cat}", "vote.ballot": "Bulletin : {cat}",
+  "vote.youVoted": "Vous avez voté pour <b>{name}</b>.", "vote.change": "Touchez un autre nom pour changer.", "vote.notYet": "Vous n’avez pas encore voté dans cette catégorie.",
+  "vote.noNomineesShared": "Les nommés apparaîtront ici une fois ajoutés ci-dessus.", "vote.noNominees": "Ajoutez des nommés ci-dessus pour ouvrir le vote.",
+  "vote.members.one": "1 membre a voté dans cette catégorie.", "vote.members.many": "{n} membres ont voté dans cette catégorie.",
+  "vote.ballots.one": "1 bulletin pour cette catégorie.", "vote.ballots.many": "{n} bulletins pour cette catégorie.",
+  "vote.recorded": "Vote enregistré", "vote.handOn": "Passez le téléphone au membre suivant.", "vote.next": "Bulletin suivant",
+  "vote.results": "Résultats", "vote.hide": "Masquer les résultats", "vote.reveal": "Afficher les résultats", "vote.yesReveal": "Oui, afficher",
+  "vote.askAll": "Afficher les résultats pour tout le monde ?", "vote.askHere": "Afficher les résultats sur cet écran ?",
+  "vote.newVote": "Lancer un nouveau vote", "vote.resetLocal": "Remettre ce vote à zéro", "vote.noCands": "Aucun nommé.",
+  "vote.hidden": "Cachés jusqu’à ce que le responsable du vote les affiche.",
+  "vote.started": "Nouveau vote lancé : {cat}", "vote.cleared": "Votes effacés pour cette catégorie",
+
+  "ag.title": "Ordre du jour",
+  "ag.intro": "Indiquez les durées : les horaires se calculent tout seuls. Les noms viennent de l’onglet Rôles.",
+  "ag.introShared": "Les modifications sont partagées avec toutes les personnes qui ouvrent cette page.",
+  "ag.club": "Club", "ag.date": "Date", "ag.start": "Heure de début", "ag.theme": "Thème", "ag.venue": "Lieu",
+  "ag.order": "Déroulé", "ag.item": "Séquence", "ag.role": "Rôle", "ag.noRole": "Aucun rôle", "ag.minutes": "Minutes",
+  "ag.up": "Monter", "ag.down": "Descendre", "ag.add": "Ajouter une séquence", "ag.newItem": "Nouvelle séquence", "ag.endsAt": "Fin à {t}",
+  "ag.doc": "Ordre du jour", "ag.yourClub": "Votre club", "ag.themeIs": "Thème :", "ag.ends": "Fin de la réunion", "ag.copy": "Copier l’ordre du jour",
+  "ag.open": "(à pourvoir)",
+  "agi.doors": "Accueil et échanges", "agi.welcome": "Ouverture de la réunion", "agi.intro": "Présentation de la soirée",
+  "agi.roles": "Présentation des rôles", "agi.speech1": "Discours préparé 1", "agi.speech2": "Discours préparé 2", "agi.speech3": "Discours préparé 3",
+  "agi.tt": "Session de sujets impromptus", "agi.break": "Pause", "agi.evals": "Évaluations des discours",
+  "agi.reports": "Rapports du chronométreur, du compteur d’hésitations et du grammairien", "agi.ge": "Évaluation générale", "agi.close": "Remise des prix et clôture",
+
+  "role.toastmaster": "Toastmaster de la soirée", "role.ge": "Évaluateur général", "role.timer": "Chronométreur", "role.ah": "Compteur d’hésitations",
+  "role.gram": "Grammairien", "role.ttm": "Meneur des impromptus", "role.s1": "Orateur 1", "role.s2": "Orateur 2", "role.s3": "Orateur 3",
+  "role.e1": "Évaluateur 1", "role.e2": "Évaluateur 2", "role.e3": "Évaluateur 3", "role.saa": "Sergent d’armes", "role.pres": "Président",
+  "roles.title": "Inscription aux rôles",
+  "roles.introShared": "Les membres ouvrent cette page et touchent « Je le prends » pour réserver un rôle. Vous pouvez aussi saisir le nom de quelqu’un qui s’est inscrit autrement.",
+  "roles.introLocal": "Indiquez qui tient chaque rôle. Les rôles libres sont signalés, et vous pouvez copier un message prêt à envoyer sur le groupe du club.",
+  "roles.openN": "{n} à pourvoir", "roles.allFilled": "Tous les rôles sont pourvus",
+  "roles.myName": "Votre nom (utilisé quand vous touchez « Je le prends »)", "roles.myNamePh": "ex. Camille",
+  "roles.colRole": "Rôle", "roles.colMember": "Membre", "roles.colStatus": "Statut",
+  "roles.filled": "Pourvu", "roles.open": "Libre", "roles.unassigned": "Non attribué", "roles.typeName": "Saisir un nom",
+  "roles.take": "Je le prends", "roles.you": "(vous)", "roles.giveUp": "Je me retire", "roles.clear": "Effacer",
+  "roles.copyOpen": "Copier le message « rôles libres »", "roles.clearAll": "Effacer tous les noms", "roles.yesClear": "Oui, effacer",
+  "roles.askAll": "Effacer tous les noms pour tout le monde ?", "roles.askHere": "Effacer tous les noms ?",
+  "roles.nameFirst": "Indiquez d’abord votre nom",
+  "roles.msgOpen": "Rôles encore libres pour notre réunion{date}{theme} :\n{list}\nRépondez ici pour en prendre un !",
+  "roles.msgDate": " du {d}", "roles.msgTheme": " (thème : {t})",
+  "roles.msgFull": "Tous les rôles sont pourvus pour notre prochaine réunion. Merci à toutes et à tous !",
+
+  "guides.title": "Fiches rôles", "guides.intro": "Une fiche par rôle pour les membres qui le tiennent pour la première fois.",
+  "guides.before": "Avant la réunion", "guides.during": "Pendant la réunion", "guides.after": "Au moment du rapport",
+
+  "crit.open": "Introduction", "crit.struct": "Structure", "crit.voice": "Variété vocale", "crit.body": "Langage corporel", "crit.eye": "Contact visuel", "crit.obj": "Objectifs du projet",
+  "scale.1": "À travailler", "scale.2": "En progrès", "scale.3": "Bien", "scale.4": "Très bien", "scale.5": "Excellent",
+  "ev.title": "Fiche d’évaluation", "ev.intro": "Prenez des notes pendant le discours, puis copiez une évaluation écrite claire à envoyer à l’orateur.",
+  "ev.speaker": "Orateur", "ev.evaluator": "Évaluateur", "ev.project": "Projet", "ev.goals": "Objectifs de l’orateur",
+  "ev.ratings": "Notes (1–5)", "ev.of5": "{c} : {n} sur 5",
+  "ev.commend": "Ce qui a bien fonctionné", "ev.recommend": "Une piste pour la prochaine fois", "ev.encourage": "Encouragement",
+  "ev.written": "Évaluation écrite", "ev.copy": "Copier l’évaluation", "ev.new": "Nouvelle fiche",
+  "ev.repHead": "ÉVALUATION DE DISCOURS", "ev.repObjectives": "Objectifs", "ev.repRatings": "NOTES", "ev.notRated": "non noté",
+  "ev.repWell": "CE QUI A BIEN FONCTIONNÉ", "ev.repTry": "UNE PISTE POUR LA PROCHAINE FOIS", "ev.repKeep": "CONTINUEZ AINSI"
+}
+};
+
+// Filler words the Ah-Counter listens for, per language. The id is what gets counted.
+window.AH_WORDS = {
+  en: [['um','Um'],['uh','Uh'],['ah','Ah'],['er','Er'],['so','So'],['and','And'],['like','Like'],['yk','You know'],['rep','Repeat']],
+  fr: [['euh','Euh'],['ben','Ben / Bah'],['bon','Bon'],['alors','Alors'],['ducoup','Du coup'],['enfait','En fait'],['genre','Genre'],['voila','Voilà'],['rep','Répétition']]
+};
+
+// Table Topics question bank, per language and theme.
+window.TOPICS = {
+  en: {
+    themes: {everyday:'Everyday', work:'Work', travel:'Travel', imagine:'Imagine', memories:'Memories', big:'Big questions', all:'All', mine:'Your questions'},
+    bank: {
+      everyday:['What is a small habit that changed your life?','Describe the best advice you ignored.','What would you do with one extra hour every day?','Which household chore secretly makes you happy?','What is something you changed your mind about recently?','Tell us about an object you would never throw away.'],
+      work:['What job would you do for free?','Describe the best manager you never had.','What skill should every school teach?','Tell us about a mistake that taught you more than a success.','If you could redesign the work week, what would it look like?'],
+      travel:['Which city surprised you the most, and why?','Describe a journey where everything went wrong.','You can live anywhere for one year. Where do you go?','What is the best meal you have had abroad?','Pack one item only for a trip around the world. What is it?'],
+      imagine:['You wake up able to speak to animals. Which one do you talk to first?','You are mayor for a day. What is your first law?','Invent a new public holiday and explain how we celebrate it.','You can have dinner with your future self. What do you ask?','A museum asks to exhibit one item from your life. Which one?'],
+      memories:['Tell us about a teacher who shaped you.','What game did you love as a child?','Describe a moment you felt truly proud.','What smell takes you straight back to childhood?','Tell us about the first time you spoke in front of a group.'],
+      big:['Is it better to be respected or liked?','Should everyone learn a second language?','Does technology bring people closer or push them apart?','What makes a good leader?','Is failure necessary for success?']
+    }
+  },
+  fr: {
+    themes: {everyday:'Au quotidien', work:'Travail', travel:'Voyages', imagine:'Imaginez', memories:'Souvenirs', big:'Grandes questions', all:'Tous', mine:'Vos questions'},
+    bank: {
+      everyday:['Quelle petite habitude a changé votre vie ?','Racontez le meilleur conseil que vous n’avez pas suivi.','Que feriez-vous d’une heure de plus chaque jour ?','Quelle tâche ménagère vous rend secrètement heureux ?','Sur quoi avez-vous changé d’avis récemment ?','Parlez-nous d’un objet que vous ne jetteriez jamais.'],
+      work:['Quel métier feriez-vous gratuitement ?','Décrivez le meilleur manager que vous n’avez jamais eu.','Quelle compétence chaque école devrait-elle enseigner ?','Racontez une erreur qui vous a appris plus qu’un succès.','Si vous pouviez réinventer la semaine de travail, à quoi ressemblerait-elle ?'],
+      travel:['Quelle ville vous a le plus surpris, et pourquoi ?','Racontez un voyage où tout est allé de travers.','Vous pouvez vivre n’importe où pendant un an. Où allez-vous ?','Quel est le meilleur repas que vous ayez fait à l’étranger ?','Un seul objet pour faire le tour du monde : lequel emportez-vous ?'],
+      imagine:['Vous vous réveillez en parlant aux animaux. À qui parlez-vous en premier ?','Vous êtes maire pour une journée. Quelle est votre première mesure ?','Inventez un nouveau jour férié et dites-nous comment on le fête.','Vous dînez avec vous-même dans vingt ans. Que lui demandez-vous ?','Un musée veut exposer un objet de votre vie. Lequel ?'],
+      memories:['Parlez-nous d’un professeur qui vous a marqué.','À quel jeu adoriez-vous jouer enfant ?','Racontez un moment où vous vous êtes senti vraiment fier.','Quelle odeur vous ramène directement à l’enfance ?','Racontez la première fois que vous avez pris la parole devant un groupe.'],
+      big:['Vaut-il mieux être respecté ou apprécié ?','Tout le monde devrait-il apprendre une deuxième langue ?','La technologie nous rapproche-t-elle ou nous éloigne-t-elle ?','Qu’est-ce qui fait un bon leader ?','L’échec est-il nécessaire pour réussir ?']
+    }
+  }
+};
+
+// Role guides: [role key, purpose, before, during, when reporting]
+window.GUIDES = {
+  en: [
+    ['toastmaster','Hosts the meeting and keeps it flowing.',['Confirm every role holder and speaker','Get speech titles, times and introductions','Prepare short links between segments'],['Open the meeting and explain the theme','Introduce each role holder and speaker','Keep energy up and the agenda on time'],['Hand over to the President to close','Thank everyone and share the next date']],
+    ['ge','Evaluates everything that is not a speech, and leads the evaluation team.',['Contact the speech evaluators','Brief the Timer, Ah-Counter and Grammarian'],['Note timing, organisation, energy and room set-up','Introduce each evaluator','Call for the functionary reports'],['Give a 5–7 minute general evaluation','Commend first, then suggest improvements']],
+    ['timer','Times every speaker and signals green, amber and red.',['Check the speech types and their timings','Test the timing lights or this app'],['Explain the timing rules at the start','Show the signals clearly to each speaker','Record each time'],['Report times and who qualified','Qualification is within 30 seconds of the minimum and maximum']],
+    ['ah','Counts filler words and sounds to raise awareness.',['Prepare a list of every speaker'],['Explain what you are listening for','Count “um”, “uh”, “so”, “like” and repeated words'],['Report totals per speaker, kindly and briefly','Recognise anyone with zero fillers']],
+    ['gram','Encourages good language and introduces the word of the day.',['Choose a word that is useful and fits the theme','Prepare its meaning and an example'],['Present the word at the start','Note who uses it, and note memorable phrases and errors'],['Report usage of the word','Share great phrases first, then suggestions']],
+    ['ttm','Runs the impromptu speaking session.',['Prepare questions linked to the theme','Plan to call on guests last, and only if they agree'],['Explain the rules: 1–2 minutes, no preparation','Ask the question first, then name the speaker'],['Thank speakers and ask the Timer for qualifiers']],
+    ['speaker','Delivers a prepared speech from their learning path.',['Prepare and rehearse to the time limit','Send your introduction and objectives to your evaluator and the Toastmaster'],['Wait for the Toastmaster to introduce you','Watch the timing signals'],['Listen to your evaluation with an open mind','Ask your evaluator for their written notes']],
+    ['evaluator','Gives a speaker supportive, specific feedback.',['Contact the speaker about their project and goals','Read the project evaluation criteria'],['Take notes on strengths and one or two improvements'],['Deliver a 2–3 minute evaluation','Use commend, recommend, commend','Hand over your written evaluation']]
+  ],
+  fr: [
+    ['toastmaster','Anime la réunion et assure son bon déroulement.',['Confirmer chaque rôle et chaque orateur','Obtenir les titres, durées et présentations des discours','Préparer de courtes transitions entre les séquences'],['Ouvrir la soirée et présenter le thème','Présenter chaque rôle et chaque orateur','Garder l’énergie et respecter l’horaire'],['Rendre la parole au Président pour la clôture','Remercier tout le monde et annoncer la prochaine date']],
+    ['ge','Évalue tout ce qui n’est pas un discours et anime l’équipe d’évaluation.',['Contacter les évaluateurs des discours','Briefer le chronométreur, le compteur d’hésitations et le grammairien'],['Noter le respect du temps, l’organisation, l’énergie et l’installation de la salle','Présenter chaque évaluateur','Appeler les rapports des rôles'],['Faire une évaluation générale de 5 à 7 minutes','Souligner d’abord les réussites, puis proposer des améliorations']],
+    ['timer','Chronomètre chaque intervention et montre le vert, l’orange et le rouge.',['Vérifier les types d’intervention et leurs durées','Tester les cartons de couleur ou cette application'],['Expliquer les règles de temps en début de réunion','Montrer clairement les signaux à chaque orateur','Noter chaque temps'],['Annoncer les temps et qui est qualifié','Un orateur est qualifié s’il reste à moins de 30 secondes du minimum et du maximum']],
+    ['ah','Compte les mots de remplissage et les hésitations pour en faire prendre conscience.',['Préparer la liste des orateurs'],['Expliquer ce que vous allez écouter','Compter les « euh », « du coup », « en fait », « genre » et les répétitions'],['Donner les totaux par orateur, avec bienveillance et brièveté','Saluer les orateurs sans aucune hésitation']],
+    ['gram','Encourage un langage soigné et présente le mot du jour.',['Choisir un mot utile et en lien avec le thème','Préparer sa définition et un exemple'],['Présenter le mot en début de réunion','Noter qui l’utilise, ainsi que les belles formules et les erreurs'],['Rendre compte de l’usage du mot','Partager d’abord les belles formules, puis les suggestions']],
+    ['ttm','Anime la session de sujets impromptus.',['Préparer des questions liées au thème','Prévoir d’interroger les invités en dernier, et seulement s’ils sont d’accord'],['Expliquer les règles : 1 à 2 minutes, sans préparation','Poser la question d’abord, puis nommer l’orateur'],['Remercier les orateurs et demander au chronométreur qui est qualifié']],
+    ['speaker','Présente un discours préparé de son parcours.',['Préparer et répéter en respectant le temps','Envoyer sa présentation et ses objectifs à son évaluateur et au Toastmaster'],['Attendre que le Toastmaster vous présente','Surveiller les signaux de temps'],['Écouter son évaluation avec ouverture','Demander à son évaluateur ses notes écrites']],
+    ['evaluator','Donne à l’orateur un retour bienveillant et précis.',['Contacter l’orateur au sujet de son projet et de ses objectifs','Lire les critères d’évaluation du projet'],['Noter les points forts et une ou deux pistes d’amélioration'],['Faire une évaluation de 2 à 3 minutes','Utiliser la méthode « sandwich » : réussite, piste, réussite','Remettre son évaluation écrite']]
+  ]
+};
+window.GUIDE_NAMES = {
+  en: {speaker:'Speaker', evaluator:'Evaluator'},
+  fr: {speaker:'Orateur', evaluator:'Évaluateur'}
+};
+
+// Example meeting shown on first visit, per language.
+window.SAMPLE = {
+  en: {
+    names: ['Camille','Thomas','Inès','Léa','Hugo','Marc','Sofia'],
+    ah: [{um:3,so:2,yk:1},{uh:5,and:4,like:2},{um:1}],
+    gram: {word:'Resilient', type:'adjective', def:'Able to recover quickly from difficulty.', ex:'Our club proved resilient after moving online.', good:'Camille: “a quiet kind of courage”', improve:'Watch “basically” as a sentence opener.'},
+    agenda: {club:'Paris Orators Club', theme:'Resilience', venue:'Room 3, Maison des Associations', speech1:'Prepared speech: “The Long Way Home”', speech2:'Prepared speech: Ice Breaker'},
+    eval: {project:'Level 2 – Introduction to Vocal Variety', goals:'Use pitch, pace and pauses to support the message.',
+      commend:'Strong opening story that set up the theme right away. The pause before the final line landed well.',
+      recommend:'Move away from the lectern during the second section so gestures can carry the story.',
+      encourage:'Your pacing is now a real strength. Build on it in your next project.'}
+  },
+  fr: {
+    names: ['Camille','Thomas','Inès','Léa','Hugo','Marc','Sofia'],
+    ah: [{euh:3,ducoup:2,enfait:1},{ben:5,alors:4,genre:2},{euh:1}],
+    gram: {word:'Résilient', type:'adjectif', def:'Capable de surmonter les difficultés et de rebondir.', ex:'Notre club s’est montré résilient en passant en ligne.', good:'Camille : « un courage tranquille »', improve:'Attention à « en fait » en début de phrase.'},
+    agenda: {club:'Club des Orateurs de Paris', theme:'Résilience', venue:'Salle 3, Maison des Associations', speech1:'Discours préparé : « Le long chemin du retour »', speech2:'Discours préparé : Brise-glace'},
+    eval: {project:'Niveau 2 – Introduction à la variété vocale', goals:'Utiliser la hauteur, le rythme et les pauses au service du message.',
+      commend:'Une ouverture forte, avec une histoire qui pose le thème tout de suite. La pause avant la dernière phrase a bien porté.',
+      recommend:'Quittez le pupitre pendant la deuxième partie pour que vos gestes accompagnent l’histoire.',
+      encourage:'Votre rythme est devenu un vrai point fort. Appuyez-vous dessus pour votre prochain projet.'}
+  }
+};
