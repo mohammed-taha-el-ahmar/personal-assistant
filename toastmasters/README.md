@@ -2,8 +2,10 @@
 
 Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
 
+**Club:** an introduction page for the club (description, practical information, current officers, announcements, events) edited by the officers, and a page presenting the officer roles with an "I'm interested" form.
 **During the meeting:** speech timer with green/amber/red signals, Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
-**Before the meeting:** agenda builder (in person, hybrid or online, with the Zoom/Teams link) and PDF download, role sign-up, role guides, evaluation form.
+**Before the meeting:** agenda builder (in person, hybrid or online, with the Zoom/Teams link) and PDF download, role sign-up, role guides.
+**Evaluations:** forms for each type of evaluation (prepared speech, Table Topics, evaluator, Toastmaster of the Evening, Table Topics Master, General Evaluator, Timer/Ah-Counter/Grammarian, custom) with pre-filled criteria you can rename, reorder, remove or add to; PDF filled in or blank to print.
 **After the meeting:** feedback form for members and guests, with a QR code to show on screen.
 **Club officers (Bureau):** meeting archive, history of all meetings, member participation.
 
@@ -18,8 +20,10 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `index.html` | The page layout and styles |
 | `app.js` | How the tools work |
 | `office.js` | The club officers' space: sign-in, archive, history, participation |
+| `evals.js` | Evaluation forms by type |
+| `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
-| `vendor/qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
+| `qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
 | `pdf.js` | Agenda PDF (uses jsPDF, loaded from cdnjs the first time someone downloads a PDF) |
 | `i18n.js` | All text in English and French, plus each language's filler words, Table Topics questions, role guides and example meeting |
 | `firebase-config.js` | Your Firebase project settings (you fill this in) |
@@ -81,7 +85,15 @@ When you click **Go live**, a QR code of the club link appears straight away so 
 
 In **Agenda**, **Download PDF** saves an A4 agenda with times, roles and the names of who holds them, ready to print or send. It works with or without live sharing.
 
-## 4. After the meeting: feedback
+## 4. Club page, officer roles and evaluation forms
+
+**Club page.** Anyone opening the club link lands on **About the club** (**Le club**). An officer signed in on the Club officers tab sees **Edit the club page**: club name and description, practical information (where, when, contact, fees, website), the names of the current officers, announcements and the year's events. Upcoming events are listed first; past ones fold away. The next meeting and its online link come from the Agenda tab automatically.
+
+**Officer roles.** The Club officers tab (**Bureau**) first presents the seven officer roles with their responsibilities and what each brings. Below, members can leave their name, email, the roles that interest them and when (this year or next) with **I'm interested**. Officers see the list in their area, set a follow-up status (contacted, role offered, joined, declined) or delete an entry. Members can update their own answer; nobody else can read it.
+
+**Evaluation forms.** In **Evaluations**, choose a type and click **Create**. Each type comes with its own criteria; rename one by editing its name, reorder with the arrows, remove with ×, or add your own. Rate 1-5 and add a comment per criterion, then the three written parts. **Download PDF** gives a filled-in form to send to the person evaluated; **Blank form to print** gives the same criteria with empty fields; with several forms, **PDF of all forms** puts them in one file (useful for the General Evaluator). Forms stay on the device where they were written.
+
+## 5. After the meeting: feedback
 
 The **Feedback** tab (**Avis** in French) is a one-minute form for members and guests: member or guest, a rating out of 5, what they liked most, a suggestion, and, for guests, whether they would come back and an optional email if they want the club to contact them.
 
@@ -89,7 +101,7 @@ The **Feedback** tab (**Avis** in French) is a one-minute form for members and g
 - The form is for the meeting date set in the Agenda tab (today if none is set). Each device can answer once per meeting.
 - Answers can only be read by the club officers, in the officers' space: a summary for the current meeting, and the feedback for each meeting in the history and its PDF.
 
-## 5. The club officers' space (Bureau)
+## 6. The club officers' space (Bureau)
 
 Open the **Club officers** tab (**Bureau** in French) with your club link.
 

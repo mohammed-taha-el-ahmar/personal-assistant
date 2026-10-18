@@ -9,7 +9,7 @@ const emailOk=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 const isMember=()=>SH.user&&!SH.user.anon;
 
 // ---------- access ----------
-function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[]}
+function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[];if(typeof stopInterestSub==='function')stopInterestSub()}
 async function officeAuthChanged(){
   stopOfficerSubs();
   if(!SH.fs||!SH.club||!isMember()){SH.officer=undefined;SH.clubExists=undefined;SH.officers=[];return}
@@ -32,6 +32,7 @@ async function officeAuthChanged(){
   softRender();
 }
 function startOfficerSubs(){
+  if(typeof startInterestSub==='function')startInterestSub();
   OFF.unsubClub=SH.fs.doc('clubs/'+SH.club).onSnapshot(s=>{
     SH.officers=s.exists?(s.data().officers||[]):[];SH.officer=SH.officers.includes(SH.user.email);
     if(!SH.officer)stopOfficerSubs();softRender();
@@ -130,20 +131,27 @@ function participation(){
 
 // ---------- view ----------
 function officeView(){
-  const head=`<div class="phead"><div><h2>${t('office.title')}</h2><p class="muted">${t('office.intro')}</p></div></div>`;
-  if(!SH.on)return `<section class="panel">${head}${liveBox()}${configured()?`<p class="muted">${t('office.needLive')}</p>`:''}</section>`;
-  if(!isMember())return `<section class="panel">${head}<div class="box"><p>${t('office.signInText')}</p><div><button class="primary" data-act="off-signin">${t('office.signIn')}</button></div></div></section>`;
+  return `<section class="panel">
+  <div class="phead"><div><h2>${t('office.pubTitle')}</h2><p class="muted">${t('office.pubIntro')}</p></div></div>
+  ${bureauPublic()}
+  <div class="phead" style="margin-top:16px"><div><h2>${t('office.title')}</h2><p class="muted">${t('office.intro')}</p></div></div>
+  ${officerArea()}</section>`;
+}
+function officerArea(){
+  if(!SH.on)return `${liveBox()}${configured()?`<p class="muted">${t('office.needLive')}</p>`:''}`;
+  if(!isMember())return `<div class="box"><p>${t('office.signInText')}</p><div><button class="primary" data-act="off-signin">${t('office.signIn')}</button></div></div>`;
   const who=`<div class="notice"><span>${t('office.signedAs',{email:esc(SH.user.email)})}</span><button class="small" data-act="off-signout">${t('office.signOut')}</button></div>`;
-  if(!SH.user.email||!SH.user.verified)return `<section class="panel">${head}${who}<div class="box"><p>${t('office.noEmail')}</p></div></section>`;
-  if(SH.officer===undefined)return `<section class="panel">${head}${who}<p class="empty">${t('office.loading')}</p></section>`;
-  if(SH.officeErr==='rules')return `<section class="panel">${head}${who}<div class="box"><h3>${t('office.rulesTitle')}</h3><p>${t('office.rulesText')}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div></section>`;
-  if(SH.officeErr)return `<section class="panel">${head}${who}<div class="box"><p>${t('office.otherErr',{code:esc(SH.officeErr)})}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div></section>`;
+  if(!SH.user.email||!SH.user.verified)return `${who}<div class="box"><p>${t('office.noEmail')}</p></div>`;
+  if(SH.officer===undefined)return `${who}<p class="empty">${t('office.loading')}</p>`;
+  if(SH.officeErr==='rules')return `${who}<div class="box"><h3>${t('office.rulesTitle')}</h3><p>${t('office.rulesText')}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div>`;
+  if(SH.officeErr)return `${who}<div class="box"><p>${t('office.otherErr',{code:esc(SH.officeErr)})}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div>`;
   if(!SH.officer){
-    return `<section class="panel">${head}${who}<div class="box">${SH.clubExists===false
+    return `${who}<div class="box">${SH.clubExists===false
       ?`<h3>${t('office.claimTitle')}</h3><p class="muted">${t('office.claimText')}</p><div><button class="primary" data-act="off-claim">${t('office.claim')}</button></div>`
-      :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div></section>`;
+      :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div>`;
   }
-  return `<section class="panel">${head}${who}${linkBox()}${closeBox()}${currentFeedbackBox()}${historyBox()}${participationBox()}${officersBox()}</section>`;
+  return `${who}<div class="notice"><span>${t('office.editClubHint')}</span><button class="small" data-act="go-club-edit">${t('cl.edit')}</button></div>
+    ${linkBox()}${closeBox()}${currentFeedbackBox()}${interestListBox()}${historyBox()}${participationBox()}${officersBox()}`;
 }
 function linkBox(){
   return `<div class="box"><div class="phead"><div><h3>${t('qr.clubTitle')}</h3><p class="muted">${t('qr.officeText')}</p></div>
@@ -209,6 +217,7 @@ function officeAct(a,b){
   case 'off-signin':officeSignIn();break;
   case 'off-signout':officeSignOut();break;
   case 'off-retry':officeAuthChanged();break;
+  case 'go-club-edit':CL.draft=normInfo(CL.info);if(!CL.draft.name)CL.draft.name=(S.agenda&&S.agenda.club)||'';CL.edit=true;setTab('club');break;
   case 'off-claim':SH.fs.doc('clubs/'+SH.club).set({officers:[SH.user.email]}).then(officeAuthChanged).catch(writeFail);break;
   case 'off-reset':OFF.reset=b.checked;break;
   case 'off-close-ask':OFF.confirmClose=true;render();break;

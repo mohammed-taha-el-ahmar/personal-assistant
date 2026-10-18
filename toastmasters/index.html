@@ -193,6 +193,23 @@ a.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--ac
 .stars{display:flex;gap:4px;flex-wrap:wrap}
 .star{font-size:1.7rem;line-height:1;padding:4px 8px;color:var(--line);background:none;border-color:transparent}
 .star[aria-pressed="true"]{color:var(--warn)}
+.crit{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}
+.crit-top{display:flex;gap:6px;align-items:center}
+.crit-name{font-weight:700;background:transparent;border-color:transparent;padding-left:0}
+.crit-name:hover,.crit-name:focus{background:var(--bg);border-color:var(--line);padding-left:10px}
+.about p{margin:0 0 .7em;max-width:68ch}.about p:last-child{margin:0}
+.dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0}
+.dl dt{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;padding-top:3px}
+.dl dd{margin:0;min-width:0;overflow-wrap:anywhere}.dl dd p{margin:0}
+@media (max-width:480px){.dl{grid-template-columns:1fr}.dl dd{margin-bottom:6px}}
+.ann{padding:10px 0;border-bottom:1px solid var(--line)}.ann:last-child{border-bottom:0}
+.ann h4,.event h4{margin:2px 0 4px;font-family:var(--display);font-size:1.05rem}
+.ann p,.event p{margin:0 0 .4em}
+.event{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.event .when{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--accent-soft);border-radius:10px;padding:6px 0;height:max-content}
+.event .when b{font-family:var(--display);font-size:1.4rem;line-height:1}.event .when span{font-size:.75rem;text-transform:uppercase;color:var(--muted)}
+details.past summary{cursor:pointer;padding:8px 0}
+.editrow{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
 footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
@@ -214,6 +231,11 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
       </div>
     </div>
     <nav class="tabs" data-i18n-aria="nav.tools" aria-label="Tools">
+      <div class="group"><span class="label" data-i18n="nav.club">Club</span><div class="row" role="tablist">
+        <button class="tab" data-tab="club" data-i18n="tab.club">About the club</button>
+        <button class="tab" data-tab="office" data-i18n="tab.office">Club officers</button>
+      </div></div>
+      <div class="sep"></div>
       <div class="group"><span class="label" data-i18n="nav.during">During the meeting</span><div class="row" role="tablist">
         <button class="tab" data-tab="timer" data-i18n="tab.timer">Timer</button>
         <button class="tab" data-tab="ah" data-i18n="tab.ah">Ah-Counter</button>
@@ -232,10 +254,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
       <div class="group"><span class="label" data-i18n="nav.after">After the meeting</span><div class="row" role="tablist">
         <button class="tab" data-tab="feedback" data-i18n="tab.feedback">Feedback</button>
       </div></div>
-      <div class="sep"></div>
-      <div class="group"><span class="label" data-i18n="nav.club">Club</span><div class="row" role="tablist">
-        <button class="tab" data-tab="office" data-i18n="tab.office">Club officers</button>
-      </div></div>
+
     </nav>
   </div>
 </header>
@@ -247,8 +266,10 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 </footer>
 
 <script src="i18n.js"></script>
-<script src="vendor/qrcode.js"></script>
+<script src="qrcode.js"></script>
 <script src="after.js"></script>
+<script src="evals.js"></script>
+<script src="club.js"></script>
 <script src="pdf.js"></script>
 <script src="office.js"></script>
 <script src="app.js"></script>

@@ -3,10 +3,24 @@
 // only club officers can read it (see firestore.rules and office.js).
 
 // ---------- QR codes ----------
+// The generator ships with the site (qrcode.js). If that file is missing from the published copy,
+// load the same library from a CDN instead.
+let qrLibPromise=null;
+function ensureQrLib(){
+  if(typeof qrcode==='function')return Promise.resolve();
+  if(!qrLibPromise)qrLibPromise=new Promise((resolve,reject)=>{
+    const sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+    sc.onload=()=>typeof qrcode==='function'?resolve():reject(new Error('qrcode'));
+    sc.onerror=()=>{qrLibPromise=null;reject(new Error('qrcode'))};
+    document.head.appendChild(sc);
+  });
+  return qrLibPromise;
+}
 function qrSvg(text){
   if(typeof qrcode!=='function')return '';
-  const q=qrcode(0,'M');q.addData(text);q.make();
-  return q.createSvgTag({cellSize:8,margin:4,scalable:true});
+  try{const q=qrcode(0,'M');q.addData(text);q.make();return q.createSvgTag({cellSize:8,margin:4,scalable:true})}
+  catch(e){return ''}
 }
 const feedbackLink=()=>{const u=new URL(shareLink());u.hash='feedback';return u.toString()};
 let QR=null; // {title, text, url}
@@ -23,11 +37,17 @@ function paintQr(){
   el.setAttribute('aria-label',QR.title);
   el.innerHTML=`<div class="qrcard">
     <h2>${esc(QR.title)}</h2><p class="muted">${esc(QR.text)}</p>
-    <div class="qrimg">${qrSvg(QR.url)}</div>
+    <div class="qrimg" id="qrimg"><p class="muted" style="padding:40px 8px;margin:0">${t('qr.loading')}</p></div>
     <p class="qrurl">${esc(QR.url)}</p>
     <div class="btns" style="justify-content:center"><button data-act="qr-copy">${t('qr.copy')}</button><button class="primary" data-act="qr-close">${t('qr.close')}</button></div>
   </div>`;
   const b=el.querySelector('[data-act=qr-close]');if(b)b.focus();
+  const want=QR.url;
+  ensureQrLib().then(()=>{
+    const box=document.getElementById('qrimg');if(!box||!QR||QR.url!==want)return;
+    const svg=qrSvg(want);
+    box.innerHTML=svg||`<p class="muted" style="padding:40px 8px;margin:0">${t('qr.fail')}</p>`;
+  },()=>{const box=document.getElementById('qrimg');if(box)box.innerHTML=`<p class="muted" style="padding:40px 8px;margin:0">${t('qr.fail')}</p>`});
 }
 document.addEventListener('keydown',e=>{if(QR&&e.key==='Escape')closeQr()});
 document.addEventListener('click',e=>{

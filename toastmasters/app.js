@@ -122,7 +122,7 @@ function setQuery(params){
 function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.searchParams.set('club',SH.club);if(LANG!=='en')u.searchParams.set('lang',LANG);return u.toString()}
 let pendingRender=false;
 function softRender(){
-  if(!['roles','agenda','vote','office','feedback'].includes(tab))return;
+  if(!['roles','agenda','vote','office','feedback','club'].includes(tab))return;
   const a=document.activeElement;
   if(a&&a.matches&&a.matches('input,textarea,select')){pendingRender=true;return}
   render();
@@ -160,6 +160,7 @@ async function initShared(){
     if(S.vote.cat>=S.vote.cats.length)S.vote.cat=0;softRender()},onErr);
   SH.ref.reports.onSnapshot(s=>{SH.reports=s.exists?clone(s.data()):{};softRender()},onErr);
   SH.ref.ballots.onSnapshot(q=>{SH.ballots=q.docs.map(d=>({id:d.id,...d.data()}));softRender()},onErr);
+  if(typeof clubLive==='function')clubLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
@@ -201,8 +202,8 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['timer','ah','gram','topics','vote','agenda','roles','guides','eval','feedback','office'];
-let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):'timer';
+const TABS=['club','timer','ah','gram','topics','vote','agenda','roles','guides','eval','feedback','office'];
+let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
 function setTab(x){tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 function setLang(l){
@@ -244,7 +245,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={office:()=>officeView(),feedback:()=>feedbackView()};
+const VIEWS={office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>
@@ -438,43 +439,6 @@ VIEWS.guides=()=>`<section class="panel">
   <div class="gbody">${[[t('guides.before'),b],[t('guides.during'),d],[t('guides.after'),a]].map(([h,l])=>`<div><span class="label">${h}</span><ul>${l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div></details>`).join('')}
 </section>`;
 
-// ---------- EVALUATION ----------
-function evalText(){const e=S.eval;return `${t('ev.repHead')}
-${t('ev.speaker')}: ${e.speaker}
-${t('ev.evaluator')}: ${e.evaluator}
-${t('ev.project')}: ${e.project}
-${t('ev.repObjectives')}: ${e.goals}
-
-${t('ev.repRatings')}
-${CRIT.map(c=>`${t('crit.'+c)}: ${e.r[c]?e.r[c]+'/5 ('+t('scale.'+e.r[c])+')':t('ev.notRated')}`).join('\n')}
-
-${t('ev.repWell')}
-${e.commend}
-
-${t('ev.repTry')}
-${e.recommend}
-
-${t('ev.repKeep')}
-${e.encourage}`}
-VIEWS.eval=()=>{const e=S.eval;
-  return `<section class="panel">
-  <div class="phead"><div><h2>${t('ev.title')}</h2><p class="muted">${t('ev.intro')}</p></div></div>
-  ${sampleNotice()}
-  <div class="grid2">
-  <div class="box">
-    <div class="fields"><div class="field"><label class="label" for="e-sp">${t('ev.speaker')}</label><input id="e-sp" data-bind="eval.speaker" data-live="1" value="${esc(e.speaker)}"></div>
-    <div class="field"><label class="label" for="e-ev">${t('ev.evaluator')}</label><input id="e-ev" data-bind="eval.evaluator" data-live="1" value="${esc(e.evaluator)}"></div></div>
-    <div class="field"><label class="label" for="e-pr">${t('ev.project')}</label><input id="e-pr" data-bind="eval.project" data-live="1" value="${esc(e.project)}"></div>
-    <div class="field"><label class="label" for="e-go">${t('ev.goals')}</label><input id="e-go" data-bind="eval.goals" data-live="1" value="${esc(e.goals)}"></div>
-    <div><span class="label">${t('ev.ratings')}</span>${CRIT.map(c=>`<div class="rate"><span>${t('crit.'+c)}</span><div class="dots">${[1,2,3,4,5].map(n=>`<button aria-pressed="${e.r[c]===n}" data-act="e-rate" data-c="${c}" data-n="${n}" aria-label="${esc(t('ev.of5',{c:t('crit.'+c),n}))}">${n}</button>`).join('')}</div></div>`).join('')}</div>
-    <div class="field"><label class="label" for="e-c">${t('ev.commend')}</label><textarea id="e-c" data-bind="eval.commend" data-live="1">${esc(e.commend)}</textarea></div>
-    <div class="field"><label class="label" for="e-r">${t('ev.recommend')}</label><textarea id="e-r" data-bind="eval.recommend" data-live="1">${esc(e.recommend)}</textarea></div>
-    <div class="field"><label class="label" for="e-e">${t('ev.encourage')}</label><textarea id="e-e" data-bind="eval.encourage" data-live="1">${esc(e.encourage)}</textarea></div>
-  </div>
-  <div class="box"><h3>${t('ev.written')}</h3><pre class="out" id="e-out">${esc(evalText())}</pre>
-    <div class="btns"><button class="primary" data-act="e-copy">${t('ev.copy')}</button><button class="ghost" data-act="e-new">${t('ev.new')}</button></div></div>
-  </div></section>`};
-
 // ---------- events ----------
 function setPath(path,val){const ks=path.split('.');let o=S;while(ks.length>1)o=o[ks.shift()];o[ks[0]]=val}
 document.addEventListener('input',ev=>{const el=ev.target;
@@ -575,9 +539,6 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'a-pdf':currentAgendaPdf();break;
   default:if(typeof officeAct==='function')officeAct(a,b);
   // eval
-  case 'e-rate':{const c=b.dataset.c,n=+b.dataset.n;S.eval.r[c]=S.eval.r[c]===n?0:n;save();render();break}
-  case 'e-copy':copyText(evalText());break;
-  case 'e-new':S.eval={speaker:'',evaluator:'',project:'',goals:'',r:{},commend:'',recommend:'',encourage:''};save();render();break;
   }
 });
 function resetTimer(){T.running=false;T.elapsed=0;cancelAnimationFrame(T.raf);releaseLock()}

@@ -12,6 +12,8 @@ rules_version = '2';
 //   clubs/{club}/meeting/reports  reports sent by the Timer, Ah-Counter and Grammarian
 //   clubs/{club}/ballots/{uid}    one ballot per device; only that device can write it
 //   clubs/{club}/feedback/{id}    meeting feedback from members and guests; officers read it
+//   clubs/{club}/public/info      the club introduction page; everyone reads, officers edit
+//   clubs/{club}/interest/{uid}   members interested in an officer role; the sender and officers read it
 //
 // Members are signed in anonymously. Officers sign in with Google and are recognised by their verified email.
 
@@ -73,6 +75,30 @@ service cloud.firestore {
         && request.resource.data.contact is bool;
       allow read, delete: if validClub(club) && isOfficer(club);
       allow update: if false;
+    }
+
+    // Club introduction page: anyone with the club link reads it, only officers change it.
+    match /clubs/{club}/public/{docId} {
+      allow read: if validClub(club);
+      allow write: if validClub(club) && docId == 'info' && isOfficer(club);
+    }
+
+    // "Interested in joining the officers": one form per device. The sender can read and update their own answer
+    // (but not the follow-up status); officers read all answers, set the status and delete.
+    match /clubs/{club}/interest/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow read, delete: if validClub(club) && isOfficer(club);
+      allow create, update: if validClub(club) && request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'email', 'roles', 'when', 'message', 'at', 'lang', 'status'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string && request.resource.data.email.size() <= 120
+        && request.resource.data.roles is list && request.resource.data.roles.size() <= 10
+        && request.resource.data.when in ['now', 'next', 'either']
+        && request.resource.data.message is string && request.resource.data.message.size() <= 1000
+        && (!('status' in request.resource.data) || (resource != null && 'status' in resource.data && request.resource.data.status == resource.data.status));
+      allow update: if validClub(club) && isOfficer(club)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['new', 'contacted', 'offered', 'joined', 'declined'];
     }
 
     match /clubs/{club}/meeting/{docId} {
