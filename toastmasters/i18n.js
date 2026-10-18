@@ -139,7 +139,7 @@ en: {
   "gram.repNobody": "nobody yet", "gram.repGood": "Great language", "gram.repImprove": "To improve",
 
   "tt.title": "Table Topics",
-  "tt.intro": "Draw an impromptu question. Questions you draw are set aside so nobody gets a repeat tonight.",
+  "tt.intro": "Draw an improvisation question. Questions you draw are set aside so nobody gets a repeat tonight.",
   "tt.theme": "Theme", "tt.ready": "Ready", "tt.press": "Press “Draw a question” to begin.",
   "tt.draw": "Draw a question", "tt.time": "Time this answer", "tt.reset": "Put all questions back", "tt.left": "{n} of {total} left",
   "tt.addTitle": "Add your own questions", "tt.addIntro": "One per line. They join the bank under “Your questions”.",
@@ -282,7 +282,7 @@ fr: {
   "nav.tools": "Outils",
   "nav.during": "Pendant la réunion",
   "nav.before": "Avant la réunion",
-  "tab.timer": "Chrono", "tab.ah": "Hésitations", "tab.gram": "Grammairien", "tab.topics": "Impromptus", "tab.vote": "Votes",
+  "tab.timer": "Chrono", "tab.ah": "Hésitations", "tab.gram": "Grammairien", "tab.topics": "Improvisations", "tab.vote": "Votes",
   "tab.agenda": "Ordre du jour", "tab.roles": "Rôles", "tab.guides": "Fiches rôles", "tab.eval": "Évaluation",
   "footer": "Un outil indépendant créé par et pour les membres. Non affilié à Toastmasters International ni approuvé par elle. Avec un lien de club, les rôles, l’ordre du jour et les votes sont partagés avec toutes les personnes qui ouvrent ce lien. Le chrono, le compteur d’hésitations, le grammairien et les notes d’évaluation restent toujours sur votre appareil.",
   "lang.label": "Langue",
@@ -304,7 +304,7 @@ fr: {
   "live.denied": "La base de données a refusé la modification. Vérifiez les règles Firestore décrites dans le README.",
   "live.saveFail": "Enregistrement impossible pour le moment. Vérifiez votre connexion et réessayez.",
 
-  "preset.tt": "Sujet impromptu (1–2 min)", "preset.eval": "Évaluation (2–3 min)", "preset.ice": "Brise-glace (4–6 min)",
+  "preset.tt": "Sujet improvisation (1–2 min)", "preset.eval": "Évaluation (2–3 min)", "preset.ice": "Brise-glace (4–6 min)",
   "preset.std": "Discours préparé (5–7 min)", "preset.long": "Discours long (8–10 min)", "preset.ge": "Évaluateur général (5–7 min)",
   "preset.custom": "Personnalisé…", "preset.customN": "Personnalisé ({a}–{b} min)",
 
@@ -343,7 +343,7 @@ fr: {
   "gram.reportHead": "RAPPORT DU GRAMMAIRIEN", "gram.repWord": "Mot du jour", "gram.repEx": "Exemple", "gram.repUsed": "Utilisé par",
   "gram.repNobody": "personne pour l’instant", "gram.repGood": "Belles formules", "gram.repImprove": "À améliorer",
 
-  "tt.title": "Sujets impromptus",
+  "tt.title": "Sujets improvisations",
   "tt.intro": "Tirez une question au hasard. Les questions tirées sont mises de côté pour éviter les doublons dans la soirée.",
   "tt.theme": "Thème", "tt.ready": "Prêt", "tt.press": "Appuyez sur « Tirer une question » pour commencer.",
   "tt.draw": "Tirer une question", "tt.time": "Chronométrer la réponse", "tt.reset": "Remettre toutes les questions", "tt.left": "{n} sur {total} restantes",
@@ -351,7 +351,7 @@ fr: {
   "tt.addPh": "À quoi ressemble la résilience au quotidien ?", "tt.add": "Ajouter les questions", "tt.saved": "{n} enregistrées", "tt.removeMine": "Retirer les miennes",
   "tt.added.one": "1 question ajoutée", "tt.added.many": "{n} questions ajoutées",
 
-  "cat.speaker": "Meilleur discours", "cat.evaluator": "Meilleure évaluation", "cat.topic": "Meilleur impromptu",
+  "cat.speaker": "Meilleur discours", "cat.evaluator": "Meilleure évaluation", "cat.topic": "Meilleur improvisation",
   "vote.title": "Votes",
   "vote.introShared": "Chaque membre vote depuis son téléphone en ouvrant le lien du club. Vous pouvez changer votre vote jusqu’à l’annonce des résultats.",
   "vote.introLocal": "Faites passer le téléphone. Chaque membre touche un nom, puis le passe au suivant. Les résultats restent cachés jusqu’à ce que le responsable les affiche.",
@@ -378,11 +378,11 @@ fr: {
   "ag.open": "(à pourvoir)",
   "agi.doors": "Accueil et échanges", "agi.welcome": "Ouverture de la réunion", "agi.intro": "Présentation de la soirée",
   "agi.roles": "Présentation des rôles", "agi.speech1": "Discours préparé 1", "agi.speech2": "Discours préparé 2", "agi.speech3": "Discours préparé 3",
-  "agi.tt": "Session de sujets impromptus", "agi.break": "Pause", "agi.evals": "Évaluations des discours",
+  "agi.tt": "Session de sujets improvisations", "agi.break": "Pause", "agi.evals": "Évaluations des discours",
   "agi.reports": "Rapports du chronométreur, du compteur d’hésitations et du grammairien", "agi.ge": "Évaluation générale", "agi.close": "Remise des prix et clôture",
 
   "role.toastmaster": "Toastmaster de la soirée", "role.ge": "Évaluateur général", "role.timer": "Chronométreur", "role.ah": "Compteur d’hésitations",
-  "role.gram": "Grammairien", "role.ttm": "Meneur des impromptus", "role.s1": "Orateur 1", "role.s2": "Orateur 2", "role.s3": "Orateur 3",
+  "role.gram": "Grammairien", "role.ttm": "Meneur des improvisations", "role.s1": "Orateur 1", "role.s2": "Orateur 2", "role.s3": "Orateur 3",
   "role.e1": "Évaluateur 1", "role.e2": "Évaluateur 2", "role.e3": "Évaluateur 3", "role.saa": "Sergent d’armes", "role.pres": "Président",
   "roles.title": "Inscription aux rôles",
   "roles.introShared": "Les membres ouvrent cette page et touchent « Je le prends » pour réserver un rôle. Vous pouvez aussi saisir le nom de quelqu’un qui s’est inscrit autrement.",
@@ -454,7 +454,7 @@ window.GUIDES = {
     ['timer','Times every speaker and signals green, amber and red.',['Check the speech types and their timings','Test the timing lights or this app'],['Explain the timing rules at the start','Show the signals clearly to each speaker','Record each time'],['Report times and who qualified','Qualification is within 30 seconds of the minimum and maximum']],
     ['ah','Counts filler words and sounds to raise awareness.',['Prepare a list of every speaker'],['Explain what you are listening for','Count “um”, “uh”, “so”, “like” and repeated words'],['Report totals per speaker, kindly and briefly','Recognise anyone with zero fillers']],
     ['gram','Encourages good language and introduces the word of the day.',['Choose a word that is useful and fits the theme','Prepare its meaning and an example'],['Present the word at the start','Note who uses it, and note memorable phrases and errors'],['Report usage of the word','Share great phrases first, then suggestions']],
-    ['ttm','Runs the impromptu speaking session.',['Prepare questions linked to the theme','Plan to call on guests last, and only if they agree'],['Explain the rules: 1–2 minutes, no preparation','Ask the question first, then name the speaker'],['Thank speakers and ask the Timer for qualifiers']],
+    ['ttm','Runs the improvisation speaking session.',['Prepare questions linked to the theme','Plan to call on guests last, and only if they agree'],['Explain the rules: 1–2 minutes, no preparation','Ask the question first, then name the speaker'],['Thank speakers and ask the Timer for qualifiers']],
     ['speaker','Delivers a prepared speech from their learning path.',['Prepare and rehearse to the time limit','Send your introduction and objectives to your evaluator and the Toastmaster'],['Wait for the Toastmaster to introduce you','Watch the timing signals'],['Listen to your evaluation with an open mind','Ask your evaluator for their written notes']],
     ['evaluator','Gives a speaker supportive, specific feedback.',['Contact the speaker about their project and goals','Read the project evaluation criteria'],['Take notes on strengths and one or two improvements'],['Deliver a 2–3 minute evaluation','Use commend, recommend, commend','Hand over your written evaluation']]
   ],
@@ -464,7 +464,7 @@ window.GUIDES = {
     ['timer','Chronomètre chaque intervention et montre le vert, l’orange et le rouge.',['Vérifier les types d’intervention et leurs durées','Tester les cartons de couleur ou cette application'],['Expliquer les règles de temps en début de réunion','Montrer clairement les signaux à chaque orateur','Noter chaque temps'],['Annoncer les temps et qui est qualifié','Un orateur est qualifié s’il reste à moins de 30 secondes du minimum et du maximum']],
     ['ah','Compte les mots de remplissage et les hésitations pour en faire prendre conscience.',['Préparer la liste des orateurs'],['Expliquer ce que vous allez écouter','Compter les « euh », « du coup », « en fait », « genre » et les répétitions'],['Donner les totaux par orateur, avec bienveillance et brièveté','Saluer les orateurs sans aucune hésitation']],
     ['gram','Encourage un langage soigné et présente le mot du jour.',['Choisir un mot utile et en lien avec le thème','Préparer sa définition et un exemple'],['Présenter le mot en début de réunion','Noter qui l’utilise, ainsi que les belles formules et les erreurs'],['Rendre compte de l’usage du mot','Partager d’abord les belles formules, puis les suggestions']],
-    ['ttm','Anime la session de sujets impromptus.',['Préparer des questions liées au thème','Prévoir d’interroger les invités en dernier, et seulement s’ils sont d’accord'],['Expliquer les règles : 1 à 2 minutes, sans préparation','Poser la question d’abord, puis nommer l’orateur'],['Remercier les orateurs et demander au chronométreur qui est qualifié']],
+    ['ttm','Anime la session de sujets improvisations.',['Préparer des questions liées au thème','Prévoir d’interroger les invités en dernier, et seulement s’ils sont d’accord'],['Expliquer les règles : 1 à 2 minutes, sans préparation','Poser la question d’abord, puis nommer l’orateur'],['Remercier les orateurs et demander au chronométreur qui est qualifié']],
     ['speaker','Présente un discours préparé de son parcours.',['Préparer et répéter en respectant le temps','Envoyer sa présentation et ses objectifs à son évaluateur et au Toastmaster'],['Attendre que le Toastmaster vous présente','Surveiller les signaux de temps'],['Écouter son évaluation avec ouverture','Demander à son évaluateur ses notes écrites']],
     ['evaluator','Donne à l’orateur un retour bienveillant et précis.',['Contacter l’orateur au sujet de son projet et de ses objectifs','Lire les critères d’évaluation du projet'],['Noter les points forts et une ou deux pistes d’amélioration'],['Faire une évaluation de 2 à 3 minutes','Utiliser la méthode « sandwich » : réussite, piste, réussite','Remettre son évaluation écrite']]
   ]
