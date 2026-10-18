@@ -8,7 +8,7 @@
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 </style>
-<title>Toastmasters Tools</title>
+<title>Gavel &amp; Timer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
@@ -181,6 +181,18 @@ details.meeting[open] summary b::before{content:"– "}
 .kv b{display:block;font-family:var(--display);font-size:1.4rem}
 .check{display:flex;gap:8px;align-items:flex-start}
 .check input{width:auto;margin-top:4px}
+a.btn{display:inline-block;text-decoration:none;text-align:center}
+a.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.join{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.qrlay{position:fixed;inset:0;z-index:30;background:rgba(10,14,20,.72);display:flex;align-items:center;justify-content:center;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.qrcard{background:var(--surface);color:var(--ink);border-radius:16px;padding:24px;max-width:min(560px,100%);max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:12px;text-align:center}
+.qrimg{background:#fff;border-radius:12px;padding:8px;width:min(70vh,100%);max-width:420px;margin:0 auto}
+.qrimg svg{display:block;width:100%;height:auto}
+.qrurl{font-family:var(--mono);font-size:.85rem;color:var(--muted);word-break:break-all;margin:0}
+.stars{display:flex;gap:4px;flex-wrap:wrap}
+.star{font-size:1.7rem;line-height:1;padding:4px 8px;color:var(--line);background:none;border-color:transparent}
+.star[aria-pressed="true"]{color:var(--warn)}
 footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
@@ -194,7 +206,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
   <div class="wrap">
     <div class="brand">
       <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
-      <h1>Toastmasters Tools</h1>
+      <h1>Gavel &amp; Timer</h1>
       <span class="tag" data-i18n="tagline">Tools for Toastmasters club meetings</span>
       <span id="sync"></span>
       <div class="lang" role="group" data-i18n-aria="lang.label" aria-label="Language">
@@ -217,6 +229,10 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
         <button class="tab" data-tab="eval" data-i18n="tab.eval">Evaluation form</button>
       </div></div>
       <div class="sep"></div>
+      <div class="group"><span class="label" data-i18n="nav.after">After the meeting</span><div class="row" role="tablist">
+        <button class="tab" data-tab="feedback" data-i18n="tab.feedback">Feedback</button>
+      </div></div>
+      <div class="sep"></div>
       <div class="group"><span class="label" data-i18n="nav.club">Club</span><div class="row" role="tablist">
         <button class="tab" data-tab="office" data-i18n="tab.office">Club officers</button>
       </div></div>
@@ -231,6 +247,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 </footer>
 
 <script src="i18n.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="after.js"></script>
 <script src="pdf.js"></script>
 <script src="office.js"></script>
 <script src="app.js"></script>

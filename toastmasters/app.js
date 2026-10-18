@@ -1,4 +1,4 @@
-// Toastmasters Tools – app logic. Text and language content live in i18n.js.
+// Gavel & Timer – app logic. Text and language content live in i18n.js.
 
 // ---------- language ----------
 function detectLang(){
@@ -52,7 +52,7 @@ const catName=c=>c.key?t('cat.'+c.key):c.name;
 const itemTitle=it=>it.title!=null&&it.title!==''?it.title:(it.k?t('agi.'+it.k):'');
 
 // ---------- state ----------
-function defaultAgenda(){return {club:'',date:'',theme:'',start:'19:00',venue:'',items:AGENDA_KEYS.map(([k,role,dur])=>({k,role,dur}))}}
+function defaultAgenda(){return {club:'',date:'',theme:'',start:'19:00',venue:'',online:{format:'inperson',url:'',id:'',pass:''},items:AGENDA_KEYS.map(([k,role,dur])=>({k,role,dur}))}}
 const defaultCats=()=>[{key:'speaker',cands:[],round:0},{key:'evaluator',cands:[],round:0},{key:'topic',cands:[],round:0}];
 function sample(){
   const X=SAMPLE[LANG]||SAMPLE.en, N=X.names;
@@ -122,7 +122,7 @@ function setQuery(params){
 function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.searchParams.set('club',SH.club);if(LANG!=='en')u.searchParams.set('lang',LANG);return u.toString()}
 let pendingRender=false;
 function softRender(){
-  if(!['roles','agenda','vote','office'].includes(tab))return;
+  if(!['roles','agenda','vote','office','feedback'].includes(tab))return;
   const a=document.activeElement;
   if(a&&a.matches&&a.matches('input,textarea,select')){pendingRender=true;return}
   render();
@@ -167,7 +167,7 @@ function updateStatus(){const el=$('#sync');if(!el)return;
   el.innerHTML=SH.error?`<span class="chip bad">${t('status.error')}</span>`:SH.on?`<span class="chip ok">${t('status.live',{club:esc(SH.club)})}</span>`:`<span class="chip warn">${t('status.local')}</span>`;}
 function liveBox(){
   if(SH.error)return `<div class="notice"><span>${esc(errorText())}</span></div>`;
-  if(SH.on)return `<div class="notice"><span>${t('live.on',{club:esc(SH.club)})}</span><button class="small" data-act="copy-link">${t('live.copyLink')}</button></div>`;
+  if(SH.on)return `<div class="notice"><span>${t('live.on',{club:esc(SH.club)})}</span><div class="btns"><button class="small" data-act="qr-club">${t('qr.show')}</button><button class="small" data-act="copy-link">${t('live.copyLink')}</button></div></div>`;
   if(!configured())return `<div class="notice"><span>${t('live.notConfigured')}</span></div>`;
   return `<form class="notice" data-form="join"><label for="club-code">${t('live.join')}</label><input id="club-code" placeholder="paris-orators" style="max-width:220px" autocomplete="off"><button type="submit" class="small primary">${t('live.go')}</button></form>`;
 }
@@ -201,7 +201,7 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['timer','ah','gram','topics','vote','agenda','roles','guides','eval','office'];
+const TABS=['timer','ah','gram','topics','vote','agenda','roles','guides','eval','feedback','office'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):'timer';
 function setTab(x){tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -244,7 +244,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={office:()=>officeView()};
+const VIEWS={office:()=>officeView(),feedback:()=>feedbackView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>
@@ -375,7 +375,7 @@ function agendaTimes(){const a=S.agenda;let [h,m]=(a.start||'19:00').split(':').
   return a.items.map(it=>{const s=x;x+=Number(it.dur)||0;return hhmm(s)}).concat([hhmm(x)])}
 function itemPerson(it){return it.role?(roleName(it.role)||t('ag.open')):''}
 const fmtDate=d=>d?new Date(d+'T12:00').toLocaleDateString(locale(),{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
-VIEWS.agenda=()=>{const a=S.agenda;const times=agendaTimes();const dateStr=fmtDate(a.date);
+VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=online(a);const times=agendaTimes();const dateStr=fmtDate(a.date);const link=safeUrl(o.url);
   return `<section class="panel">
   <div class="phead"><div><h2>${t('ag.title')}</h2><p class="muted">${t('ag.intro')}${SH.on?' '+t('ag.introShared'):''}</p></div></div>
   ${liveBox()}${SH.on?'':sampleNotice()}
@@ -384,8 +384,15 @@ VIEWS.agenda=()=>{const a=S.agenda;const times=agendaTimes();const dateStr=fmtDa
     <div class="field"><label class="label" for="a-date">${t('ag.date')}</label><input id="a-date" type="date" data-bind="agenda.date" data-live="1" value="${esc(a.date)}"></div>
     <div class="field"><label class="label" for="a-start">${t('ag.start')}</label><input id="a-start" type="time" data-bind="agenda.start" data-live="1" value="${esc(a.start)}"></div>
     <div class="field"><label class="label" for="a-theme">${t('ag.theme')}</label><input id="a-theme" data-bind="agenda.theme" data-live="1" value="${esc(a.theme)}"></div>
-    <div class="field"><label class="label" for="a-venue">${t('ag.venue')}</label><input id="a-venue" data-bind="agenda.venue" data-live="1" value="${esc(a.venue)}"></div>
-  </div></div>
+    <div class="field"><label class="label" for="a-format">${t('fmt.label')}</label><select id="a-format" data-act="a-format">${['inperson','hybrid','online'].map(f=>`<option value="${f}" ${f===o.format?'selected':''}>${t('fmt.'+f)}</option>`).join('')}</select></div>
+    ${o.format!=='online'?`<div class="field"><label class="label" for="a-venue">${t('ag.venue')}</label><input id="a-venue" data-bind="agenda.venue" data-live="1" value="${esc(a.venue)}"></div>`:''}
+  </div>
+  ${o.format!=='inperson'?`<div class="fields">
+    <div class="field" style="grid-column:1/-1"><label class="label" for="a-url">${t('on.url')}</label><input id="a-url" type="url" inputmode="url" data-bind="agenda.online.url" data-live="1" value="${esc(o.url)}" placeholder="https://us02web.zoom.us/j/…">
+      ${o.url&&!safeUrl(o.url)?`<span class="chip bad" style="align-self:flex-start">${t('on.badUrl')}</span>`:''}</div>
+    <div class="field"><label class="label" for="a-mid">${t('on.id')}</label><input id="a-mid" data-bind="agenda.online.id" data-live="1" value="${esc(o.id)}"></div>
+    <div class="field"><label class="label" for="a-pass">${t('on.pass')}</label><input id="a-pass" data-bind="agenda.online.pass" data-live="1" value="${esc(o.pass)}"></div>
+  </div>`:''}</div>
   <div class="grid2">
   <div class="box"><h3>${t('ag.order')}</h3>
     ${a.items.map((it,i)=>`<div class="arow"><span class="t">${times[i]}</span>
@@ -396,7 +403,9 @@ VIEWS.agenda=()=>{const a=S.agenda;const times=agendaTimes();const dateStr=fmtDa
     <div class="btns"><button data-act="a-add">${t('ag.add')}</button><span class="muted" style="align-self:center">${t('ag.endsAt',{t:times[times.length-1]})}</span></div>
   </div>
   <div class="box agenda-doc">
-    <div class="ah"><span class="label">${t('ag.doc')}</span><h3>${esc(a.club||t('ag.yourClub'))}</h3><p class="muted">${esc(dateStr)}${a.venue?' · '+esc(a.venue):''}</p>${a.theme?`<p>${t('ag.themeIs')} <b>${esc(a.theme)}</b></p>`:''}</div>
+    <div class="ah"><span class="label">${t('ag.doc')}</span><h3>${esc(a.club||t('ag.yourClub'))}</h3><p class="muted">${esc(dateStr)}${a.venue&&o.format!=='online'?' · '+esc(a.venue):''}</p>${a.theme?`<p>${t('ag.themeIs')} <b>${esc(a.theme)}</b></p>`:''}
+      ${o.format!=='inperson'?`<div class="join"><span class="chip ok">${t('fmt.'+o.format)}</span>${link?`<a class="btn primary" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${t('on.join')}</a>`:`<span class="muted">${t('on.noLink')}</span>`}
+        ${o.id||o.pass?`<span class="muted">${esc([o.id?t('on.idIs',{v:o.id}):'',o.pass?t('on.passIs',{v:o.pass}):''].filter(Boolean).join(' · '))}</span>`:''}</div>`:''}</div>
     ${a.items.map((it,i)=>`<div class="li"><span class="t">${times[i]}</span><span>${esc(itemTitle(it))}</span><span class="p">${esc(itemPerson(it))}</span></div>`).join('')}
     <div class="li"><span class="t">${times[times.length-1]}</span><span>${t('ag.ends')}</span><span></span></div>
     <div class="btns"><button class="primary" data-act="a-pdf">${t('ag.pdf')}</button><button data-act="a-copy">${t('ag.copy')}</button></div>
@@ -481,6 +490,7 @@ document.addEventListener('input',ev=>{const el=ev.target;
   if(el.dataset.role){S.roles[el.dataset.role]=el.value.trim();save();const c=$('#rs-'+el.dataset.role);if(c)c.innerHTML=filledChip(el.value.trim())}
 });
 document.addEventListener('change',ev=>{const el=ev.target;const a=el.dataset.act;
+  if(a==='a-format'){S.agenda.online=online(S.agenda);S.agenda.online.format=el.value;save();pushAgenda();render()}
   if(a==='preset'){S.timer.preset=el.value;save();render()}
   if(a==='tt-theme'){S.topics.theme=el.value;S.topics.cur=null;save();render()}
   if(a==='v-cands'){const c=S.vote.cats[S.vote.cat];c.cands=[...new Set(el.value.split(',').map(s=>s.trim()).filter(Boolean))].slice(0,20);save();pushVote();render()}
@@ -493,7 +503,7 @@ function liveRefresh(){const f=document.activeElement;const id=f&&f.id;const s=f
   render();if(id){const n=document.getElementById(id);if(n){n.focus();try{n.setSelectionRange(s,e)}catch(_){}}}}
 document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target.dataset.form;
   if(f==='join'){const c=cleanClub($('#club-code').value);if(c.length<3){toast(t('live.tooShort'));return}
-    setQuery({club:c});initShared();return}
+    setQuery({club:c});initShared().then(()=>{if(SH.on)openQr('club')});return}
   if(f==='ah-word'){const inp=$('#ah-word');if(addWord(inp.value)){render();$('#ah-word').focus()}return}
   if(f==='ah-add'){const v=$('#ah-new').value.trim();if(!v)return;S.ah.speakers.push({name:v,c:{}});S.ah.cur=S.ah.speakers.length-1;save();render();$('#ah-new').focus()}
   if(f==='g-add'){const v=$('#g-new').value.trim();if(!v)return;S.gram.speakers.push({name:v,n:0});save();render();$('#g-new').focus()}
@@ -550,7 +560,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'a-del':S.agenda.items.splice(i,1);save();pushAgenda();render();break;
   case 'a-up':if(i>0){const x=S.agenda.items;[x[i-1],x[i]]=[x[i],x[i-1]];save();pushAgenda();render()}break;
   case 'a-down':{const x=S.agenda.items;if(i<x.length-1){[x[i+1],x[i]]=[x[i],x[i+1]];save();pushAgenda();render()}break}
-  case 'a-copy':{const ag=S.agenda,tm=agendaTimes();copyText(`${ag.club}\n${fmtDate(ag.date)}${ag.venue?' · '+ag.venue:''}${ag.theme?'\n'+t('ag.themeIs')+' '+ag.theme:''}\n\n`+ag.items.map((it,k)=>`${tm[k]}  ${itemTitle(it)}${it.role?' – '+roleLabel(it.role)+': '+itemPerson(it):''}`).join('\n')+`\n${tm[tm.length-1]}  ${t('ag.ends')}`);break}
+  case 'a-copy':{const ag=S.agenda,tm=agendaTimes();const ol=onlineLines(ag);copyText(`${ag.club}\n${fmtDate(ag.date)}${ag.venue&&online(ag).format!=='online'?' · '+ag.venue:''}${ag.theme?'\n'+t('ag.themeIs')+' '+ag.theme:''}${ol.length?'\n'+ol.join('\n'):''}\n\n`+ag.items.map((it,k)=>`${tm[k]}  ${itemTitle(it)}${it.role?' – '+roleLabel(it.role)+': '+itemPerson(it):''}`).join('\n')+`\n${tm[tm.length-1]}  ${t('ag.ends')}`);break}
   // roles
   case 'r-copy':{const open=ROLE_KEYS.filter(k=>!roleName(k)).map(k=>'• '+roleLabel(k));const ag=S.agenda;
     copyText(open.length?t('roles.msgOpen',{date:ag.date?t('roles.msgDate',{d:fmtDate(ag.date)}):'',theme:ag.theme?t('roles.msgTheme',{t:ag.theme}):'',list:open.join('\n')}):t('roles.msgFull'));break}

@@ -1,25 +1,33 @@
-// Toastmasters Tools – club officers' space (Bureau): Google sign-in, officer list, meeting archive, history, participation.
+// Gavel & Timer – club officers' space (Bureau): Google sign-in, officer list, meeting archive, history, participation.
 // Data (see firestore.rules):
 //   clubs/{club}                 {officers:[emails]}   readable and editable by officers only
 //   clubs/{club}/history/{id}    one archived meeting  officers only
 //   clubs/{club}/meeting/reports Timer / Ah-Counter / Grammarian reports sent during the meeting
 
-const OFF={unsubClub:null,unsubHist:null,confirmClose:false,confirmDelete:null,reset:true,busy:false};
+const OFF={unsubClub:null,unsubHist:null,unsubFb:null,confirmClose:false,confirmDelete:null,reset:true,busy:false};
 const emailOk=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 const isMember=()=>SH.user&&!SH.user.anon;
 
 // ---------- access ----------
-function stopOfficerSubs(){if(OFF.unsubClub){OFF.unsubClub();OFF.unsubClub=null}if(OFF.unsubHist){OFF.unsubHist();OFF.unsubHist=null}SH.history=[]}
+function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[]}
 async function officeAuthChanged(){
   stopOfficerSubs();
   if(!SH.fs||!SH.club||!isMember()){SH.officer=undefined;SH.clubExists=undefined;SH.officers=[];return}
-  SH.officer=undefined;softRender();
+  SH.officer=undefined;SH.officeErr='';softRender();
   const ref=SH.fs.doc('clubs/'+SH.club);
   try{
-    const d=await ref.get();
+    const d=await ref.get({source:'server'});
     SH.clubExists=d.exists;SH.officers=d.exists?(d.data().officers||[]):[];
     SH.officer=d.exists&&SH.officers.includes(SH.user.email);
-  }catch(e){SH.clubExists=true;SH.officer=false;SH.officers=[]}  // refused: the club has officers and this person is not one
+  }catch(e){
+    SH.officer=false;SH.officers=[];
+    if(e&&e.code==='permission-denied'){
+      // Two possible reasons: this club has officers and this person is not one, or the database still runs older rules.
+      // The current rules let a Google-signed-in person read a club that does not exist; older rules refuse it.
+      try{await SH.fs.doc('clubs/zz-rules-check').get({source:'server'});SH.clubExists=true}
+      catch(e2){SH.officeErr='rules'}
+    }else{SH.officeErr=(e&&e.code)||'error'}
+  }
   if(SH.officer)startOfficerSubs();
   softRender();
 }
@@ -30,6 +38,9 @@ function startOfficerSubs(){
   },()=>{SH.officer=false;stopOfficerSubs();softRender()});
   OFF.unsubHist=SH.fs.collection('clubs/'+SH.club+'/history').orderBy('date','desc').limit(300).onSnapshot(q=>{
     SH.history=q.docs.map(d=>({id:d.id,...d.data()}));softRender();
+  },()=>{});
+  OFF.unsubFb=SH.fs.collection('clubs/'+SH.club+'/feedback').orderBy('at','desc').limit(1000).onSnapshot(q=>{
+    SH.feedback=q.docs.map(d=>({id:d.id,...d.data()}));softRender();
   },()=>{});
 }
 async function officeSignIn(){
@@ -62,7 +73,7 @@ const todayISO=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.get
 function currentSnapshot(){
   const a=S.agenda;const roles={};ROLE_KEYS.forEach(k=>{const n=roleName(k);if(n)roles[k]=n});
   const votes=S.vote.cats.map((c,i)=>{const {votes,total}=tally(i);return {key:c.key||null,name:c.name||null,cands:c.cands||[],results:votes,total}});
-  return {date:a.date||todayISO(),club:a.club||'',theme:a.theme||'',venue:a.venue||'',start:a.start||'19:00',
+  return {date:a.date||todayISO(),club:a.club||'',theme:a.theme||'',venue:a.venue||'',start:a.start||'19:00',online:online(a),
     items:(a.items||[]).map(it=>({k:it.k||null,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0})),
     roles,votes,reports:clone(SH.reports||{}),closedAt:new Date().toISOString(),closedBy:SH.user.email};
 }
@@ -85,6 +96,7 @@ async function closeMeeting(){
 }
 
 // ---------- history helpers ----------
+const fbFor=date=>(SH.feedback||[]).filter(f=>f.date===date);
 const histPerson=(m,it)=>it.role?((m.roles||{})[it.role]||t('ag.open')):'';
 const voteLabel=v=>v.key?t('cat.'+v.key):(v.name||'');
 function voteLines(m){
@@ -102,8 +114,8 @@ function reportLines(m){
 }
 function historyPdf(m){
   const rl=reportLines(m);
-  return buildAgendaPdf({club:m.club,date:m.date,venue:m.venue,theme:m.theme,start:m.start,items:m.items||[],person:it=>histPerson(m,it),
-    sections:[{title:t('hist.votes'),lines:voteLines(m)},{title:t('hist.timer'),lines:rl.timer},{title:t('hist.ah'),lines:rl.ah},{title:t('hist.gram'),lines:rl.gram}]},
+  return buildAgendaPdf({club:m.club,date:m.date,venue:m.venue,theme:m.theme,start:m.start,online:m.online,items:m.items||[],person:it=>histPerson(m,it),
+    sections:[{title:t('hist.votes'),lines:voteLines(m)},{title:t('fb.title'),lines:feedbackPdfLines(fbFor(m.date))},{title:t('hist.timer'),lines:rl.timer},{title:t('hist.ah'),lines:rl.ah},{title:t('hist.gram'),lines:rl.gram}]},
     pdfName(m.date));
 }
 function participation(){
@@ -124,12 +136,23 @@ function officeView(){
   const who=`<div class="notice"><span>${t('office.signedAs',{email:esc(SH.user.email)})}</span><button class="small" data-act="off-signout">${t('office.signOut')}</button></div>`;
   if(!SH.user.email||!SH.user.verified)return `<section class="panel">${head}${who}<div class="box"><p>${t('office.noEmail')}</p></div></section>`;
   if(SH.officer===undefined)return `<section class="panel">${head}${who}<p class="empty">${t('office.loading')}</p></section>`;
+  if(SH.officeErr==='rules')return `<section class="panel">${head}${who}<div class="box"><h3>${t('office.rulesTitle')}</h3><p>${t('office.rulesText')}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div></section>`;
+  if(SH.officeErr)return `<section class="panel">${head}${who}<div class="box"><p>${t('office.otherErr',{code:esc(SH.officeErr)})}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div></section>`;
   if(!SH.officer){
     return `<section class="panel">${head}${who}<div class="box">${SH.clubExists===false
       ?`<h3>${t('office.claimTitle')}</h3><p class="muted">${t('office.claimText')}</p><div><button class="primary" data-act="off-claim">${t('office.claim')}</button></div>`
       :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div></section>`;
   }
-  return `<section class="panel">${head}${who}${closeBox()}${historyBox()}${participationBox()}${officersBox()}</section>`;
+  return `<section class="panel">${head}${who}${linkBox()}${closeBox()}${currentFeedbackBox()}${historyBox()}${participationBox()}${officersBox()}</section>`;
+}
+function linkBox(){
+  return `<div class="box"><div class="phead"><div><h3>${t('qr.clubTitle')}</h3><p class="muted">${t('qr.officeText')}</p></div>
+    <div class="btns"><button class="small primary" data-act="qr-club">${t('qr.show')}</button><button class="small" data-act="qr-feedback">${t('fb.showQr')}</button><button class="small" data-act="copy-link">${t('live.copyLink')}</button></div></div>
+    <p class="qrurl" style="text-align:left">${esc(shareLink())}</p></div>`;
+}
+function currentFeedbackBox(){
+  const d=meetingDate();
+  return `<div class="box"><div><h3>${t('fb.currentTitle')}</h3><p class="muted">${t('fb.meetingOf',{date:esc(fmtDate(d))})}</p></div>${feedbackHtml(fbFor(d))}</div>`;
 }
 function closeBox(){
   const a=S.agenda;const filled=ROLE_KEYS.filter(k=>roleName(k)).length;
@@ -158,6 +181,7 @@ function historyBox(){
       <div><span class="label">${t('hist.agenda')}</span><ul>${(m.items||[]).map((it,i)=>`<li><span style="font-family:var(--mono)">${times[i]}</span> ${esc(itemTitle(it))}${it.role?` – <b>${esc(histPerson(m,it))}</b>`:''}</li>`).join('')}</ul></div>
       <div><span class="label">${t('hist.votes')}</span>${vl.length?`<ul>${vl.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:`<p class="muted">${t('hist.noVotes')}</p>`}</div>
       ${list(t('hist.timer'),rl.timer)}${list(t('hist.ah'),rl.ah)}${list(t('hist.gram'),rl.gram)}
+      <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:10px"><span class="label">${t('fb.title')}</span>${feedbackHtml(fbFor(m.date))}</div>
       <div style="grid-column:1/-1" class="btns"><button class="small primary" data-act="off-hpdf" data-id="${esc(m.id)}">${t('ag.pdf')}</button>
         ${OFF.confirmDelete===m.id?`<span class="muted" style="align-self:center">${t('hist.confirmDelete')}</span><button class="small" data-act="off-hdel" data-id="${esc(m.id)}">${t('hist.yesDelete')}</button><button class="small ghost" data-act="off-hdel-cancel">${t('common.cancel')}</button>`
           :`<button class="small ghost" data-act="off-hdel-ask" data-id="${esc(m.id)}">${t('hist.delete')}</button>`}
@@ -184,6 +208,7 @@ function officeAct(a,b){
   case 'send-report':sendReport(b.dataset.kind);break;
   case 'off-signin':officeSignIn();break;
   case 'off-signout':officeSignOut();break;
+  case 'off-retry':officeAuthChanged();break;
   case 'off-claim':SH.fs.doc('clubs/'+SH.club).set({officers:[SH.user.email]}).then(officeAuthChanged).catch(writeFail);break;
   case 'off-reset':OFF.reset=b.checked;break;
   case 'off-close-ask':OFF.confirmClose=true;render();break;

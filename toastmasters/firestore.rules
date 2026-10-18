@@ -11,6 +11,7 @@ rules_version = '2';
 //   clubs/{club}/meeting/vote     voting categories, nominees, reveal flag
 //   clubs/{club}/meeting/reports  reports sent by the Timer, Ah-Counter and Grammarian
 //   clubs/{club}/ballots/{uid}    one ballot per device; only that device can write it
+//   clubs/{club}/feedback/{id}    meeting feedback from members and guests; officers read it
 //
 // Members are signed in anonymously. Officers sign in with Google and are recognised by their verified email.
 
@@ -51,6 +52,27 @@ service cloud.firestore {
 
     match /clubs/{club}/history/{meetingId} {
       allow read, create, update, delete: if validClub(club) && isOfficer(club);
+    }
+
+    // Meeting feedback: anyone with the club link (members and guests, signed in anonymously) may send one answer
+    // per device and meeting (the document id is "<date>_<their uid>", and answers cannot be changed).
+    // Only officers can read or delete answers.
+    match /clubs/{club}/feedback/{answerId} {
+      allow create: if request.auth != null
+        && validClub(club)
+        && answerId == request.resource.data.date + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['date', 'kind', 'rating', 'likes', 'again', 'comment', 'name', 'email', 'contact', 'lang', 'at'])
+        && request.resource.data.date is string && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.kind in ['member', 'guest']
+        && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.likes is list && request.resource.data.likes.size() <= 8
+        && request.resource.data.again in ['', 'yes', 'maybe', 'no']
+        && request.resource.data.comment is string && request.resource.data.comment.size() <= 1000
+        && request.resource.data.name is string && request.resource.data.name.size() <= 80
+        && request.resource.data.email is string && request.resource.data.email.size() <= 120
+        && request.resource.data.contact is bool;
+      allow read, delete: if validClub(club) && isOfficer(club);
+      allow update: if false;
     }
 
     match /clubs/{club}/meeting/{docId} {

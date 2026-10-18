@@ -1,4 +1,4 @@
-// Toastmasters Tools – agenda PDF (A4), built in the browser with jsPDF loaded on first use.
+// Gavel & Timer – agenda PDF (A4), built in the browser with jsPDF loaded on first use.
 
 let jsPdfPromise=null;
 function loadJsPdf(){
@@ -46,9 +46,18 @@ async function buildAgendaPdf(meeting,filename){
   const titleLines=doc.splitTextToSize(pdfText(meeting.club||t('ag.yourClub')),W-2*M);
   doc.text(titleLines,M,y);y+=titleLines.length*8;
   doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(...MUTED);
-  const sub=[fmtDate(meeting.date),meeting.venue].filter(Boolean).map(pdfText).join('  ·  ');
+  const ol=online(meeting);
+  const sub=[fmtDate(meeting.date),ol.format!=='online'?meeting.venue:''].filter(Boolean).map(pdfText).join('  ·  ');
   if(sub){doc.text(doc.splitTextToSize(sub,W-2*M),M,y);y+=6}
   if(meeting.theme){doc.setTextColor(...INK);doc.setFont('helvetica','bold');doc.text(pdfText(t('ag.themeIs')+' '+meeting.theme),M,y);y+=6}
+  if(ol.format!=='inperson'){
+    const link=safeUrl(ol.url);doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.setTextColor(...ACC);
+    const label=pdfText(t('fmt.'+ol.format))+(link?' : ':'');doc.text(label,M,y);
+    if(link){const x=M+doc.getTextWidth(label);doc.setFont('helvetica','normal');const shown=doc.splitTextToSize(link,W-M-x)[0];doc.textWithLink(shown,x,y,{url:link})}
+    y+=5.5;
+    const extra=[ol.id?t('on.idIs',{v:ol.id}):'',ol.pass?t('on.passIs',{v:ol.pass}):''].filter(Boolean).join('  ·  ');
+    if(extra){doc.setFont('helvetica','normal');doc.setTextColor(...MUTED);doc.text(pdfText(extra),M,y);y+=5.5}
+  }
   y+=2;doc.setDrawColor(...INK);doc.setLineWidth(0.6);doc.line(M,y,W-M,y);y+=7;
 
   // Rows: time | item (role underneath) | person, right-aligned
@@ -81,7 +90,7 @@ async function buildAgendaPdf(meeting,filename){
 
   const n=doc.getNumberOfPages();
   for(let p=1;p<=n;p++){doc.setPage(p);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...MUTED);
-    doc.text('Toastmasters Tools',M,H-10);doc.text(pdfText(t('pdf.page',{n:p,total:n})),W-M,H-10,{align:'right'})}
+    doc.text('Gavel & Timer',M,H-10);doc.text(pdfText(t('pdf.page',{n:p,total:n})),W-M,H-10,{align:'right'})}
   doc.save(filename);
   return doc;
 }
@@ -89,5 +98,5 @@ async function buildAgendaPdf(meeting,filename){
 function pdfName(date){return (LANG==='fr'?'ordre-du-jour':'agenda')+(date?'-'+date:'')+'.pdf'}
 function currentAgendaPdf(){
   const a=S.agenda;
-  return buildAgendaPdf({club:a.club,date:a.date,venue:a.venue,theme:a.theme,start:a.start,items:a.items,person:itemPerson},pdfName(a.date));
+  return buildAgendaPdf({club:a.club,date:a.date,venue:a.venue,theme:a.theme,start:a.start,online:a.online,items:a.items,person:itemPerson},pdfName(a.date));
 }

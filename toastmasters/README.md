@@ -3,7 +3,8 @@
 Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
 
 **During the meeting:** speech timer with green/amber/red signals, Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
-**Before the meeting:** agenda builder with PDF download, role sign-up, role guides, evaluation form.
+**Before the meeting:** agenda builder (in person, hybrid or online, with the Zoom/Teams link) and PDF download, role sign-up, role guides, evaluation form.
+**After the meeting:** feedback form for members and guests, with a QR code to show on screen.
 **Club officers (Bureau):** meeting archive, history of all meetings, member participation.
 
 Roles, the agenda and votes can be shared live with your whole club through Firebase. Everything else stays on each person's device.
@@ -17,6 +18,8 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `index.html` | The page layout and styles |
 | `app.js` | How the tools work |
 | `office.js` | The club officers' space: sign-in, archive, history, participation |
+| `after.js` | QR codes and the feedback form |
+| `vendor/qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
 | `pdf.js` | Agenda PDF (uses jsPDF, loaded from cdnjs the first time someone downloads a PDF) |
 | `i18n.js` | All text in English and French, plus each language's filler words, Table Topics questions, role guides and example meeting |
 | `firebase-config.js` | Your Firebase project settings (you fill this in) |
@@ -51,7 +54,7 @@ The site already works at this point, with data kept on each device. Steps 2 and
 7. **Set the rules:** open the **Rules** tab, replace everything with the contents of `firestore.rules`, and click **Publish**.
 8. Commit the updated `firebase-config.js` to GitHub.
 
-If you set up Firebase with an earlier version of this site, publish the new `firestore.rules` and turn on Google sign-in: the officers' space needs both.
+If you set up Firebase with an earlier version of this site, publish the new `firestore.rules` each time you update the site, and turn on Google sign-in: the officers' space and the feedback form need the latest rules.
 
 The values in `firebase-config.js` are meant to be public. What protects the data is the rules file.
 
@@ -66,11 +69,27 @@ The values in `firebase-config.js` are meant to be public. What protects the dat
 
 Each club code is its own space, so several clubs can use the same site.
 
+### Online and hybrid meetings
+
+In **Agenda**, set **Format** to **Hybrid** or **Online** and paste the meeting link (Zoom, Teams, Meet…), with the meeting ID and passcode if you use them. The agenda then shows a **Join online** button, and the link is included in the copied text and is clickable in the PDF. Links must start with `https://`.
+
+### QR code for the club space
+
+When you click **Go live**, a QR code of the club link appears straight away so you can show it on screen. You can show it again at any time with **Show QR code** (next to **Copy club link**) or from the officers' space.
+
 ### Agenda PDF
 
 In **Agenda**, **Download PDF** saves an A4 agenda with times, roles and the names of who holds them, ready to print or send. It works with or without live sharing.
 
-## 4. The club officers' space (Bureau)
+## 4. After the meeting: feedback
+
+The **Feedback** tab (**Avis** in French) is a one-minute form for members and guests: member or guest, a rating out of 5, what they liked most, a suggestion, and, for guests, whether they would come back and an optional email if they want the club to contact them.
+
+- Click **Feedback QR code** to show a QR code that opens the form directly, for example on the screen at the end of the meeting.
+- The form is for the meeting date set in the Agenda tab (today if none is set). Each device can answer once per meeting.
+- Answers can only be read by the club officers, in the officers' space: a summary for the current meeting, and the feedback for each meeting in the history and its PDF.
+
+## 5. The club officers' space (Bureau)
 
 Open the **Club officers** tab (**Bureau** in French) with your club link.
 
