@@ -381,7 +381,7 @@ fr: {
   "agi.tt": "Session de sujets improvisations", "agi.break": "Pause", "agi.evals": "Évaluations des discours",
   "agi.reports": "Rapports du chronométreur, du compteur d’hésitations et du grammairien", "agi.ge": "Évaluation générale", "agi.close": "Remise des prix et clôture",
 
-  "role.toastmaster": "Toastmaster de la soirée", "role.ge": "Évaluateur général", "role.timer": "Chronométreur", "role.ah": "Compteur d’hésitations",
+  "role.toastmaster": "Toastmaster de la soirée (l'animateur)", "role.ge": "Évaluateur général", "role.timer": "Chronométreur", "role.ah": "Compteur d’hésitations",
   "role.gram": "Grammairien", "role.ttm": "Meneur des improvisations", "role.s1": "Orateur 1", "role.s2": "Orateur 2", "role.s3": "Orateur 3",
   "role.e1": "Évaluateur 1", "role.e2": "Évaluateur 2", "role.e3": "Évaluateur 3", "role.saa": "Sergent d’armes", "role.pres": "Président",
   "roles.title": "Inscription aux rôles",
