@@ -903,13 +903,23 @@ window.TOPICS = {
   en: {
     themes: {everyday:'Everyday', work:'Work', travel:'Travel', imagine:'Imagine', memories:'Memories', big:'Big questions', all:'All', mine:'Your questions'},
     bank: {
-      big:['Should everyone learn a second language?','Does technology bring people closer or push them apart?','What makes a good leader?']
+      everyday:['What is a small habit that changed your life?','Describe the best advice you ignored.','What would you do with one extra hour every day?','Which household chore secretly makes you happy?','What is something you changed your mind about recently?','Tell us about an object you would never throw away.'],
+      work:['What job would you do for free?','Describe the best manager you never had.','What skill should every school teach?','Tell us about a mistake that taught you more than a success.','If you could redesign the work week, what would it look like?'],
+      travel:['Which city surprised you the most, and why?','Describe a journey where everything went wrong.','You can live anywhere for one year. Where do you go?','What is the best meal you have had abroad?','Pack one item only for a trip around the world. What is it?'],
+      imagine:['You wake up able to speak to animals. Which one do you talk to first?','You are mayor for a day. What is your first law?','Invent a new public holiday and explain how we celebrate it.','You can have dinner with your future self. What do you ask?','A museum asks to exhibit one item from your life. Which one?'],
+      memories:['Tell us about a teacher who shaped you.','What game did you love as a child?','Describe a moment you felt truly proud.','What smell takes you straight back to childhood?','Tell us about the first time you spoke in front of a group.'],
+      big:['Is it better to be respected or liked?','Should everyone learn a second language?','Does technology bring people closer or push them apart?','What makes a good leader?','Is failure necessary for success?']
     }
   },
   fr: {
     themes: {everyday:'Au quotidien', work:'Travail', travel:'Voyages', imagine:'Imaginez', memories:'Souvenirs', big:'Grandes questions', all:'Tous', mine:'Vos questions'},
     bank: {
-      big:['La technologie nous rapproche-t-elle ou nous éloigne-t-elle ?','L’échec est-il nécessaire pour réussir ?']
+      everyday:['Quelle petite habitude a changé votre vie ?','Racontez le meilleur conseil que vous n’avez pas suivi.','Que feriez-vous d’une heure de plus chaque jour ?','Quelle tâche ménagère vous rend secrètement heureux ?','Sur quoi avez-vous changé d’avis récemment ?','Parlez-nous d’un objet que vous ne jetteriez jamais.'],
+      work:['Quel métier feriez-vous gratuitement ?','Décrivez le meilleur manager que vous n’avez jamais eu.','Quelle compétence chaque école devrait-elle enseigner ?','Racontez une erreur qui vous a appris plus qu’un succès.','Si vous pouviez réinventer la semaine de travail, à quoi ressemblerait-elle ?'],
+      travel:['Quelle ville vous a le plus surpris, et pourquoi ?','Racontez un voyage où tout est allé de travers.','Vous pouvez vivre n’importe où pendant un an. Où allez-vous ?','Quel est le meilleur repas que vous ayez fait à l’étranger ?','Un seul objet pour faire le tour du monde : lequel emportez-vous ?'],
+      imagine:['Vous vous réveillez en parlant aux animaux. À qui parlez-vous en premier ?','Vous êtes maire pour une journée. Quelle est votre première mesure ?','Inventez un nouveau jour férié et dites-nous comment on le fête.','Vous dînez avec vous-même dans vingt ans. Que lui demandez-vous ?','Un musée veut exposer un objet de votre vie. Lequel ?'],
+      memories:['Parlez-nous d’un professeur qui vous a marqué.','À quel jeu adoriez-vous jouer enfant ?','Racontez un moment où vous vous êtes senti vraiment fier.','Quelle odeur vous ramène directement à l’enfance ?','Racontez la première fois que vous avez pris la parole devant un groupe.'],
+      big:['Vaut-il mieux être respecté ou apprécié ?','Tout le monde devrait-il apprendre une deuxième langue ?','La technologie nous rapproche-t-elle ou nous éloigne-t-elle ?','Qu’est-ce qui fait un bon leader ?','L’échec est-il nécessaire pour réussir ?']
     }
   }
 };
