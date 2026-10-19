@@ -14,6 +14,7 @@ rules_version = '2';
 //   clubs/{club}/feedback/{id}    meeting feedback from members and guests; officers read it
 //   clubs/{club}/public/info      the club introduction page; everyone reads, officers edit
 //   clubs/{club}/interest/{uid}   members interested in an officer role; the sender and officers read it
+//   clubs/{club}/templates/{id}   agenda templates; everyone reads, officers create, update and delete
 //
 // Members are signed in anonymously. Officers sign in with Google and are recognised by their verified email.
 
@@ -99,6 +100,16 @@ service cloud.firestore {
       allow update: if validClub(club) && isOfficer(club)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         && request.resource.data.status in ['new', 'contacted', 'offered', 'joined', 'declined'];
+    }
+
+    // Agenda templates: everyone with the club link can use them, only officers manage them.
+    match /clubs/{club}/templates/{templateId} {
+      allow read: if validClub(club);
+      allow delete: if validClub(club) && isOfficer(club);
+      allow create, update: if validClub(club) && isOfficer(club)
+        && request.resource.data.keys().hasOnly(['name', 'items', 'start', 'updatedAt', 'updatedBy'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
+        && request.resource.data.items is list && request.resource.data.items.size() <= 40;
     }
 
     match /clubs/{club}/meeting/{docId} {

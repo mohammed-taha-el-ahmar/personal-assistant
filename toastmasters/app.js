@@ -161,6 +161,7 @@ async function initShared(){
   SH.ref.reports.onSnapshot(s=>{SH.reports=s.exists?clone(s.data()):{};softRender()},onErr);
   SH.ref.ballots.onSnapshot(q=>{SH.ballots=q.docs.map(d=>({id:d.id,...d.data()}));softRender()},onErr);
   if(typeof clubLive==='function')clubLive();
+  if(typeof templatesLive==='function')templatesLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
@@ -380,6 +381,7 @@ VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=onlin
   return `<section class="panel">
   <div class="phead"><div><h2>${t('ag.title')}</h2><p class="muted">${t('ag.intro')}${SH.on?' '+t('ag.introShared'):''}</p></div></div>
   ${liveBox()}${SH.on?'':sampleNotice()}
+  ${templatesBox()}
   <div class="box"><div class="fields">
     <div class="field"><label class="label" for="a-club">${t('ag.club')}</label><input id="a-club" data-bind="agenda.club" data-live="1" value="${esc(a.club)}"></div>
     <div class="field"><label class="label" for="a-date">${t('ag.date')}</label><input id="a-date" type="date" data-bind="agenda.date" data-live="1" value="${esc(a.date)}"></div>

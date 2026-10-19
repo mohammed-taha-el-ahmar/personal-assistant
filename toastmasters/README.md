@@ -4,7 +4,7 @@ Free meeting tools for Toastmasters clubs, built as a single static page for Git
 
 **Club:** an introduction page for the club (description, practical information, current officers, announcements, events) edited by the officers, and a page presenting the officer roles with an "I'm interested" form.
 **During the meeting:** speech timer with green/amber/red signals, Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
-**Before the meeting:** agenda builder (in person, hybrid or online, with the Zoom/Teams link) and PDF download, role sign-up, role guides.
+**Before the meeting:** agenda builder with meeting templates (2 speeches, 3 speeches, speech contest, plus your own), in person, hybrid or online with the Zoom/Teams link, and PDF download, role sign-up, role guides.
 **Evaluations:** forms for each type of evaluation (prepared speech, Table Topics, evaluator, Toastmaster of the Evening, Table Topics Master, General Evaluator, Timer/Ah-Counter/Grammarian, custom) with pre-filled criteria you can rename, reorder, remove or add to; PDF filled in or blank to print.
 **After the meeting:** feedback form for members and guests, with a QR code to show on screen.
 **Club officers (Bureau):** meeting archive, history of all meetings, member participation.
@@ -21,6 +21,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `app.js` | How the tools work |
 | `office.js` | The club officers' space: sign-in, archive, history, participation |
 | `evals.js` | Evaluation forms by type |
+| `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
 | `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
 | `qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
@@ -80,6 +81,16 @@ In **Agenda**, set **Format** to **Hybrid** or **Online** and paste the meeting 
 ### QR code for the club space
 
 When you click **Go live**, a QR code of the club link appears straight away so you can show it on screen. You can show it again at any time with **Show QR code** (next to **Copy club link**) or from the officers' space.
+
+### Meeting templates
+
+At the top of **Agenda**, pick a template and click **Use this template** to replace the running order. The club name, date, theme, venue and online link are kept. Three templates are built in: a regular meeting with 2 speeches, one with 3 speeches, and a speech contest (4 contestants with the minute of silence, ballot counting, results).
+
+To save your own, adjust the running order and start time, type a name and click **Save current agenda as template**.
+- A club officer signed in on the Club officers tab saves it for the **whole club**: every member sees it under *Club templates*. Officers can also update it with the current agenda, rename it or delete it.
+- Anyone else saves it **on their own device** only.
+
+Templates store the running order (items, roles, durations) and the start time, not the date or names.
 
 ### Agenda PDF
 

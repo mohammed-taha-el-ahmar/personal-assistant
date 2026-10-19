@@ -176,6 +176,6 @@ async function buildEvalPdf(list,filename,blank){
 
   const n=doc.getNumberOfPages();
   for(let p=1;p<=n;p++){doc.setPage(p);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...MUTED);
-    doc.text('Gavel & Timer',M,H-10);doc.text(pdfText(t('pdf.page',{n:p,total:n})),W-M,H-10,{align:'right'})}
+    doc.text('Toastmasters Tools',M,H-10);doc.text(pdfText(t('pdf.page',{n:p,total:n})),W-M,H-10,{align:'right'})}
   doc.save(filename);
 }
