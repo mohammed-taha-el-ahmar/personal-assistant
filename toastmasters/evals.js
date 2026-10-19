@@ -5,6 +5,7 @@ const EV_TYPES={
   speech:['open','struct','voice','body','eye','lang','close','obj'],
   tt:['answer','struct','voice','body','confidence','time'],
   evaluator:['commendations','recommendations','structEval','objectives','tone','time'],
+  tte:['ttCoverage','ttSpecific','commendations','recommendations','structEval','tone','time'],
   toastmaster:['prep','intros','transitions','timekeep','energy','welcome'],
   ttm:['questions','explain','selection','timekeep','energy'],
   ge:['overview','meetingFlow','functionaries','evaluators','tone','time'],

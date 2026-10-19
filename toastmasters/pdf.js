@@ -129,11 +129,13 @@ async function buildEvalPdf(list,filename,blank){
     if(e.type==='functionary')info.push([t('ev.role'),e.role]);
     if(e.type==='speech'){info.push([t('ev.project'),e.project]);info.push([t('ev.goals'),e.goals])}
     info.forEach(([k,v])=>{
-      need(8);doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(...MUTED);doc.text(pdfText(k),M,y);
-      const val=blank?'':pdfText(v||'');
-      if(val){doc.setFont('helvetica','normal');doc.setFontSize(10.5);doc.setTextColor(...INK);const ls=doc.splitTextToSize(val,W-2*M-48);doc.text(ls,M+48,y);y+=(ls.length-1)*5}
+      // Long labels (e.g. "Évaluateur des improvisations") wrap inside their column instead of running into the value.
+      need(8);doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(...MUTED);
+      const kl=doc.splitTextToSize(pdfText(k),44);doc.text(kl,M,y);
+      const val=blank?'':pdfText(v||'');let vl=1;
+      if(val){doc.setFont('helvetica','normal');doc.setFontSize(10.5);doc.setTextColor(...INK);const ls=doc.splitTextToSize(val,W-2*M-48);doc.text(ls,M+48,y);vl=ls.length}
       else{doc.setDrawColor(...LINE);doc.setLineWidth(0.3);doc.line(M+48,y+1,W-M,y+1)}
-      y+=7.5;
+      y+=(Math.max(kl.length,vl)-1)*4.6+7.5;
     });
     y+=2;
 
