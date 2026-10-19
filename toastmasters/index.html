@@ -108,6 +108,12 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var
 .stage .sig{font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.85rem;opacity:.9}
 .stage:fullscreen{justify-content:center;border-radius:0}
 .stage:fullscreen .clock{font-size:26vw}
+/* Colors only: the elapsed time and the thresholds are hidden; the background colour alone gives the signal. */
+.stage.colors-only .clock,.stage.colors-only .marks{display:none}
+.stage:fullscreen.colors-only{gap:28px}
+.stage:fullscreen.colors-only .who{font-size:clamp(1.6rem,4vw,3rem)}
+.stage:fullscreen .btns{opacity:.35;transition:opacity .2s}
+.stage:fullscreen .btns:hover,.stage:fullscreen .btns:focus-within{opacity:1}
 .marks{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-family:var(--mono);font-size:.9rem}
 .marks span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:currentColor}
 .stage:not(.green):not(.amber):not(.red):not(.over) .marks .g{color:var(--go)}

@@ -3,7 +3,7 @@
 Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
 
 **Club:** an introduction page for the club (description, practical information, current officers, announcements, events) edited by the officers, and a page presenting the officer roles with an "I'm interested" form.
-**During the meeting:** speech timer with green/amber/red signals, Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
+**During the meeting:** speech timer with green/amber/red signals (show colors and time, or colors only; press H to switch), Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
 **Before the meeting:** agenda builder with meeting templates (2 speeches, 3 speeches, speech contest, plus your own), in person, hybrid or online with the Zoom/Teams link, and PDF download, role sign-up, random speaking order for contests, role guides.
 **Evaluations:** forms for each type of evaluation (prepared speech, Table Topics, evaluator, Toastmaster of the Evening, Table Topics Master, General Evaluator, Timer/Ah-Counter/Grammarian, custom) with pre-filled criteria you can rename, reorder, remove or add to; PDF filled in or blank to print.
 **After the meeting:** feedback form for members and guests, with a QR code to show on screen.

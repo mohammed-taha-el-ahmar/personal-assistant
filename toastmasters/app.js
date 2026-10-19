@@ -240,12 +240,17 @@ function preset(){const p=PRESETS.find(p=>p.id===S.timer.preset)||PRESETS[3];if(
   return {id:'custom',g:S.timer.cg*60,a:S.timer.ca*60,r:S.timer.cr*60}}
 const presetLabel=p=>p.id==='custom'&&p.g!=null?t('preset.customN',{a:p.g/60,b:p.r/60}):t('preset.'+p.id);
 const logType=l=>l.pid?(l.pid==='custom'?t('preset.customN',{a:l.cg,b:l.cr}):t('preset.'+l.pid)):(l.type||'');
+// Timer display (colors and time, or colors only) is a preference of this device, kept apart from meeting data.
+const timerDisplay=()=>{try{return localStorage.getItem('gt-timer-display')||'both'}catch(e){return 'both'}};
+const setTimerDisplay=v=>{try{localStorage.setItem('gt-timer-display',v)}catch(e){}};
 const elapsed=()=>T.elapsed+(T.running?(performance.now()-T.start)/1000:0);
 function signal(s,p){if(s>=p.r+30)return 'over';if(s>=p.r)return 'red';if(s>=p.a)return 'amber';if(s>=p.g)return 'green';return ''}
 const qualified=(s,p)=>s>=p.g-30&&s<=p.r+30;
 function paintTimer(){
   const st=$('#stage');if(!st)return;const p=preset(),s=elapsed(),sig=signal(s,p);
-  st.className='stage '+sig;$('#clock').textContent=mmss(s);
+  const colorsOnly=timerDisplay()==='colors';
+  st.className='stage '+sig+(colorsOnly?' colors-only':'');$('#clock').textContent=mmss(s);
+  const db=$('#t-dispbtn');if(db)db.textContent=t(colorsOnly?'timer.showTime':'timer.hideTime');
   $('#sig').textContent={'':T.running?t('timer.speaking'):t('timer.ready'),green:t('timer.sigGreen'),amber:t('timer.sigAmber'),red:t('timer.sigRed'),over:t('timer.sigOver')}[sig];
   $('#tbtn').textContent=T.running?t('timer.pause'):(T.elapsed?t('timer.resume'):t('timer.start'));
 }
@@ -258,6 +263,7 @@ VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   ${sampleNotice()}
   <div class="box"><div class="fields">
     <div class="field"><label class="label" for="t-name">${t('common.speaker')}</label><input id="t-name" data-bind="timer.name" value="${esc(tm.name)}" placeholder="${t('timer.speakerPh')}"></div>
+    <div class="field"><label class="label" for="t-display">${t('timer.display')}</label><select id="t-display" data-act="t-display"><option value="both" ${timerDisplay()!=='colors'?'selected':''}>${t('timer.dispBoth')}</option><option value="colors" ${timerDisplay()==='colors'?'selected':''}>${t('timer.dispColors')}</option></select></div>
     <div class="field"><label class="label" for="t-preset">${t('timer.type')}</label><select id="t-preset" data-act="preset">${PRESETS.map(x=>`<option value="${x.id}" ${x.id===tm.preset?'selected':''}>${t('preset.'+x.id)}</option>`).join('')}</select></div>
     ${tm.preset==='custom'?['cg','ca','cr'].map((k,i)=>`<div class="field"><label class="label" for="t-${k}">${t(['timer.green','timer.amber','timer.red'][i])} (${t('timer.min')})</label><input id="t-${k}" type="number" min="0" step="0.5" data-bind="timer.${k}" data-num="1" value="${tm[k]}"></div>`).join(''):''}
   </div></div>
@@ -266,7 +272,7 @@ VIEWS.timer=()=>{const p=preset();const tm=S.timer;
     <div class="clock" id="clock" aria-live="off">0:00</div>
     <div class="sig" id="sig">${t('timer.ready')}</div>
     <div class="marks">${marksHtml(p)}</div>
-    <div class="btns"><button class="primary" id="tbtn" data-act="t-toggle">${t('timer.start')}</button><button data-act="t-log">${esc(t('timer.stop'))}</button><button data-act="t-reset">${t('timer.reset')}</button><button data-act="t-full">${t('timer.full')}</button></div>
+    <div class="btns"><button class="primary" id="tbtn" data-act="t-toggle">${t('timer.start')}</button><button data-act="t-log">${esc(t('timer.stop'))}</button><button data-act="t-reset">${t('timer.reset')}</button><button data-act="t-full">${t('timer.full')}</button><button id="t-dispbtn" data-act="t-disp-toggle">${t(timerDisplay()==='colors'?'timer.showTime':'timer.hideTime')}</button></div>
   </div>
   <div class="box"><div class="phead"><h3>${t('timer.report')}</h3><div class="btns"><button class="small" data-act="t-copy">${t('common.copyReport')}</button>${sendBtn('timer')}<button class="small ghost" data-act="t-clear">${t('timer.clearLog')}</button></div></div>
     ${tm.log.length?`<div class="tablewrap"><table><thead><tr><th>${t('common.speaker')}</th><th>${t('timer.colType')}</th><th class="num">${t('timer.colTime')}</th><th>${t('timer.colResult')}</th><th></th></tr></thead><tbody>
@@ -463,6 +469,7 @@ document.addEventListener('input',ev=>{const el=ev.target;
 document.addEventListener('change',ev=>{const el=ev.target;const a=el.dataset.act;
   if(a==='a-format'){S.agenda.online=online(S.agenda);S.agenda.online.format=el.value;save();pushAgenda();render()}
   if(a==='preset'){S.timer.preset=el.value;save();render()}
+  if(a==='t-display'){setTimerDisplay(el.value);paintTimer()}
   if(a==='tt-theme'){S.topics.theme=el.value;S.topics.cur=null;save();render()}
   if(a==='v-cands'){const c=S.vote.cats[S.vote.cat];c.cands=[...new Set(el.value.split(',').map(s=>s.trim()).filter(Boolean))].slice(0,20);save();pushVote();render()}
   if(el.dataset.item!==undefined&&el.dataset.k==='role'){render()}
@@ -494,6 +501,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
     S.timer.log.push(entry);resetTimer();S.timer.name='';save();render();toast(t('timer.recorded',{t:mmss(s)}));break}
   case 't-del':S.timer.log.splice(i,1);save();render();break;
   case 't-clear':S.timer.log=[];save();render();break;
+  case 't-disp-toggle':{const _nd=(timerDisplay()==='colors'?'both':'colors');setTimerDisplay(_nd);const sel=$('#t-display');if(sel)sel.value=_nd;paintTimer();break}
   case 't-full':{const st=$('#stage');try{(document.fullscreenElement?document.exitFullscreen():st.requestFullscreen()).catch(()=>toast(t('timer.noFull')))}catch(e){toast(t('timer.noFull'))}break}
   case 't-copy':copyText(t('timer.reportHead')+'\n'+S.timer.log.map(l=>`${l.name} – ${logType(l)} – ${mmss(l.secs)} – ${l.q===false?t('timer.repOut'):t('timer.repQ')}`).join('\n'));break;
   // ah
@@ -551,6 +559,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
 function resetTimer(){T.running=false;T.elapsed=0;cancelAnimationFrame(T.raf);releaseLock()}
 async function getLock(){try{T.lock=await navigator.wakeLock.request('screen')}catch(e){}}
 function releaseLock(){try{T.lock&&T.lock.release()}catch(e){}T.lock=null}
+document.addEventListener('keydown',e=>{if(tab==='timer'&&e.key.toLowerCase()==='h'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){const b=$('#t-dispbtn');if(b)b.click()}});
 document.addEventListener('keydown',e=>{if(tab==='timer'&&e.code==='Space'&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)){e.preventDefault();$('#tbtn').click()}});
 
 // If the example meeting was built in another language than the one now in use, rebuild it.
