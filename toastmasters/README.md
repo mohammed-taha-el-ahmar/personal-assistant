@@ -1,6 +1,6 @@
-# Toastmasters Tools
+# TM Tools
 
-Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
+Free meeting tools for Public Speaking clubs, built as a single static page for GitHub Pages.
 
 **Club:** an introduction page for the club (description, practical information, current officers, announcements, events) edited by the officers, and a page presenting the officer roles with an "I'm interested" form.
 **During the meeting:** speech timer with green/amber/red signals (show colors and time, or colors only; press H to switch), Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.

@@ -1,4 +1,4 @@
-// Toastmasters Tools – translations and language-specific content.
+// TM Tools – translations and language-specific content.
 // To add a language: copy the "en" block in each object below, translate it, and add the code to LANGS.
 window.LANGS = ['en', 'fr'];
 

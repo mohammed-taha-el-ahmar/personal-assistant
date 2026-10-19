@@ -1,4 +1,4 @@
-// Toastmasters Tools – app logic. Text and language content live in i18n.js.
+// TM Tools – app logic. Text and language content live in i18n.js.
 
 // ---------- language ----------
 function detectLang(){

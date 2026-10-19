@@ -1,4 +1,4 @@
-// Toastmasters Tools Data (see firestore.rules):
+// TM Tools Data (see firestore.rules):
 //   clubs/{club}/public/info       the introduction page; everyone reads, officers write
 //   clubs/{club}/interest/{uid}    one interest form per device; the sender and officers read it
 

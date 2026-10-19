@@ -1,4 +1,4 @@
-// Toastmasters Tools – deleting a club space, with a 3-day delay during which any officer can cancel.
+// TM Tools – deleting a club space, with a 3-day delay during which any officer can cancel.
 // The request is stamped with the server's clock (see firestore.rules), so the delay cannot be shortened.
 // After the delay the database locks the club; the next officer who opens the site erases everything.
 // clubs/{club}/public/status repeats the deadline so every member sees the notice.

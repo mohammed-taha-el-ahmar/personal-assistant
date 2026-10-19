@@ -1,4 +1,4 @@
-// Toastmasters Tools – club-level choice of which sections, tabs and features members see.
+// TM Tools – club-level choice of which sections, tabs and features members see.
 // Useful when a club already uses another tool (easy-Speak, for example) for some of these jobs.
 // Stored in clubs/{club}/public/modules as {disabled:[keys]}; everyone reads it, officers change it.
 // Without a club link every tool stays visible. The Club officers tab is always visible so officers can undo a choice.
