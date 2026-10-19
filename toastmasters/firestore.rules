@@ -10,6 +10,7 @@ rules_version = '2';
 //   clubs/{club}/meeting/agenda   the running order
 //   clubs/{club}/meeting/vote     voting categories, nominees, reveal flag
 //   clubs/{club}/meeting/reports  reports sent by the Timer, Ah-Counter and Grammarian
+//   clubs/{club}/meeting/draw     the latest random speaking order
 //   clubs/{club}/ballots/{uid}    one ballot per device; only that device can write it
 //   clubs/{club}/feedback/{id}    meeting feedback from members and guests; officers read it
 //   clubs/{club}/public/info      the club introduction page; everyone reads, officers edit
@@ -116,7 +117,7 @@ service cloud.firestore {
       allow read: if validClub(club);
       allow create, update: if request.auth != null
         && validClub(club)
-        && docId in ['roles', 'agenda', 'vote', 'reports']
+        && docId in ['roles', 'agenda', 'vote', 'reports', 'draw']
         && request.resource.data.keys().size() <= 10;
       allow delete: if false;
     }

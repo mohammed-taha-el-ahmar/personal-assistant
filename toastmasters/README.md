@@ -4,7 +4,7 @@ Free meeting tools for Toastmasters clubs, built as a single static page for Git
 
 **Club:** an introduction page for the club (description, practical information, current officers, announcements, events) edited by the officers, and a page presenting the officer roles with an "I'm interested" form.
 **During the meeting:** speech timer with green/amber/red signals, Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
-**Before the meeting:** agenda builder with meeting templates (2 speeches, 3 speeches, speech contest, plus your own), in person, hybrid or online with the Zoom/Teams link, and PDF download, role sign-up, role guides.
+**Before the meeting:** agenda builder with meeting templates (2 speeches, 3 speeches, speech contest, plus your own), in person, hybrid or online with the Zoom/Teams link, and PDF download, role sign-up, random speaking order for contests, role guides.
 **Evaluations:** forms for each type of evaluation (prepared speech, Table Topics, evaluator, Toastmaster of the Evening, Table Topics Master, General Evaluator, Timer/Ah-Counter/Grammarian, custom) with pre-filled criteria you can rename, reorder, remove or add to; PDF filled in or blank to print.
 **After the meeting:** feedback form for members and guests, with a QR code to show on screen.
 **Club officers (Bureau):** meeting archive, history of all meetings, member participation.
@@ -22,6 +22,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `office.js` | The club officers' space: sign-in, archive, history, participation |
 | `evals.js` | Evaluation forms by type |
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
+| `draw.js` | Random speaking order (contests, speakers) |
 | `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
 | `qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
@@ -91,6 +92,14 @@ To save your own, adjust the running order and start time, type a name and click
 - Anyone else saves it **on their own device** only.
 
 Templates store the running order (items, roles, durations) and the start time, not the date or names.
+
+### Random speaking order
+
+In **Draw order** (**Tirage au sort**), type what the draw is for and the participants' names (one per line), then click **Draw the order**. The order is drawn with the browser's cryptographic random generator, after a short on-screen shuffle so the room sees it happen.
+
+- **Show full screen** displays the order in large type for the projector; **Copy the order** gives a numbered list for your chat.
+- **Put this order in the agenda** writes the names into the contestant slots of the agenda (apply the *Speech contest* template first).
+- With a club link, the result is shared live with everyone. Each draw is numbered and time-stamped, and drawing again asks for confirmation, so any redraw is visible to all.
 
 ### Agenda PDF
 
