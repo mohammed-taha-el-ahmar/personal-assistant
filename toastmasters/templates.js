@@ -11,9 +11,9 @@ const saveLocalTemplates=()=>{try{localStorage.setItem(TPL_LOCAL_KEY,JSON.string
 // [key, role, minutes]. Keys are translated through i18n ("agi.<key>"), so built-in templates follow the reader's language.
 const BUILTIN_TEMPLATES={
   '2':[['doors','saa',10],['welcome','pres',3],['intro','toastmaster',4],['roles','ge',5],['speech1','s1',7],['speech2','s2',7],
-       ['tt','ttm',20],['break','',10],['evals','ge',9],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]],
+       ['tt','ttm',20],['break','',10],['evals','ge',9],['ttEval','tte',4],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]],
   '3':[['doors','saa',10],['welcome','pres',3],['intro','toastmaster',4],['roles','ge',5],['speech1','s1',7],['speech2','s2',7],['speech3','s3',7],
-       ['tt','ttm',20],['break','',10],['evals','ge',12],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]],
+       ['tt','ttm',20],['break','',10],['evals','ge',12],['ttEval','tte',4],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]],
   'contest':[['doors','saa',15],['welcome','pres',3],['cOpen','toastmaster',5],['cRules','',5],
        ['c1','',8],['c2','',8],['c3','',8],['c4','',8],['cTally','',15],['cResults','',5],['close','pres',3]]
 };

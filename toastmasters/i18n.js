@@ -519,11 +519,11 @@ en: {
   "ag.open": "(open)",
   "agi.doors": "Doors open, networking", "agi.welcome": "Welcome and opening", "agi.intro": "Introduction of the evening",
   "agi.roles": "Role holders explain their roles", "agi.speech1": "Prepared speech 1", "agi.speech2": "Prepared speech 2", "agi.speech3": "Prepared speech 3",
-  "agi.tt": "Table Topics session", "agi.break": "Break", "agi.evals": "Speech evaluations",
+  "agi.tt": "Table Topics session", "agi.break": "Break", "agi.evals": "Speech evaluations", "agi.ttEval": "Table Topics evaluation",
   "agi.reports": "Timer, Ah-Counter and Grammarian reports", "agi.ge": "General evaluation", "agi.close": "Awards and closing",
 
   "role.toastmaster": "Toastmaster of the Evening", "role.ge": "General Evaluator", "role.timer": "Timer", "role.ah": "Ah-Counter",
-  "role.gram": "Grammarian", "role.ttm": "Table Topics Master", "role.s1": "Speaker 1", "role.s2": "Speaker 2", "role.s3": "Speaker 3",
+  "role.gram": "Grammarian", "role.ttm": "Table Topics Master", "role.tte": "Table Topics Evaluator", "role.s1": "Speaker 1", "role.s2": "Speaker 2", "role.s3": "Speaker 3",
   "role.e1": "Evaluator 1", "role.e2": "Evaluator 2", "role.e3": "Evaluator 3", "role.saa": "Sergeant at Arms", "role.pres": "President",
   "roles.title": "Role sign-up",
   "roles.introShared": "Members open this page and tap “Take it” to claim a role. You can also type the name of someone who signed up another way.",
@@ -1069,11 +1069,11 @@ fr: {
   "ag.open": "(à pourvoir)",
   "agi.doors": "Accueil et échanges", "agi.welcome": "Ouverture de la réunion", "agi.intro": "Présentation de la soirée",
   "agi.roles": "Présentation des rôles", "agi.speech1": "Discours préparé 1", "agi.speech2": "Discours préparé 2", "agi.speech3": "Discours préparé 3",
-  "agi.tt": "Session des sujets d'improvisations", "agi.break": "Pause", "agi.evals": "Évaluations des discours",
+  "agi.tt": "Session des sujets d'improvisations", "agi.break": "Pause", "agi.evals": "Évaluations des discours", "agi.ttEval": "Évaluation des improvisations",
   "agi.reports": "Rapports du chronométreur, du compteur d’hésitations et du grammairien", "agi.ge": "Évaluation générale", "agi.close": "Remise des prix et clôture",
 
   "role.toastmaster": "Toastmaster de la soirée", "role.ge": "Évaluateur général", "role.timer": "Chronométreur", "role.ah": "Compteur d’hésitations",
-  "role.gram": "Grammairien", "role.ttm": "Meneur des improvisations", "role.s1": "Orateur 1", "role.s2": "Orateur 2", "role.s3": "Orateur 3",
+  "role.gram": "Grammairien", "role.ttm": "Meneur des improvisations", "role.tte": "Évaluateur des improvisations", "role.s1": "Orateur 1", "role.s2": "Orateur 2", "role.s3": "Orateur 3",
   "role.e1": "Évaluateur 1", "role.e2": "Évaluateur 2", "role.e3": "Évaluateur 3", "role.saa": "Sergent d’armes", "role.pres": "Président",
   "roles.title": "Inscription aux rôles",
   "roles.introShared": "Les membres ouvrent cette page et touchent « Je le prends » pour réserver un rôle. Vous pouvez aussi saisir le nom de quelqu’un qui s’est inscrit autrement.",
@@ -1145,6 +1145,7 @@ window.GUIDES = {
     ['ah','Counts filler words and sounds to raise awareness.',['Prepare a list of every speaker'],['Explain what you are listening for','Count “um”, “uh”, “so”, “like” and repeated words'],['Report totals per speaker, kindly and briefly','Recognise anyone with zero fillers']],
     ['gram','Encourages good language and introduces the word of the day.',['Choose a word that is useful and fits the theme','Prepare its meaning and an example'],['Present the word at the start','Note who uses it, and note memorable phrases and errors'],['Report usage of the word','Share great phrases first, then suggestions']],
     ['ttm','Runs the impromptu speaking session.',['Prepare questions linked to the theme','Plan to call on guests last, and only if they agree'],['Explain the rules: 1–2 minutes, no preparation','Ask the question first, then name the speaker'],['Thank speakers and ask the Timer for qualifiers']],
+    ['tte','Evaluates the impromptu speakers of the Table Topics session.',['Ask the Table Topics Master how many speakers to expect','Prepare a note sheet with one line per speaker'],['Note one strength and one suggestion for each speaker','Watch structure: a clear opening, one main idea, a conclusion'],['Give a short evaluation of 3–4 minutes when the General Evaluator calls you','Commend each speaker, then give one or two tips that help everyone']],
     ['speaker','Delivers a prepared speech from their learning path.',['Prepare and rehearse to the time limit','Send your introduction and objectives to your evaluator and the Toastmaster'],['Wait for the Toastmaster to introduce you','Watch the timing signals'],['Listen to your evaluation with an open mind','Ask your evaluator for their written notes']],
     ['evaluator','Gives a speaker supportive, specific feedback.',['Contact the speaker about their project and goals','Read the project evaluation criteria'],['Take notes on strengths and one or two improvements'],['Deliver a 2–3 minute evaluation','Use commend, recommend, commend','Hand over your written evaluation']]
   ],
@@ -1155,6 +1156,7 @@ window.GUIDES = {
     ['ah','Compte les mots de remplissage et les hésitations pour en faire prendre conscience.',['Préparer la liste des orateurs'],['Expliquer ce que vous allez écouter','Compter les « euh », « du coup », « en fait », « genre » et les répétitions'],['Donner les totaux par orateur, avec bienveillance et brièveté','Saluer les orateurs sans aucune hésitation']],
     ['gram','Encourage un langage soigné et présente le mot du jour.',['Choisir un mot utile et en lien avec le thème','Préparer sa définition et un exemple'],['Présenter le mot en début de réunion','Noter qui l’utilise, ainsi que les belles formules et les erreurs'],['Rendre compte de l’usage du mot','Partager d’abord les belles formules, puis les suggestions']],
     ['ttm',"Anime la session de sujets d'improvisations.",['Préparer des questions liées au thème','Prévoir d’interroger les invités en dernier, et seulement s’ils sont d’accord'],['Expliquer les règles : 1 à 2 minutes, sans préparation','Poser la question d’abord, puis nommer l’orateur'],['Remercier les orateurs et demander au chronométreur qui est qualifié']],
+    ['tte','Évalue les orateurs de la session d’improvisations.',['Demander au meneur des improvisations combien d’orateurs sont prévus','Préparer une feuille de notes avec une ligne par orateur'],['Noter un point fort et une suggestion pour chaque orateur','Observer la structure : une accroche claire, une idée principale, une conclusion'],['Faire une évaluation courte de 3 à 4 minutes quand l’évaluateur général vous appelle','Souligner les réussites de chacun, puis donner un ou deux conseils utiles à tous']],
     ['speaker','Présente un discours préparé de son parcours.',['Préparer et répéter en respectant le temps','Envoyer sa présentation et ses objectifs à son évaluateur et au Toastmaster'],['Attendre que le Toastmaster vous présente','Surveiller les signaux de temps'],['Écouter son évaluation avec ouverture','Demander à son évaluateur ses notes écrites']],
     ['evaluator','Donne à l’orateur un retour bienveillant et précis.',['Contacter l’orateur au sujet de son projet et de ses objectifs','Lire les critères d’évaluation du projet'],['Noter les points forts et une ou deux pistes d’amélioration'],['Faire une évaluation de 2 à 3 minutes','Utiliser la méthode « sandwich » : réussite, piste, réussite','Remettre son évaluation écrite']]
   ]

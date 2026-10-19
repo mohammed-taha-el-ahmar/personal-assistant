@@ -20,10 +20,10 @@ const PRESETS=[
   {id:'tt',g:60,a:90,r:120},{id:'eval',g:120,a:150,r:180},{id:'ice',g:240,a:300,r:360},
   {id:'std',g:300,a:360,r:420},{id:'long',g:480,a:540,r:600},{id:'ge',g:300,a:360,r:420},{id:'custom'}
 ];
-const ROLE_KEYS=['toastmaster','ge','timer','ah','gram','ttm','s1','s2','s3','e1','e2','e3','saa','pres'];
+const ROLE_KEYS=['toastmaster','ge','timer','ah','gram','ttm','tte','s1','s2','s3','e1','e2','e3','saa','pres'];
 const CRIT=['open','struct','voice','body','eye','obj'];
 const AGENDA_KEYS=[['doors','saa',10],['welcome','pres',3],['intro','toastmaster',4],['roles','ge',5],['speech1','s1',7],['speech2','s2',7],['speech3','s3',7],
-  ['tt','ttm',20],['break','',10],['evals','ge',12],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]];
+  ['tt','ttm',20],['break','',10],['evals','ge',12],['ttEval','tte',4],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]];
 const roleLabel=k=>t('role.'+k);
 // Filler words: built-in per language, plus the club's own words. Kept on this device, apart from meeting data,
 // so "Clear and start fresh" and switching language never lose them.

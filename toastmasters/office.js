@@ -187,7 +187,7 @@ function participation(){
   SH.history.forEach(m=>Object.entries(m.roles||{}).forEach(([k,name])=>{
     const key=String(name).trim().toLocaleLowerCase();if(!key)return;
     const p=map[key]||(map[key]={name:String(name).trim(),roles:0,speeches:0,evals:0,last:''});
-    p.roles++;if(/^s\d$/.test(k))p.speeches++;if(/^e\d$/.test(k))p.evals++;if((m.date||'')>p.last)p.last=m.date||'';
+    p.roles++;if(/^s\d$/.test(k))p.speeches++;if(/^e\d$/.test(k)||k==='tte')p.evals++;if((m.date||'')>p.last)p.last=m.date||'';
   }));
   return Object.values(map).sort((a,b)=>b.roles-a.roles||a.name.localeCompare(b.name));
 }
