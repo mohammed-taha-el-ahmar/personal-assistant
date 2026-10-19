@@ -45,6 +45,7 @@ function templatesLive(){
 
 // ---------- view (inside the Agenda tab) ----------
 function templatesBox(){
+  if(!isOn('agenda.templates'))return '';
   const L=templateList();
   // A template deleted elsewhere falls back to a built-in one.
   if(!findTemplate(TPL.sel))TPL.sel='b:3';

@@ -61,7 +61,7 @@ function clubView(){
         ${o.format!=='online'&&a.venue?`<p class="muted">${esc(a.venue)}</p>`:''}
         ${o.format!=='inperson'?`<div class="join"><span class="chip ok">${t('fmt.'+o.format)}</span>${safeUrl(o.url)?`<a class="btn primary" href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener noreferrer">${t('on.join')}</a>`:''}</div>`:''}`
         :`<p class="muted">${t('cl.noNext')}</p>`}
-      <div class="btns"><button class="small" data-act="go-agenda">${t('cl.seeAgenda')}</button><button class="small" data-act="go-roles">${t('cl.takeRole')}</button></div>
+      <div class="btns">${isOn('agenda')?`<button class="small" data-act="go-agenda">${t('cl.seeAgenda')}</button>`:''}${isOn('roles')?`<button class="small" data-act="go-roles">${t('cl.takeRole')}</button>`:''}</div>
     </div>
     ${practical.length?`<div class="box"><h3>${t('cl.practical')}</h3><dl class="dl">${practical.map(([k,v])=>`<dt>${t('cl.p.'+k)}</dt><dd>${k==='web'?linkOrText(v):paras(v)||esc(v)}</dd>`).join('')}</dl></div>`:''}
   </div>

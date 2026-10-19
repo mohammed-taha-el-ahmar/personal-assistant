@@ -24,6 +24,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
 | `draw.js` | Random speaking order (contests, speakers) |
 | `deletion.js` | Deleting a club space, with a 3-day delay any officer can cancel |
+| `modules.js` | Club choice of which sections, tabs and features members see |
 | `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
 | `qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
@@ -143,6 +144,15 @@ Under the Google button, **Email me a sign-in link** sends a one-time link to th
 - The link works for any address, but **officer access is only given if that address is in the Officers list**, exactly as with Google.
 - On the free Firebase plan, Firebase sends at most **5 sign-in link emails per day for the whole site** (all clubs together). Because officers stay signed in on their devices, this is usually enough. If the limit is reached, the page says so and suggests trying the next day or signing in with Google.
 - The emails come from Firebase (`noreply@<your-project>.firebaseapp.com`) and sometimes land in spam. You can change their wording and sender name in **Authentication → Templates**.
+
+### Choosing which tools the club uses
+
+Some clubs already use another tool (easy-Speak, for example) for part of this work. In the officers' area, **Sections shown to members** lists every section (Club, During, Before and After the meeting) with its tabs and a few features inside tabs:
+- ticking or unticking a **section** shows or hides all its tabs at once;
+- each **tab** can be shown or hidden on its own;
+- some **features inside tabs** can be hidden too: officer roles and the "I'm interested" form, the "Send to the club officers" report buttons, and meeting templates.
+
+The choice applies straight away to everyone who opens the club link, and can be undone at any time. Data entered in hidden tabs is kept. The **Club officers** tab is always visible, so officers can always change these choices. Without a club link, every tool stays available.
 
 ### Deleting a club space
 

@@ -15,6 +15,7 @@ rules_version = '2';
 //   clubs/{club}/feedback/{id}    meeting feedback from members and guests; officers read it
 //   clubs/{club}/public/info      the club introduction page; everyone reads, officers edit
 //   clubs/{club}/public/status    deletion notice shown to every member; officers write it
+//   clubs/{club}/public/modules   which sections and tabs the club shows; officers choose
 //   clubs/{club}/interest/{uid}   members interested in an officer role; the sender and officers read it
 //   clubs/{club}/templates/{id}   agenda templates; everyone reads, officers create, update and delete
 //
@@ -124,7 +125,7 @@ service cloud.firestore {
     // The status stays readable after the delay so members see that the club space was deleted.
     match /clubs/{club}/public/{docId} {
       allow read: if validClub(club) && (docId == 'status' || !deletionDue(club));
-      allow write: if open(club) && docId in ['info', 'status'] && isOfficer(club);
+      allow write: if open(club) && docId in ['info', 'status', 'modules'] && isOfficer(club);
       allow delete: if purging(club);
     }
 

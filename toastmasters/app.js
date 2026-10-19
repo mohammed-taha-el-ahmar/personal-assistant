@@ -165,6 +165,7 @@ async function initShared(){
   if(typeof templatesLive==='function')templatesLive();
   if(typeof drawLive==='function')drawLive();
   if(typeof deletionLive==='function')deletionLive();
+  if(typeof modulesLive==='function')modulesLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
@@ -208,7 +209,7 @@ async function castShared(i,name){
 // ---------- tabs and language ----------
 const TABS=['club','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','feedback','office'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
-function setTab(x){tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
+function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 function setLang(l){
   if(!LANGS.includes(l)||l===LANG)return;
@@ -224,6 +225,7 @@ function applyChrome(){
   document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
   document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===LANG));
   const d=document.querySelector('meta[name=description]');if(d)d.content=t('tagline');
+  if(typeof applyModules==='function')applyModules();
 }
 function render(){
   applyChrome();

@@ -63,6 +63,12 @@ nav.tabs{display:flex;gap:18px;overflow-x:auto;padding-bottom:10px;scrollbar-wid
 .tab:hover{color:var(--ink);background:var(--bg)}
 .tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
 .sep{width:1px;background:var(--line);flex:none}
+/* A divider before every visible section except the first one shown. */
+nav.tabs .group:not([hidden]) ~ .group:not([hidden]){border-left:1px solid var(--line);padding-left:18px}
+.modgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.modsec{border:1px solid var(--line);border-radius:var(--r);padding:8px 14px 12px;margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.modsec legend{padding:0 6px}
+.modsec .check.sub{padding-left:22px;font-size:.92rem;color:var(--muted)}
 
 main{padding-block:24px 48px}
 .panel{display:flex;flex-direction:column;gap:20px}
@@ -187,6 +193,7 @@ details.meeting[open] summary b::before{content:"– "}
 .kv b{display:block;font-family:var(--display);font-size:1.4rem}
 .check{display:flex;gap:8px;align-items:flex-start}
 .check input{width:auto;margin-top:4px}
+.check input[type=checkbox]{width:18px;height:18px;padding:0;margin:3px 0 0;flex:none;accent-color:var(--accent)}
 a.btn{display:inline-block;text-decoration:none;text-align:center}
 a.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .join{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
@@ -252,7 +259,6 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
         <button class="tab" data-tab="club" data-i18n="tab.club">About the club</button>
         <button class="tab" data-tab="office" data-i18n="tab.office">Club officers</button>
       </div></div>
-      <div class="sep"></div>
       <div class="group"><span class="label" data-i18n="nav.during">During the meeting</span><div class="row" role="tablist">
         <button class="tab" data-tab="timer" data-i18n="tab.timer">Timer</button>
         <button class="tab" data-tab="ah" data-i18n="tab.ah">Ah-Counter</button>
@@ -260,7 +266,6 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
         <button class="tab" data-tab="topics" data-i18n="tab.topics">Table Topics</button>
         <button class="tab" data-tab="vote" data-i18n="tab.vote">Voting</button>
       </div></div>
-      <div class="sep"></div>
       <div class="group"><span class="label" data-i18n="nav.before">Before the meeting</span><div class="row" role="tablist">
         <button class="tab" data-tab="agenda" data-i18n="tab.agenda">Agenda</button>
         <button class="tab" data-tab="roles" data-i18n="tab.roles">Roles</button>
@@ -268,7 +273,6 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
         <button class="tab" data-tab="guides" data-i18n="tab.guides">Role guides</button>
         <button class="tab" data-tab="eval" data-i18n="tab.eval">Evaluation form</button>
       </div></div>
-      <div class="sep"></div>
       <div class="group"><span class="label" data-i18n="nav.after">After the meeting</span><div class="row" role="tablist">
         <button class="tab" data-tab="feedback" data-i18n="tab.feedback">Feedback</button>
       </div></div>
@@ -291,6 +295,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <script src="templates.js"></script>
 <script src="draw.js"></script>
 <script src="deletion.js"></script>
+<script src="modules.js"></script>
 <script src="pdf.js"></script>
 <script src="office.js"></script>
 <script src="app.js"></script>

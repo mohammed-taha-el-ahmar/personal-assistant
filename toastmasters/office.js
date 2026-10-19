@@ -118,7 +118,7 @@ async function officeSignOut(){try{await firebase.auth().signOut()}catch(e){}}
 
 // ---------- reports sent by role holders ----------
 function sendBtn(kind){
-  if(!SH.on)return '';
+  if(!SH.on||!isOn('reports'))return '';
   const r=SH.reports&&SH.reports[kind];
   const when=r&&r.at?new Date(r.at).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'}):'';
   return `<button class="small" data-act="send-report" data-kind="${kind}">${t('rep.send')}</button>${r?`<span class="chip ok" style="align-self:center">${t('rep.sent',{time:when})}</span>`:''}`;
@@ -195,9 +195,9 @@ function participation(){
 // ---------- view ----------
 function officeView(){
   return `<section class="panel">
-  <div class="phead"><div><h2>${t('office.pubTitle')}</h2><p class="muted">${t('office.pubIntro')}</p></div></div>
-  ${bureauPublic()}
-  <div class="phead" style="margin-top:16px"><div><h2>${t('office.title')}</h2><p class="muted">${t('office.intro')}</p></div></div>
+  ${isOn('office.roles')?`<div class="phead"><div><h2>${t('office.pubTitle')}</h2><p class="muted">${t('office.pubIntro')}</p></div></div>
+  ${bureauPublic()}`:''}
+  <div class="phead" style="${isOn('office.roles')?'margin-top:16px':''}"><div><h2>${t('office.title')}</h2><p class="muted">${t('office.intro')}</p></div></div>
   ${officerArea()}</section>`;
 }
 function officerArea(){
@@ -214,11 +214,11 @@ function officerArea(){
       :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div>`;
   }
   return `${who}<div class="notice"><span>${t('office.editClubHint')}</span><button class="small" data-act="go-club-edit">${t('cl.edit')}</button></div>
-    ${linkBox()}${closeBox()}${currentFeedbackBox()}${interestListBox()}${historyBox()}${participationBox()}${officersBox()}${deletionBox()}`;
+    ${linkBox()}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${modulesBox()}${officersBox()}${deletionBox()}`;
 }
 function linkBox(){
   return `<div class="box"><div class="phead"><div><h3>${t('qr.clubTitle')}</h3><p class="muted">${t('qr.officeText')}</p></div>
-    <div class="btns"><button class="small primary" data-act="qr-club">${t('qr.show')}</button><button class="small" data-act="qr-feedback">${t('fb.showQr')}</button><button class="small" data-act="copy-link">${t('live.copyLink')}</button></div></div>
+    <div class="btns"><button class="small primary" data-act="qr-club">${t('qr.show')}</button>${isOn('feedback')?`<button class="small" data-act="qr-feedback">${t('fb.showQr')}</button>`:''}<button class="small" data-act="copy-link">${t('live.copyLink')}</button></div></div>
     <p class="qrurl" style="text-align:left">${esc(shareLink())}</p></div>`;
 }
 function currentFeedbackBox(){
