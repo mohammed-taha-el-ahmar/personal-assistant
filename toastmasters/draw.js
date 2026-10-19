@@ -25,9 +25,9 @@ function drawView(){
   const contestSlots=(S.agenda.items||[]).filter(it=>/^c\d$/.test(it.k||'')).length;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('draw.title')}</h2><p class="muted">${t('draw.intro')}</p></div></div>
-  ${liveBox()}
+  ${liveBox()}${SH.on?officersOnlyNote('acc.what.draw'):''}
   <div class="grid2">
-  <div class="box">
+  ${SH.on&&!canManage()?'':`<div class="box">
     <div class="field"><label class="label" for="dr-title">${t('draw.what')}</label><input id="dr-title" data-dr="title" maxlength="80" value="${esc(d.title)}" placeholder="${t('draw.whatPh')}"></div>
     <div class="field"><label class="label" for="dr-names">${t('draw.names')}</label><textarea id="dr-names" data-dr="names" rows="8" placeholder="${t('draw.namesPh')}">${esc(d.names)}</textarea>
       <span class="muted" style="font-size:.85rem" id="dr-count">${tn('draw.count',names.length)}</span></div>
@@ -35,14 +35,14 @@ function drawView(){
     <div class="btns">${DRAW.confirmRedraw
       ?`<span class="muted" style="align-self:center">${t('draw.confirmRedraw',{n:r.n})}</span><button class="primary" data-act="dr-go">${t('draw.yesRedraw')}</button><button data-act="dr-cancel">${t('common.cancel')}</button>`
       :`<button class="primary" data-act="dr-ask" ${names.length<2||DRAW.anim?'disabled':''}>${r.result.length?t('draw.redraw'):t('draw.go')}</button>`}</div>
-  </div>
+  </div>`}
   <div class="box" aria-live="polite">
     <div class="phead"><div><h3>${esc(r.title)||t('draw.result')}</h3>${r.result.length?`<p class="muted" style="font-size:.85rem">${t('draw.meta',{n:r.n,when:esc(when)})}${SH.on?' · '+t('draw.sharedNote'):''}</p>`:''}</div></div>
     ${DRAW.anim?`<ol class="order spinning">${DRAW.anim.map(n=>`<li>${esc(n)}</li>`).join('')}</ol>`
       :r.result.length?`<ol class="order">${r.result.map(n=>`<li>${esc(n)}</li>`).join('')}</ol>`:`<p class="empty">${t('draw.none')}</p>`}
     ${r.result.length&&!DRAW.anim?`<div class="btns"><button class="primary" data-act="dr-full">${t('draw.project')}</button><button data-act="dr-copy">${t('draw.copy')}</button>
-      ${contestSlots?`<button data-act="dr-agenda">${t('draw.toAgenda')}</button>`:''}</div>
-      ${contestSlots?'':`<p class="muted" style="font-size:.85rem">${t('draw.agendaHint')}</p>`}`:''}
+      ${contestSlots&&canManage()?`<button data-act="dr-agenda">${t('draw.toAgenda')}</button>`:''}</div>
+      ${contestSlots||!canManage()?'':`<p class="muted" style="font-size:.85rem">${t('draw.agendaHint')}</p>`}`:''}
   </div></div></section>`;
 }
 
@@ -58,7 +58,7 @@ function paintDrawFull(){
 }
 
 async function runDraw(){
-  const names=drawNames();if(names.length<2)return;
+  const names=drawNames();if(names.length<2||!canManage())return;
   const d=drawState();const result=shuffle(names);const prev=currentDraw();
   const rec={title:d.title.trim().slice(0,80),result,at:new Date().toISOString(),n:(prev.n||0)+1};
   DRAW.confirmRedraw=false;

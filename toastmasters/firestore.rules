@@ -18,6 +18,15 @@ rules_version = '2';
 //   clubs/{club}/public/modules   which sections and tabs the club shows; officers choose
 //   clubs/{club}/interest/{uid}   members interested in an officer role; the sender and officers read it
 //   clubs/{club}/templates/{id}   agenda templates; everyone reads, officers create, update and delete
+//   clubs/{club}/private/config   {memberCode, v, guestsVote}  the club code; officers only
+//   clubs/{club}/public/access    {on, v, guestsVote}  repeats whether member access is on, for every page
+//   clubs/{club}/devices/{uid}    one per device unlocked with the club code; valid while its v matches the config
+//
+// Permission levels, once officers have turned on member access (private/config exists):
+//   visitor (link only)          read, vote (unless guestsVote is false), feedback, interest form
+//   member  (device unlocked)    + take a free role or give up their own, send reports
+//   officer (on the officer list) + agenda, nominees and results, draw, anyone's roles, everything else
+// Without private/config the club stays open as before: everyone with the link can edit the meeting.
 //
 // Members are signed in anonymously. Officers sign in with Google and are recognised by their verified email.
 //
@@ -57,6 +66,55 @@ service cloud.firestore {
     function open(club) {
       return validClub(club) && !deletionDue(club);
     }
+    // ----- member access -----
+    function cfgPath(club) {
+      return /databases/$(database)/documents/clubs/$(club)/private/config;
+    }
+    function devPath(club) {
+      return /databases/$(database)/documents/clubs/$(club)/devices/$(request.auth.uid);
+    }
+    function protectedClub(club) {
+      return exists(cfgPath(club));
+    }
+    // A device unlocked with the current code (changing the code raises v and revokes older devices).
+    function memberDevice(club) {
+      return exists(devPath(club)) && get(devPath(club)).data.v == get(cfgPath(club)).data.v;
+    }
+    // Officer level: edit the meeting. Everyone, while the club has not turned on member access.
+    function canManage(club) {
+      return request.auth != null && (!protectedClub(club) || isOfficer(club));
+    }
+    // Member level: take your own role, send reports.
+    function memberLevel(club) {
+      return canManage(club) || (request.auth != null && memberDevice(club));
+    }
+    function canVote(club) {
+      return request.auth != null
+        && (!protectedClub(club) || get(cfgPath(club)).data.get('guestsVote', true) == true || memberLevel(club));
+    }
+    // A member changes one role (named in "edit"): takes it while it is free, or gives up their own.
+    function memberRoleEdit() {
+      let k = request.resource.data.get('edit', '');
+      let oldR = resource == null ? {} : resource.data.get('roles', {});
+      let newR = request.resource.data.get('roles', {});
+      let before = oldR.get(k, null);
+      let after = newR.get(k, null);
+      return k is string && k.matches('^[a-z0-9]{1,20}$')
+        && newR is map
+        && (resource == null
+          ? request.resource.data.keys().hasOnly(['roles', 'edit'])
+          : request.resource.data.diff(resource.data).affectedKeys().hasOnly(['roles', 'edit']))
+        && newR.diff(oldR).affectedKeys().hasOnly([k])
+        && (
+          // take a free role, under your own device id
+          ((before == null || (before is map && before.get('n', '') == ''))
+            && after is map && after.keys().hasOnly(['n', 'u'])
+            && after.u == request.auth.uid && after.n is string && after.n.size() > 0 && after.n.size() <= 60)
+          // give up a role you took
+          || (before is map && before.get('u', '') == request.auth.uid && after == null)
+        );
+    }
+
     // Officers erasing a club whose delay has passed.
     function purging(club) {
       return validClub(club) && isOfficer(club) && deletionDue(club);
@@ -125,7 +183,7 @@ service cloud.firestore {
     // The status stays readable after the delay so members see that the club space was deleted.
     match /clubs/{club}/public/{docId} {
       allow read: if validClub(club) && (docId == 'status' || !deletionDue(club));
-      allow write: if open(club) && docId in ['info', 'status', 'modules'] && isOfficer(club);
+      allow write: if open(club) && docId in ['info', 'status', 'modules', 'access'] && isOfficer(club);
       allow delete: if purging(club);
     }
 
@@ -157,12 +215,43 @@ service cloud.firestore {
         && request.resource.data.items is list && request.resource.data.items.size() <= 40;
     }
 
+    // The club code. Only officers read or change it; v only grows, so a code that was replaced never works again.
+    match /clubs/{club}/private/{docId} {
+      allow read: if docId == 'config' && validClub(club) && isOfficer(club);
+      allow create, update: if docId == 'config' && open(club) && isOfficer(club)
+        && request.resource.data.keys().hasOnly(['memberCode', 'v', 'guestsVote', 'updatedAt', 'updatedBy'])
+        && request.resource.data.memberCode is string && request.resource.data.memberCode.matches('^[A-Z0-9]{6,32}$')
+        && request.resource.data.v is int
+        && (resource == null || request.resource.data.v >= resource.data.v)
+        && request.resource.data.guestsVote is bool;
+      allow delete: if docId == 'config' && validClub(club) && isOfficer(club);
+    }
+
+    // Unlocked devices. A device registers itself with the current code and version; it can read and forget
+    // its own record. Officers list them and can remove any.
+    match /clubs/{club}/devices/{uid} {
+      allow get: if validClub(club) && request.auth != null && request.auth.uid == uid;
+      allow create, update: if open(club) && request.auth != null && request.auth.uid == uid
+        && protectedClub(club)
+        && request.resource.data.keys().hasOnly(['code', 'v', 'name', 'at'])
+        && request.resource.data.code == get(cfgPath(club)).data.memberCode
+        && request.resource.data.v == get(cfgPath(club)).data.v
+        && request.resource.data.get('name', '') is string && request.resource.data.get('name', '').size() <= 60;
+      allow delete: if validClub(club) && request.auth != null && request.auth.uid == uid;
+      allow read, delete: if validClub(club) && isOfficer(club);
+    }
+
+    // The current meeting. Agenda, voting setup and draw: officer level. Reports: member level.
+    // Roles: officer level for any change; member level to take a free role or give up one's own.
     match /clubs/{club}/meeting/{docId} {
       allow read: if open(club) || purging(club);
       allow create, update: if request.auth != null
         && open(club)
         && docId in ['roles', 'agenda', 'vote', 'reports', 'draw']
-        && request.resource.data.keys().size() <= 10;
+        && request.resource.data.keys().size() <= 10
+        && (canManage(club)
+          || (docId == 'reports' && memberLevel(club))
+          || (docId == 'roles' && memberLevel(club) && memberRoleEdit()));
       allow delete: if purging(club);
     }
 
@@ -171,7 +260,8 @@ service cloud.firestore {
       allow create, update: if request.auth != null
         && request.auth.uid == voterId
         && open(club)
-        && request.resource.data.keys().size() <= 20;
+        && request.resource.data.keys().size() <= 20
+        && canVote(club);
       allow delete: if purging(club);
     }
 

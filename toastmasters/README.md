@@ -24,6 +24,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
 | `draw.js` | Random speaking order (contests, speakers) |
 | `deletion.js` | Deleting a club space, with a 3-day delay any officer can cancel |
+| `permissions.js` | Who may do what: visitors, members (device unlocked with the member code) and officers |
 | `modules.js` | Club choice of which sections, tabs and features members see |
 | `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
@@ -149,6 +150,27 @@ Under the Google button, **Email me a sign-in link** sends a one-time link to th
 - On the free Firebase plan, Firebase sends at most **5 sign-in link emails per day for the whole site** (all clubs together). Because officers stay signed in on their devices, this is usually enough. If the limit is reached, the page says so and suggests trying the next day or signing in with Google.
 - The emails come from Firebase (`noreply@<your-project>.firebaseapp.com`) and sometimes land in spam. You can change their wording and sender name in **Authentication → Templates**.
 
+### Who can do what: member access
+
+Until officers turn it on, a club space is open: anyone with the club link can edit everything (this is how clubs created before this feature keep working). In the officers' area, the **Member access** box turns on three levels:
+
+| | Visitor (link only) | Member (device unlocked) | Officer (signed in) |
+|---|---|---|---|
+| See the club page, agenda, roles, results | ✓ | ✓ | ✓ |
+| Vote, give feedback, "I'm interested" form | ✓ (voting can be limited to members) | ✓ | ✓ |
+| Take a free role or give up their own | – | ✓ | ✓ |
+| Send Timer, Ah-Counter and Grammarian reports | – | ✓ | ✓ |
+| Edit the agenda, templates, nominees, results, draw; assign or clear anyone's role | – | – | ✓ |
+| Officers' area (history, feedback, settings) | – | – | ✓ |
+
+- **Turn on member access** creates a random 8-character **member code** (for example `K7MQ-2PXA`). Share it in your members' private group with **Copy invitation message**. Each member enters it once, in the Roles tab (or any shared tab); the device then stays a member device.
+- **Copy member link** and **Member QR code** contain the code and unlock the phone directly. Share them with members only, never on a public page or on a screen guests can see.
+- **Guests can vote**: untick it to keep voting for members and officers.
+- **Change the code** creates a new one: every device unlocked with the old code becomes a visitor again until it enters the new one. Use it at the start of each club year, or when someone leaves. You can also remove a single device from the list.
+- **Turn off** makes the club space open again.
+- The database checks all of this itself (see `firestore.rules`): the code is stored where only officers can read it, and a write without the right level is refused, whatever the page shows.
+- A member who clears their browser data or changes phone simply enters the code again.
+
 ### Choosing which tools the club uses
 
 Some clubs already use another tool (easy-Speak, for example) for part of this work. In the officers' area, **Sections shown to members** lists every section (Club, During, Before and After the meeting) with its tabs and a few features inside tabs:
@@ -170,7 +192,7 @@ The free Firebase plan has no scheduled tasks, so the final erase runs when an o
 
 ## Things to know
 
-- **Anyone with the club link can edit** roles, the agenda and voting settings. The officers' space and the history are protected: only the listed officers can read or change them. Share the link only in your club's own channels. A club code that is hard to guess (`paris-orators-7f3k`) adds a little privacy.
+- **Turn on member access** (see above). Without it, anyone with the club link can edit roles, the agenda and voting settings. Everyone with the link can always read the meeting data, so share the link only in your club's own channels; a club code that is hard to guess (`paris-orators-7f3k`) adds a little privacy.
 - **Ballots are anonymous in the app but not encrypted.** The page shows only totals, and only after someone taps Reveal. A technically minded member could still read the raw ballots from the browser, so treat it like a show of hands, not a secret contest ballot. Do not use it for official contest judging.
 - **One ballot per device.** A member who opens the link on two devices or in a private window can vote twice. "Start a new vote" begins a fresh round for that category.
 - **Free tier:** Firebase's Spark plan covers tens of thousands of reads and writes a day, far more than a club meeting uses.

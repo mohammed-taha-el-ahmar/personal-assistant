@@ -9,7 +9,7 @@ const emailOk=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 const isMember=()=>SH.user&&!SH.user.anon;
 
 // ---------- access ----------
-function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[];if(typeof stopInterestSub==='function')stopInterestSub()}
+function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[];if(typeof stopInterestSub==='function')stopInterestSub();if(typeof accessStopOfficerSubs==='function')accessStopOfficerSubs()}
 async function officeAuthChanged(){
   stopOfficerSubs();
   if(!SH.fs||!SH.club||!isMember()){SH.officer=undefined;SH.clubExists=undefined;SH.officers=[];return}
@@ -34,6 +34,7 @@ async function officeAuthChanged(){
 }
 function startOfficerSubs(){
   if(typeof startInterestSub==='function')startInterestSub();
+  if(typeof accessOfficerSubs==='function')accessOfficerSubs();
   OFF.unsubClub=SH.fs.doc('clubs/'+SH.club).onSnapshot(s=>{
     SH.officers=s.exists?(s.data().officers||[]):[];SH.officer=SH.officers.includes(SH.user.email);
     SH.deletion=s.exists?(s.data().deletion||null):null;
@@ -119,6 +120,8 @@ async function officeSignOut(){try{await firebase.auth().signOut()}catch(e){}}
 // ---------- reports sent by role holders ----------
 function sendBtn(kind){
   if(!SH.on||!isOn('reports'))return '';
+  // Visitors are pointed to the club code; only members and officers send reports.
+  if(!canAct())return `<button class="small" data-act="acc-where" title="${esc(t('acc.reportHint'))}">${t('rep.send')} 🔒</button>`;
   const r=SH.reports&&SH.reports[kind];
   const when=r&&r.at?new Date(r.at).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'}):'';
   return `<button class="small" data-act="send-report" data-kind="${kind}">${t('rep.send')}</button>${r?`<span class="chip ok" style="align-self:center">${t('rep.sent',{time:when})}</span>`:''}`;
@@ -214,7 +217,7 @@ function officerArea(){
       :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div>`;
   }
   return `${who}<div class="notice"><span>${t('office.editClubHint')}</span><button class="small" data-act="go-club-edit">${t('cl.edit')}</button></div>
-    ${linkBox()}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${modulesBox()}${officersBox()}${deletionBox()}`;
+    ${accessOn()?'':accessBox()}${linkBox()}${accessOn()?accessBox():''}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${modulesBox()}${officersBox()}${deletionBox()}`;
 }
 function linkBox(){
   return `<div class="box"><div class="phead"><div><h3>${t('qr.clubTitle')}</h3><p class="muted">${t('qr.officeText')}</p></div>

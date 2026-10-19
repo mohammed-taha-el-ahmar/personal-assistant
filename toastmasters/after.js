@@ -26,7 +26,8 @@ const feedbackLink=()=>{const u=new URL(shareLink());u.hash='feedback';return u.
 let QR=null; // {title, text, url}
 function openQr(kind){
   QR=kind==='feedback'?{title:t('qr.feedbackTitle'),text:t('qr.feedbackText'),url:feedbackLink()}
-                      :{title:t('qr.clubTitle'),text:t('qr.clubText'),url:shareLink()};
+    :kind==='member'?{title:t('acc.qrTitle'),text:t('acc.qrText'),url:memberLink()}
+    :{title:t('qr.clubTitle'),text:t('qr.clubText'),url:shareLink()};
   paintQr();
 }
 function closeQr(){QR=null;paintQr()}

@@ -77,8 +77,8 @@ async function cancelDeletion(){
 }
 
 // Erase every document of the club. Runs once the delay has passed and an officer is signed in.
-const PURGE_DOCS=['meeting/roles','meeting/agenda','meeting/vote','meeting/reports','meeting/draw','public/info'];
-const PURGE_COLLECTIONS=['ballots','history','feedback','interest','templates'];
+const PURGE_DOCS=['meeting/roles','meeting/agenda','meeting/vote','meeting/reports','meeting/draw','public/info','public/modules','public/access','private/config'];
+const PURGE_COLLECTIONS=['ballots','history','feedback','interest','templates','devices'];
 async function maybePurge(){
   if(!SH.on||!SH.officer||DEL.busy||DEL.done||!SH.deletion||!deletionPassed())return;
   // Leave a minute of margin so the server's clock has passed the deadline too.

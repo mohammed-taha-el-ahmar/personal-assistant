@@ -129,6 +129,8 @@ function softRender(){
 }
 document.addEventListener('focusout',()=>{if(!pendingRender)return;setTimeout(()=>{const a=document.activeElement;if(a&&a.matches&&a.matches('input,textarea,select'))return;pendingRender=false;render()},0)});
 function writeFail(e){
+  // Refused because of this person's level (visitor, or a code that has changed): say so, but keep the page usable.
+  if(e&&e.code==='permission-denied'&&typeof accessOn==='function'&&accessOn()&&SH.officer!==true){toast(t(deviceOk()?'acc.deniedMember':'acc.denied'));render();return}
   if(e&&e.code==='permission-denied'){SH.writable=false;toast(t('live.denied'));render()}
   else toast(t('live.saveFail'));
 }
@@ -146,6 +148,7 @@ async function initShared(){
         SH.uid=u.uid;SH.user={email:(u.email||'').toLowerCase(),anon:u.isAnonymous,verified:!!u.emailVerified};
         if(first){first=false;resolve()}
         if(typeof officeAuthChanged==='function')officeAuthChanged();
+        if(typeof accessAuthChanged==='function')accessAuthChanged();
         if(SH.on)render();
       });
     });
@@ -166,6 +169,7 @@ async function initShared(){
   if(typeof drawLive==='function')drawLive();
   if(typeof deletionLive==='function')deletionLive();
   if(typeof modulesLive==='function')modulesLive();
+  if(typeof accessLive==='function')accessLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
@@ -173,21 +177,22 @@ function updateStatus(){const el=$('#sync');if(!el)return;
   el.innerHTML=SH.error?`<span class="chip bad">${t('status.error')}</span>`:SH.on?`<span class="chip ok">${t('status.live',{club:esc(SH.club)})}</span>`:`<span class="chip warn">${t('status.local')}</span>`;}
 function liveBox(){
   if(SH.error)return `<div class="notice"><span>${esc(errorText())}</span></div>`;
-  if(SH.on)return `<div class="notice"><span>${t('live.on',{club:esc(SH.club)})}</span><div class="btns"><button class="small" data-act="qr-club">${t('qr.show')}</button><button class="small" data-act="copy-link">${t('live.copyLink')}</button></div></div>`;
+  if(SH.on)return `<div class="notice"><span>${t('live.on',{club:esc(SH.club)})}</span><div class="btns"><button class="small" data-act="qr-club">${t('qr.show')}</button><button class="small" data-act="copy-link">${t('live.copyLink')}</button></div></div>${accessStrip()}`;
   if(!configured())return `<div class="notice"><span>${t('live.notConfigured')}</span></div>`;
   return `<form class="notice" data-form="join"><label for="club-code">${t('live.join')}</label><input id="club-code" placeholder="paris-orators" style="max-width:220px" autocomplete="off"><button type="submit" class="small primary">${t('live.go')}</button></form>`;
 }
 function roleName(k){if(!SH.on)return S.roles[k]||'';const e=SH.roles[k];return e&&e.n?e.n:''}
-async function writeRole(k,val){SH.roles[k]=val;try{await SH.ref.roles.set({roles:{[k]:val}},{merge:true})}catch(e){writeFail(e)}}
+// "edit" names the one role being changed, so the rules can check that a member only takes a free role or gives up their own.
+async function writeRole(k,val){const before=SH.roles[k];SH.roles[k]=val;try{await SH.ref.roles.set({roles:{[k]:val},edit:k},{merge:true})}catch(e){SH.roles[k]=before;writeFail(e);softRender()}}
 const roleTimers={};
 function queueRoleText(k,v){clearTimeout(roleTimers[k]);roleTimers[k]=setTimeout(()=>writeRole(k,v.trim()?{n:v.trim().slice(0,60)}:null),600)}
 function pushAgenda(){
-  if(!SH.on)return;
+  if(!SH.on||!canManage())return;
   SH.agendaDirty=true;clearTimeout(SH.agendaTimer);
   SH.agendaTimer=setTimeout(async()=>{try{await SH.ref.agenda.set(clone(S.agenda))}catch(e){writeFail(e)}SH.agendaDirty=false},700);
 }
 async function pushVote(){
-  if(!SH.on)return;
+  if(!SH.on||!canManage())return;
   const cats=S.vote.cats.map(c=>{const o={cands:c.cands,round:c.round||0};if(c.key)o.key=c.key;else o.name=c.name||'';return o});
   try{await SH.ref.vote.set({cats,reveal:!!S.vote.reveal})}catch(e){writeFail(e)}
 }
@@ -370,14 +375,16 @@ let ballotDone=false, confirmReveal=false;
 const catTabs=v=>`<div class="speakers">${v.cats.map((x,i)=>`<button class="spk" aria-pressed="${i===v.cat}" data-act="v-cat" data-i="${i}">${esc(catName(x))}</button>`).join('')}</div>`;
 const candField=(c,ro)=>`<div class="field"><label class="label" for="v-cands">${t('vote.nominees',{cat:esc(catName(c))})}</label><input id="v-cands" data-act="v-cands" value="${esc(c.cands.join(', '))}" placeholder="Camille, Thomas, Inès" ${ro?'disabled':''}></div>`;
 VIEWS.vote=()=>SH.on?voteShared():voteLocal();
-function voteShared(){const v=S.vote;const c=v.cats[v.cat];const {votes,total}=tally(v.cat);const pick=myPick(v.cat);const ro=!SH.writable;
+function voteShared(){const v=S.vote;const c=v.cats[v.cat];const {votes,total}=tally(v.cat);const pick=myPick(v.cat);
+  // ro: cannot set nominees or reveal (officers only once the club has a code); noBallot: cannot vote (members only, if the club chose so).
+  const ro=!SH.writable||!canManage();const noBallot=!SH.writable||!canBallot();
   return `<section class="panel">
   <div class="phead"><div><h2>${t('vote.title')}</h2><p class="muted">${t('vote.introShared')}</p></div></div>
   ${liveBox()}
-  <div class="box">${catTabs(v)}${candField(c,ro)}</div>
+  <div class="box">${catTabs(v)}${candField(c,ro)}${SH.writable?officersOnlyNote('acc.what.vote'):''}</div>
   <div class="box" aria-live="polite">
-    ${c.cands.length?`<h3>${t('vote.yourBallot',{cat:esc(catName(c))})}</h3><div class="ballot">${c.cands.map(n=>`<button aria-pressed="${pick===n}" data-act="v-cast" data-n="${esc(n)}" ${v.reveal||ro?'disabled':''}>${esc(n)}</button>`).join('')}</div>
-    <p class="muted">${pick?t('vote.youVoted',{name:esc(pick)})+(v.reveal?'':' '+t('vote.change')):t('vote.notYet')}</p>`:`<p class="empty">${t('vote.noNomineesShared')}</p>`}
+    ${c.cands.length?`<h3>${t('vote.yourBallot',{cat:esc(catName(c))})}</h3><div class="ballot">${c.cands.map(n=>`<button aria-pressed="${pick===n}" data-act="v-cast" data-n="${esc(n)}" ${v.reveal||noBallot?'disabled':''}>${esc(n)}</button>`).join('')}</div>
+    <p class="muted">${noBallot&&SH.writable?t('acc.membersVote'):pick?t('vote.youVoted',{name:esc(pick)})+(v.reveal?'':' '+t('vote.change')):t('vote.notYet')}</p>`:`<p class="empty">${t('vote.noNomineesShared')}</p>`}
     <p class="muted">${tn('vote.members',total)}</p>
   </div>
   ${resultsBox(c,votes,total,ro)}</section>`}
@@ -406,9 +413,20 @@ function agendaTimes(){const a=S.agenda;let [h,m]=(a.start||'19:00').split(':').
 function itemPerson(it){return it.role?(roleName(it.role)||t('ag.open')):''}
 const fmtDate=d=>d?new Date(d+'T12:00').toLocaleDateString(locale(),{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
 VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=online(a);const times=agendaTimes();const dateStr=fmtDate(a.date);const link=safeUrl(o.url);
+  const head=`<div class="phead"><div><h2>${t('ag.title')}</h2><p class="muted">${t('ag.intro')}${SH.on?' '+t('ag.introShared'):''}</p></div></div>
+  ${liveBox()}${SH.on?'':sampleNotice()}`;
+  const doc=`<div class="box agenda-doc">
+    <div class="ah"><span class="label">${t('ag.doc')}</span><h3>${esc(a.club||t('ag.yourClub'))}</h3><p class="muted">${esc(dateStr)}${a.venue&&o.format!=='online'?' · '+esc(a.venue):''}</p>${a.theme?`<p>${t('ag.themeIs')} <b>${esc(a.theme)}</b></p>`:''}
+      ${o.format!=='inperson'?`<div class="join"><span class="chip ok">${t('fmt.'+o.format)}</span>${link?`<a class="btn primary" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${t('on.join')}</a>`:`<span class="muted">${t('on.noLink')}</span>`}
+        ${o.id||o.pass?`<span class="muted">${esc([o.id?t('on.idIs',{v:o.id}):'',o.pass?t('on.passIs',{v:o.pass}):''].filter(Boolean).join(' · '))}</span>`:''}</div>`:''}</div>
+    ${a.items.map((it,i)=>`<div class="li"><span class="t">${times[i]}</span><span>${esc(itemTitle(it))}</span><span class="p">${esc(itemPerson(it))}</span></div>`).join('')}
+    <div class="li"><span class="t">${times[times.length-1]}</span><span>${t('ag.ends')}</span><span></span></div>
+    <div class="btns"><button class="primary" data-act="a-pdf">${t('ag.pdf')}</button><button data-act="a-copy">${t('ag.copy')}</button></div>
+  </div>`;
+  // Read-only for visitors and members once the club has a code: the agenda document only.
+  if(!canManage())return `<section class="panel">${head}${officersOnlyNote('acc.what.agenda')}${doc}</section>`;
   return `<section class="panel">
-  <div class="phead"><div><h2>${t('ag.title')}</h2><p class="muted">${t('ag.intro')}${SH.on?' '+t('ag.introShared'):''}</p></div></div>
-  ${liveBox()}${SH.on?'':sampleNotice()}
+  ${head}
   ${templatesBox()}
   <div class="box"><div class="fields">
     <div class="field"><label class="label" for="a-club">${t('ag.club')}</label><input id="a-club" data-bind="agenda.club" data-live="1" value="${esc(a.club)}"></div>
@@ -433,20 +451,19 @@ VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=onlin
       <div class="ctrls"><button class="ghost small" data-act="a-up" data-i="${i}" aria-label="${t('ag.up')}">↑</button><button class="ghost small" data-act="a-down" data-i="${i}" aria-label="${t('ag.down')}">↓</button><button class="ghost small" data-act="a-del" data-i="${i}" aria-label="${t('common.remove')}">×</button></div></div>`).join('')}
     <div class="btns"><button data-act="a-add">${t('ag.add')}</button><span class="muted" style="align-self:center">${t('ag.endsAt',{t:times[times.length-1]})}</span></div>
   </div>
-  <div class="box agenda-doc">
-    <div class="ah"><span class="label">${t('ag.doc')}</span><h3>${esc(a.club||t('ag.yourClub'))}</h3><p class="muted">${esc(dateStr)}${a.venue&&o.format!=='online'?' · '+esc(a.venue):''}</p>${a.theme?`<p>${t('ag.themeIs')} <b>${esc(a.theme)}</b></p>`:''}
-      ${o.format!=='inperson'?`<div class="join"><span class="chip ok">${t('fmt.'+o.format)}</span>${link?`<a class="btn primary" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${t('on.join')}</a>`:`<span class="muted">${t('on.noLink')}</span>`}
-        ${o.id||o.pass?`<span class="muted">${esc([o.id?t('on.idIs',{v:o.id}):'',o.pass?t('on.passIs',{v:o.pass}):''].filter(Boolean).join(' · '))}</span>`:''}</div>`:''}</div>
-    ${a.items.map((it,i)=>`<div class="li"><span class="t">${times[i]}</span><span>${esc(itemTitle(it))}</span><span class="p">${esc(itemPerson(it))}</span></div>`).join('')}
-    <div class="li"><span class="t">${times[times.length-1]}</span><span>${t('ag.ends')}</span><span></span></div>
-    <div class="btns"><button class="primary" data-act="a-pdf">${t('ag.pdf')}</button><button data-act="a-copy">${t('ag.copy')}</button></div>
-  </div></div></section>`};
+  ${doc}</div></section>`};
 
 // ---------- ROLES ----------
 let confirmClear=false;
 function roleCell(k){
   if(!SH.on) return `<input id="r-${k}" data-role="${k}" value="${esc(S.roles[k])}" placeholder="${t('roles.unassigned')}">`;
   const e=SH.roles[k];
+  if(!canManage()){
+    // Members take a free role or give up their own; visitors only see who holds what.
+    const mine=e&&e.u&&e.u===SH.uid;
+    if(e&&e.n)return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span>${mine?`<button class="small ghost" data-act="r-release" data-k="${k}">${t('roles.giveUp')}</button>`:''}</div>`;
+    return canAct()?`<button class="small" data-act="r-take" data-k="${k}">${t('roles.take')}</button>`:`<span class="muted">–</span>`;
+  }
   if(e&&e.u){const mine=e.u===SH.uid;return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span><button class="small ghost" data-act="${mine?'r-release':'r-unassign'}" data-k="${k}">${t(mine?'roles.giveUp':'roles.clear')}</button></div>`}
   return `<div class="btns" style="flex-wrap:nowrap"><input id="r-${k}" data-srole="${k}" value="${esc(e&&e.n||'')}" placeholder="${t('roles.typeName')}">${!(e&&e.n)?`<button class="small" data-act="r-take" data-k="${k}">${t('roles.take')}</button>`:''}</div>`;
 }
@@ -454,12 +471,12 @@ VIEWS.roles=()=>{const open=ROLE_KEYS.filter(k=>!roleName(k));
   return `<section class="panel">
   <div class="phead"><div><h2>${t('roles.title')}</h2><p class="muted">${t(SH.on?'roles.introShared':'roles.introLocal')}</p></div>
   <span class="chip ${open.length?'warn':'ok'}">${open.length?t('roles.openN',{n:open.length}):t('roles.allFilled')}</span></div>
-  ${liveBox()}${SH.on?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:sampleNotice()}
+  ${liveBox()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}
   <div class="box"><div class="tablewrap"><table><thead><tr><th>${t('roles.colRole')}</th><th>${t('roles.colMember')}</th><th>${t('roles.colStatus')}</th></tr></thead><tbody>
   ${ROLE_KEYS.map(k=>`<tr><td>${roleLabel(k)}</td><td>${roleCell(k)}</td><td id="rs-${k}">${filledChip(roleName(k))}</td></tr>`).join('')}
   </tbody></table></div>
   <div class="btns"><button class="primary" data-act="r-copy">${t('roles.copyOpen')}</button>
-  ${confirmClear?`<span class="muted" style="align-self:center">${t(SH.on?'roles.askAll':'roles.askHere')}</span><button class="small primary" data-act="r-clear">${t('roles.yesClear')}</button><button class="small" data-act="r-cancel">${t('common.cancel')}</button>`:`<button class="ghost" data-act="r-ask">${t('roles.clearAll')}</button>`}</div></div></section>`};
+  ${!canManage()?'':confirmClear?`<span class="muted" style="align-self:center">${t(SH.on?'roles.askAll':'roles.askHere')}</span><button class="small primary" data-act="r-clear">${t('roles.yesClear')}</button><button class="small" data-act="r-cancel">${t('common.cancel')}</button>`:`<button class="ghost" data-act="r-ask">${t('roles.clearAll')}</button>`}</div></div></section>`};
 
 // ---------- GUIDES ----------
 function guideName(k){return (GUIDE_NAMES[LANG]||GUIDE_NAMES.en)[k]||roleLabel(k)}
@@ -543,7 +560,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'tt-clearcustom':S.topics.custom=[];if(S.topics.theme==='mine')S.topics.theme='all';save();render();break;
   // vote
   case 'v-cat':S.vote.cat=i;ballotDone=false;confirmReveal=false;save();render();break;
-  case 'v-cast':{if(SH.on){castShared(S.vote.cat,b.dataset.n);break}const c=S.vote.cats[S.vote.cat];c.votes=c.votes||{};c.votes[b.dataset.n]=(c.votes[b.dataset.n]||0)+1;ballotDone=true;save();render();break}
+  case 'v-cast':{if(SH.on){if(!canBallot())break;castShared(S.vote.cat,b.dataset.n);break}const c=S.vote.cats[S.vote.cat];c.votes=c.votes||{};c.votes[b.dataset.n]=(c.votes[b.dataset.n]||0)+1;ballotDone=true;save();render();break}
   case 'v-next':ballotDone=false;render();break;
   case 'v-ask':confirmReveal=true;render();break;
   case 'v-cancel':confirmReveal=false;render();break;
@@ -563,9 +580,9 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'r-ask':confirmClear=true;render();break;
   case 'r-cancel':confirmClear=false;render();break;
   case 'r-clear':confirmClear=false;
-    if(SH.on){SH.roles={};render();SH.ref.roles.set({roles:{}}).catch(writeFail);break}
+    if(SH.on){if(!canManage())break;SH.roles={};render();SH.ref.roles.set({roles:{}}).catch(writeFail);break}
     Object.keys(S.roles).forEach(k=>S.roles[k]='');save();render();break;
-  case 'r-take':{const n=myName().trim();if(!n){toast(t('roles.nameFirst'));const f=$('#my-name');if(f)f.focus();break}writeRole(b.dataset.k,{n:n.slice(0,60),u:SH.uid});render();break}
+  case 'r-take':{if(!canAct())break;const n=myName().trim();if(!n){toast(t('roles.nameFirst'));const f=$('#my-name');if(f)f.focus();break}writeRole(b.dataset.k,{n:n.slice(0,60),u:SH.uid});render();break}
   case 'r-release':case 'r-unassign':writeRole(b.dataset.k,null);render();break;
   case 'copy-link':copyText(shareLink());break;
   case 'a-pdf':currentAgendaPdf();break;
