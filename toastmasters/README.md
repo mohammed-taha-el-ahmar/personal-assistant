@@ -34,6 +34,10 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `firestore.rules` | Database security rules (you paste these into Firebase) |
 | `.nojekyll` | Tells GitHub Pages to serve the files as they are |
 
+## Display: light, night or automatic
+
+The **◐ / ☀ / ☾** button in the header switches between **Auto** (follows the device's light or dark setting), **Light** and **Night**. The choice is remembered on each device.
+
 ## Languages
 
 The site is in **English and French**. It opens in French for visitors whose browser is set to French, and in English otherwise. The **EN / FR** switch in the header changes language and remembers the choice on that device.

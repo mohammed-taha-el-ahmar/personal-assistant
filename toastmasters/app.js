@@ -219,7 +219,22 @@ function setLang(l){
   updateStatus();render();
 }
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+// ---------- theme: automatic (follows the device), light or dark; remembered on this device ----------
+const THEMES=['auto','light','dark'];
+const getTheme=()=>{try{const v=localStorage.getItem('gt-theme');return THEMES.includes(v)?v:'auto'}catch(e){return 'auto'}};
+function applyTheme(){
+  const th=getTheme();
+  if(th==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',th);
+  const b=document.getElementById('themebtn');if(!b)return;
+  document.getElementById('themeicon').textContent={auto:'◐',light:'☀',dark:'☾'}[th];
+  document.getElementById('themelabel').textContent=t('theme.'+th);
+  b.setAttribute('aria-label',t('theme.label',{mode:t('theme.'+th)}));b.title=t('theme.next');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#themebtn'))return;
+  const next=THEMES[(THEMES.indexOf(getTheme())+1)%THEMES.length];
+  try{localStorage.setItem('gt-theme',next)}catch(_){}applyTheme();toast(t('theme.now',{mode:t('theme.'+next)}))});
 function applyChrome(){
+  applyTheme();
   document.documentElement.lang=LANG;
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
