@@ -163,6 +163,7 @@ async function initShared(){
   if(typeof clubLive==='function')clubLive();
   if(typeof templatesLive==='function')templatesLive();
   if(typeof drawLive==='function')drawLive();
+  if(typeof deletionLive==='function')deletionLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
@@ -226,7 +227,9 @@ function applyChrome(){
 function render(){
   applyChrome();
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===tab));
-  $('#main').innerHTML=VIEWS[tab]();
+  // A club whose deletion delay has passed shows only the deletion notice.
+  if(SH.on&&(DEL.done||deletionPassed())){$('#main').innerHTML=deletedView();return}
+  $('#main').innerHTML=deletionBanner()+VIEWS[tab]();
   if(tab==='timer') paintTimer();
 }
 

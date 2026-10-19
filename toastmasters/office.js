@@ -19,6 +19,7 @@ async function officeAuthChanged(){
     const d=await ref.get({source:'server'});
     SH.clubExists=d.exists;SH.officers=d.exists?(d.data().officers||[]):[];
     SH.officer=d.exists&&SH.officers.includes(SH.user.email);
+    SH.deletion=d.exists?(d.data().deletion||null):null;
   }catch(e){
     SH.officer=false;SH.officers=[];
     if(e&&e.code==='permission-denied'){
@@ -35,7 +36,9 @@ function startOfficerSubs(){
   if(typeof startInterestSub==='function')startInterestSub();
   OFF.unsubClub=SH.fs.doc('clubs/'+SH.club).onSnapshot(s=>{
     SH.officers=s.exists?(s.data().officers||[]):[];SH.officer=SH.officers.includes(SH.user.email);
+    SH.deletion=s.exists?(s.data().deletion||null):null;
     if(!SH.officer)stopOfficerSubs();softRender();
+    if(typeof maybePurge==='function')maybePurge();
   },()=>{SH.officer=false;stopOfficerSubs();softRender()});
   OFF.unsubHist=SH.fs.collection('clubs/'+SH.club+'/history').orderBy('date','desc').limit(300).onSnapshot(q=>{
     SH.history=q.docs.map(d=>({id:d.id,...d.data()}));softRender();
@@ -151,7 +154,7 @@ function officerArea(){
       :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div>`;
   }
   return `${who}<div class="notice"><span>${t('office.editClubHint')}</span><button class="small" data-act="go-club-edit">${t('cl.edit')}</button></div>
-    ${linkBox()}${closeBox()}${currentFeedbackBox()}${interestListBox()}${historyBox()}${participationBox()}${officersBox()}`;
+    ${linkBox()}${closeBox()}${currentFeedbackBox()}${interestListBox()}${historyBox()}${participationBox()}${officersBox()}${deletionBox()}`;
 }
 function linkBox(){
   return `<div class="box"><div class="phead"><div><h3>${t('qr.clubTitle')}</h3><p class="muted">${t('qr.officeText')}</p></div>
@@ -206,7 +209,7 @@ function participationBox(){
 }
 function officersBox(){
   return `<div class="box"><div><h3>${t('off.title')}</h3><p class="muted">${t('off.intro')}</p></div>
-  <div class="wchips">${SH.officers.map(e=>`<span class="wchip">${esc(e)}${e===SH.user.email?' '+t('off.you'):''}${SH.officers.length>1?`<button class="ghost small" data-act="off-remove" data-email="${esc(e)}" aria-label="${esc(t('off.remove',{email:e}))}">×</button>`:'&nbsp;&nbsp;'}</span>`).join('')}</div>
+  <div class="wchips">${SH.officers.map(e=>`<span class="wchip">${esc(e)}${e===SH.user.email?' '+t('off.you'):''}${SH.officers.length>1&&!SH.deletion?`<button class="ghost small" data-act="off-remove" data-email="${esc(e)}" aria-label="${esc(t('off.remove',{email:e}))}">×</button>`:'&nbsp;&nbsp;'}</span>`).join('')}</div>
   <form class="btns" data-form="off-add" style="flex-wrap:nowrap"><input id="off-email" type="email" placeholder="${t('off.addPh')}" autocomplete="off"><button type="submit">${t('common.add')}</button></form></div>`;
 }
 
@@ -227,7 +230,7 @@ function officeAct(a,b){
   case 'off-hdel-ask':OFF.confirmDelete=b.dataset.id;render();break;
   case 'off-hdel-cancel':OFF.confirmDelete=null;render();break;
   case 'off-hdel':SH.fs.doc('clubs/'+SH.club+'/history/'+b.dataset.id).delete().then(()=>toast(t('hist.deleted'))).catch(writeFail);OFF.confirmDelete=null;render();break;
-  case 'off-remove':{const e=b.dataset.email;if(SH.officers.length<=1){toast(t('off.last'));break}
+  case 'off-remove':{const e=b.dataset.email;if(SH.officers.length<=1){toast(t('off.last'));break}if(SH.deletion){toast(t('del.noRemove'));break}
     SH.fs.doc('clubs/'+SH.club).update({officers:firebase.firestore.FieldValue.arrayRemove(e)}).catch(writeFail);break}
   }
 }

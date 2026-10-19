@@ -4,7 +4,7 @@ rules_version = '2';
 // Paste this file into Firebase console → Firestore Database → Rules, then Publish.
 //
 // Data layout, one space per club code:
-//   clubs/{club}                  {officers: [emails]}  the club officers (bureau); officers only
+//   clubs/{club}                  {officers: [emails], deletion?}  the club officers (bureau); officers only
 //   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
 //   clubs/{club}/meeting/agenda   the running order
@@ -14,10 +14,16 @@ rules_version = '2';
 //   clubs/{club}/ballots/{uid}    one ballot per device; only that device can write it
 //   clubs/{club}/feedback/{id}    meeting feedback from members and guests; officers read it
 //   clubs/{club}/public/info      the club introduction page; everyone reads, officers edit
+//   clubs/{club}/public/status    deletion notice shown to every member; officers write it
 //   clubs/{club}/interest/{uid}   members interested in an officer role; the sender and officers read it
 //   clubs/{club}/templates/{id}   agenda templates; everyone reads, officers create, update and delete
 //
 // Members are signed in anonymously. Officers sign in with Google and are recognised by their verified email.
+//
+// Deleting a club: an officer sets clubs/{club}.deletion = {requestedAt: <server time>, requestedBy}.
+// The time is checked against the server clock, so the 3-day delay cannot be shortened. During those 3 days
+// any officer can cancel, and the officer list cannot shrink. Once the delay has passed, the club is locked:
+// nobody can read or write it any more, except officers, who may only read and delete in order to erase it.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -33,9 +39,26 @@ service cloud.firestore {
     function myEmail() {
       return request.auth.token.email.lower();
     }
+    function clubPath(club) {
+      return /databases/$(database)/documents/clubs/$(club);
+    }
     function isOfficer(club) {
       return hasVerifiedEmail()
-        && myEmail() in get(/databases/$(database)/documents/clubs/$(club)).data.officers;
+        && exists(clubPath(club))
+        && myEmail() in get(clubPath(club)).data.officers;
+    }
+    // True once a requested deletion has waited its 3 days.
+    function deletionDue(club) {
+      return exists(clubPath(club))
+        && get(clubPath(club)).data.get('deletion', null) != null
+        && request.time > get(clubPath(club)).data.deletion.requestedAt + duration.value(3, 'd');
+    }
+    function open(club) {
+      return validClub(club) && !deletionDue(club);
+    }
+    // Officers erasing a club whose delay has passed.
+    function purging(club) {
+      return validClub(club) && isOfficer(club) && deletionDue(club);
     }
 
     // The officers list. Anyone signed in with Google may check whether the club has one yet (empty read),
@@ -46,16 +69,34 @@ service cloud.firestore {
       allow create: if validClub(club) && hasVerifiedEmail()
         && request.resource.data.keys().hasOnly(['officers'])
         && request.resource.data.officers == [myEmail()];
-      allow update: if isOfficer(club)
-        && request.resource.data.keys().hasOnly(['officers'])
+      allow update: if isOfficer(club) && !deletionDue(club)
+        && request.resource.data.keys().hasOnly(['officers', 'deletion'])
         && request.resource.data.officers is list
         && request.resource.data.officers.size() >= 1
-        && request.resource.data.officers.size() <= 20;
-      allow list, delete: if false;
+        && request.resource.data.officers.size() <= 20
+        && (
+          // Ordinary change (officer list). While a deletion is pending, officers can be added but not removed,
+          // so nobody can lock the others out before the deletion happens.
+          (request.resource.data.get('deletion', null) == resource.data.get('deletion', null)
+            && (resource.data.get('deletion', null) == null || request.resource.data.officers.hasAll(resource.data.officers)))
+          // Request the deletion: stamped with the server time, officer list unchanged.
+          || (resource.data.get('deletion', null) == null
+            && request.resource.data.deletion.keys().hasOnly(['requestedAt', 'requestedBy'])
+            && request.resource.data.deletion.requestedAt == request.time
+            && request.resource.data.deletion.requestedBy == myEmail()
+            && request.resource.data.officers == resource.data.officers)
+          // Cancel the deletion (any officer, before the delay has passed).
+          || (resource.data.get('deletion', null) != null
+            && request.resource.data.get('deletion', null) == null
+            && request.resource.data.officers == resource.data.officers)
+        );
+      allow delete: if purging(club);
+      allow list: if false;
     }
 
     match /clubs/{club}/history/{meetingId} {
-      allow read, create, update, delete: if validClub(club) && isOfficer(club);
+      allow read, create, update, delete: if open(club) && isOfficer(club);
+      allow read, delete: if purging(club);
     }
 
     // Meeting feedback: anyone with the club link (members and guests, signed in anonymously) may send one answer
@@ -63,7 +104,7 @@ service cloud.firestore {
     // Only officers can read or delete answers.
     match /clubs/{club}/feedback/{answerId} {
       allow create: if request.auth != null
-        && validClub(club)
+        && open(club)
         && answerId == request.resource.data.date + '_' + request.auth.uid
         && request.resource.data.keys().hasOnly(['date', 'kind', 'rating', 'likes', 'again', 'comment', 'name', 'email', 'contact', 'lang', 'at'])
         && request.resource.data.date is string && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
@@ -79,18 +120,20 @@ service cloud.firestore {
       allow update: if false;
     }
 
-    // Club introduction page: anyone with the club link reads it, only officers change it.
+    // Club introduction page (info) and deletion notice (status): everyone reads, officers write.
+    // The status stays readable after the delay so members see that the club space was deleted.
     match /clubs/{club}/public/{docId} {
-      allow read: if validClub(club);
-      allow write: if validClub(club) && docId == 'info' && isOfficer(club);
+      allow read: if validClub(club) && (docId == 'status' || !deletionDue(club));
+      allow write: if open(club) && docId in ['info', 'status'] && isOfficer(club);
+      allow delete: if purging(club);
     }
 
     // "Interested in joining the officers": one form per device. The sender can read and update their own answer
     // (but not the follow-up status); officers read all answers, set the status and delete.
     match /clubs/{club}/interest/{uid} {
-      allow get: if request.auth != null && request.auth.uid == uid;
+      allow get: if open(club) && request.auth != null && request.auth.uid == uid;
       allow read, delete: if validClub(club) && isOfficer(club);
-      allow create, update: if validClub(club) && request.auth != null && request.auth.uid == uid
+      allow create, update: if open(club) && request.auth != null && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['name', 'email', 'roles', 'when', 'message', 'at', 'lang', 'status'])
         && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100
         && request.resource.data.email is string && request.resource.data.email.size() <= 120
@@ -98,37 +141,37 @@ service cloud.firestore {
         && request.resource.data.when in ['now', 'next', 'either']
         && request.resource.data.message is string && request.resource.data.message.size() <= 1000
         && (!('status' in request.resource.data) || (resource != null && 'status' in resource.data && request.resource.data.status == resource.data.status));
-      allow update: if validClub(club) && isOfficer(club)
+      allow update: if open(club) && isOfficer(club)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         && request.resource.data.status in ['new', 'contacted', 'offered', 'joined', 'declined'];
     }
 
     // Agenda templates: everyone with the club link can use them, only officers manage them.
     match /clubs/{club}/templates/{templateId} {
-      allow read: if validClub(club);
+      allow read: if open(club) || purging(club);
       allow delete: if validClub(club) && isOfficer(club);
-      allow create, update: if validClub(club) && isOfficer(club)
+      allow create, update: if open(club) && isOfficer(club)
         && request.resource.data.keys().hasOnly(['name', 'items', 'start', 'updatedAt', 'updatedBy'])
         && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
         && request.resource.data.items is list && request.resource.data.items.size() <= 40;
     }
 
     match /clubs/{club}/meeting/{docId} {
-      allow read: if validClub(club);
+      allow read: if open(club) || purging(club);
       allow create, update: if request.auth != null
-        && validClub(club)
+        && open(club)
         && docId in ['roles', 'agenda', 'vote', 'reports', 'draw']
         && request.resource.data.keys().size() <= 10;
-      allow delete: if false;
+      allow delete: if purging(club);
     }
 
     match /clubs/{club}/ballots/{voterId} {
-      allow read: if validClub(club);
+      allow read: if open(club) || purging(club);
       allow create, update: if request.auth != null
         && request.auth.uid == voterId
-        && validClub(club)
+        && open(club)
         && request.resource.data.keys().size() <= 20;
-      allow delete: if false;
+      allow delete: if purging(club);
     }
 
     // Everything else is closed.

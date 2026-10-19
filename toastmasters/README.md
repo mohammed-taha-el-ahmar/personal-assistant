@@ -23,6 +23,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `evals.js` | Evaluation forms by type |
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
 | `draw.js` | Random speaking order (contests, speakers) |
+| `deletion.js` | Deleting a club space, with a 3-day delay any officer can cancel |
 | `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
 | `qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
@@ -133,6 +134,16 @@ Open the **Club officers** tab (**Bureau** in French) with your club link.
 6. **Member participation** counts, from the history, how many roles, speeches and evaluations each member has done and when they last had a role. Names are matched as typed, so ask members to write their name the same way each time.
 
 Members never need to sign in. Only officers use Google sign-in.
+
+### Deleting a club space
+
+At the bottom of the officers' area, **Delete this club space** erases everything stored for the club: roles, agenda, votes, history, feedback, the club page, templates and the officer list. To confirm, the officer types the club code.
+
+- The deletion happens **3 days** after the request. The request is stamped with the database's own clock, so the delay cannot be shortened.
+- During those 3 days, every member sees a banner with the deletion date, and **any officer can cancel**. Officers can be added but not removed, so nobody can lock the others out first.
+- When the 3 days are up, the database **locks the club**: members can no longer read or change anything and see a "club space deleted" notice. The first officer who then opens the site (or signs in from that notice) erases all the data automatically, and the club code becomes free again.
+
+The free Firebase plan has no scheduled tasks, so the final erase runs when an officer next opens the site; until then the locked data stays in the database but cannot be read by anyone.
 
 ## Things to know
 
