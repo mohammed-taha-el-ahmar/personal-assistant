@@ -138,6 +138,7 @@ async function initShared(){
   try{
     if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);
     SH.fs=firebase.firestore();
+    if(typeof completeEmailLink==='function')completeEmailLink();
     // Members are signed in anonymously; club officers sign in with Google (see office.js).
     await new Promise((resolve,reject)=>{let first=true;
       firebase.auth().onAuthStateChanged(async u=>{

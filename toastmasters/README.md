@@ -56,6 +56,7 @@ The site already works at this point, with data kept on each device. Steps 2 and
 2. **Register a web app:** in **Project settings → General → Your apps**, click the web icon `</>`, give it a name, and skip Firebase Hosting. Copy the `firebaseConfig` values it shows into `firebase-config.js`.
 3. **Turn on anonymous sign-in:** **Build → Authentication → Get started → Sign-in method → Anonymous → Enable**. Members never create accounts; each phone gets an anonymous ID so it can cast one ballot per category.
 4. **Turn on Google sign-in (for club officers):** in the same **Sign-in method** tab, choose **Google → Enable**, pick a support email, and **Save**.
+   **Optional – sign-in by email link (officers without a Google account):** in the same tab, choose **Email/Password → Enable**, then also turn on **Email link (passwordless sign-in)**, and **Save**. You don't need to enable passwords themselves.
 5. **Allow your GitHub domain:** **Authentication → Settings → Authorized domains → Add domain** → `<your-username>.github.io`.
 6. **Create the database:** **Build → Firestore Database → Create database**. Pick a location close to your club (for example `eur3` for Europe) and start in **production mode**.
 7. **Set the rules:** open the **Rules** tab, replace everything with the contents of `firestore.rules`, and click **Publish**.
@@ -133,7 +134,15 @@ Open the **Club officers** tab (**Bureau** in French) with your club link.
 5. **Meeting history** lists every archived meeting. Open one to see its details, download it as a PDF (agenda plus votes and reports), or delete it.
 6. **Member participation** counts, from the history, how many roles, speeches and evaluations each member has done and when they last had a role. Names are matched as typed, so ask members to write their name the same way each time.
 
-Members never need to sign in. Only officers use Google sign-in.
+Members never need to sign in. Only officers sign in, either with Google or with a link sent by email.
+
+### Officers without a Google account
+
+Under the Google button, **Email me a sign-in link** sends a one-time link to the address typed. Opening it on the same device signs the officer in, with no password; on another device the page asks for the address again. The officer then stays signed in on that device.
+
+- The link works for any address, but **officer access is only given if that address is in the Officers list**, exactly as with Google.
+- On the free Firebase plan, Firebase sends at most **5 sign-in link emails per day for the whole site** (all clubs together). Because officers stay signed in on their devices, this is usually enough. If the limit is reached, the page says so and suggests trying the next day or signing in with Google.
+- The emails come from Firebase (`noreply@<your-project>.firebaseapp.com`) and sometimes land in spam. You can change their wording and sender name in **Authentication → Templates**.
 
 ### Deleting a club space
 

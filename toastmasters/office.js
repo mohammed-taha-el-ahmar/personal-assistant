@@ -47,6 +47,66 @@ function startOfficerSubs(){
     SH.feedback=q.docs.map(d=>({id:d.id,...d.data()}));softRender();
   },()=>{});
 }
+// ---------- passwordless sign-in by email link (for officers without a Google account) ----------
+// Firebase emails a one-time link. Opening it on the same device signs the officer in; on another device
+// the page asks for the address again (Firebase requires it to match). Access still depends on the officer list.
+const LINK_KEY='gt-emailForSignIn';
+const LINK={sent:'',needEmail:false,busy:false,error:''};
+function officeLinkUrl(){const u=new URL(shareLink());u.hash='office';return u.toString()}
+async function sendSignInLink(email){
+  email=email.trim().toLowerCase();if(!emailOk(email)){toast(t('off.invalid'));return}
+  LINK.busy=true;LINK.error='';render();
+  try{
+    await firebase.auth().sendSignInLinkToEmail(email,{url:officeLinkUrl(),handleCodeInApp:true});
+    try{localStorage.setItem(LINK_KEY,email)}catch(e){}
+    LINK.sent=email;
+  }catch(e){
+    const c=e&&e.code||'';
+    LINK.error=c==='auth/quota-exceeded'?t('link.quota'):c==='auth/operation-not-allowed'?t('link.notEnabled'):c==='auth/unauthorized-continue-uri'||c==='auth/unauthorized-domain'?t('office.domainFail'):t('link.sendFail');
+  }
+  LINK.busy=false;render();
+}
+// Called once Firebase is ready: finishes the sign-in when the page was opened from the emailed link.
+async function completeEmailLink(typed){
+  const a=firebase.auth();
+  if(!a.isSignInWithEmailLink||!a.isSignInWithEmailLink(location.href))return;
+  let email=typed;if(!email){try{email=localStorage.getItem(LINK_KEY)||''}catch(e){}}
+  if(!email){LINK.needEmail=true;tab='office';render();return}
+  LINK.busy=true;LINK.error='';
+  try{
+    await a.signInWithEmailLink(email.trim().toLowerCase(),location.href);
+    try{localStorage.removeItem(LINK_KEY)}catch(e){}
+    LINK.needEmail=false;LINK.sent='';
+    // Remove the one-time code from the address bar.
+    try{const u=new URL(officeLinkUrl());history.replaceState(null,'',u.pathname+u.search+'#office')}catch(e){}
+    tab='office';toast(t('link.signedIn'));
+  }catch(e){
+    const c=e&&e.code||'';
+    LINK.error=c==='auth/invalid-email'?t('link.wrongEmail'):c==='auth/invalid-action-code'||c==='auth/expired-action-code'?t('link.expired'):t('link.signInFail');
+    LINK.needEmail=c==='auth/invalid-email';tab='office';
+  }
+  LINK.busy=false;render();
+}
+function signInBox(){
+  if(LINK.needEmail)return `<form class="box" data-form="link-confirm" novalidate><h3>${t('link.confirmTitle')}</h3><p class="muted">${t('link.confirmText')}</p>
+    ${LINK.error?`<p class="chip bad" style="align-self:flex-start">${esc(LINK.error)}</p>`:''}
+    <div class="btns" style="flex-wrap:nowrap"><input id="link-confirm" type="email" autocomplete="email" placeholder="${t('off.addPh')}"><button type="submit" class="primary" ${LINK.busy?'disabled':''}>${t('link.finish')}</button></div></form>`;
+  return `<div class="box"><p>${t('office.signInText')}</p>
+    <div><button class="primary" data-act="off-signin">${t('office.signIn')}</button></div>
+    <div style="border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px">
+      <h3>${t('link.title')}</h3><p class="muted">${t('link.intro')}</p>
+      ${LINK.sent?`<div class="notice"><span>${t('link.sent',{email:esc(LINK.sent)})}</span><button class="small" data-act="link-again">${t('link.again')}</button></div>`
+        :`<form class="btns" data-form="link-send" style="flex-wrap:nowrap" novalidate><input id="link-email" type="email" autocomplete="email" placeholder="${t('off.addPh')}" aria-label="${t('fb.email')}"><button type="submit" ${LINK.busy?'disabled':''}>${t('link.send')}</button></form>`}
+      ${LINK.error?`<p class="chip bad" style="align-self:flex-start;white-space:normal">${esc(LINK.error)}</p>`:''}
+    </div></div>`;
+}
+document.addEventListener('submit',ev=>{
+  const f=ev.target.dataset.form;if(f!=='link-send'&&f!=='link-confirm')return;ev.preventDefault();
+  if(f==='link-send')sendSignInLink(document.getElementById('link-email').value);
+  else completeEmailLink(document.getElementById('link-confirm').value);
+});
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act=link-again]');if(b){LINK.sent='';LINK.error='';render()}});
+
 async function officeSignIn(){
   try{await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())}
   catch(e){
@@ -142,7 +202,7 @@ function officeView(){
 }
 function officerArea(){
   if(!SH.on)return `${liveBox()}${configured()?`<p class="muted">${t('office.needLive')}</p>`:''}`;
-  if(!isMember())return `<div class="box"><p>${t('office.signInText')}</p><div><button class="primary" data-act="off-signin">${t('office.signIn')}</button></div></div>`;
+  if(!isMember()||LINK.needEmail)return signInBox();
   const who=`<div class="notice"><span>${t('office.signedAs',{email:esc(SH.user.email)})}</span><button class="small" data-act="off-signout">${t('office.signOut')}</button></div>`;
   if(!SH.user.email||!SH.user.verified)return `${who}<div class="box"><p>${t('office.noEmail')}</p></div>`;
   if(SH.officer===undefined)return `${who}<p class="empty">${t('office.loading')}</p>`;
