@@ -20,6 +20,8 @@ rules_version = '2';
 //   clubs/{club}/templates/{id}   agenda templates; everyone reads, officers create, update and delete
 //   clubs/{club}/private/config   {memberCode, v, guestsVote}  the club code; officers only
 //   clubs/{club}/public/access    {on, v, guestsVote}  repeats whether member access is on, for every page
+//   clubs/{club}/guestbook/{id}   guests signed in at meetings; anyone creates, officers read
+//   clubs/{club}/members/{id}     member list and renewals; officers only
 //   clubs/{club}/devices/{uid}    one per device unlocked with the club code; valid while its v matches the config
 //
 // Permission levels, once officers have turned on member access (private/config exists):
@@ -203,6 +205,39 @@ service cloud.firestore {
       allow update: if open(club) && isOfficer(club)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         && request.resource.data.status in ['new', 'contacted', 'offered', 'joined', 'declined'];
+    }
+
+    // Guest book: anyone with the club link signs in a guest (one device can sign in several guests, each entry
+    // id is "<date>_<their uid>_<random>"). Entries cannot be changed by guests. Officers read them, set the
+    // follow-up status and delete them.
+    match /clubs/{club}/guestbook/{entryId} {
+      allow create: if request.auth != null && open(club)
+        && entryId.matches(request.resource.data.date + '_' + request.auth.uid + '_[a-z0-9]{1,12}')
+        && request.resource.data.keys().hasOnly(['date', 'name', 'email', 'phone', 'heard', 'first', 'news', 'join', 'lang', 'at'])
+        && request.resource.data.date is string && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string && request.resource.data.email.size() <= 120
+        && request.resource.data.phone is string && request.resource.data.phone.size() <= 40
+        && request.resource.data.heard in ['', 'friend', 'web', 'social', 'event', 'work', 'other']
+        && request.resource.data.first in ['first', 'again']
+        && request.resource.data.news is bool && request.resource.data.join is bool;
+      allow read, delete: if validClub(club) && isOfficer(club);
+      allow update: if open(club) && isOfficer(club)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['new', 'contacted', 'member', 'done'];
+    }
+
+    // Member list with renewals: officers only.
+    match /clubs/{club}/members/{memberId} {
+      allow read, delete: if validClub(club) && isOfficer(club);
+      allow create, update: if open(club) && isOfficer(club)
+        && request.resource.data.keys().hasOnly(['name', 'email', 'phone', 'joined', 'tmId', 'status', 'notes', 'renewals', 'source', 'updatedAt', 'updatedBy'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100
+        && request.resource.data.get('email', '') is string && request.resource.data.get('email', '').size() <= 120
+        && request.resource.data.get('phone', '') is string && request.resource.data.get('phone', '').size() <= 40
+        && request.resource.data.get('notes', '') is string && request.resource.data.get('notes', '').size() <= 1000
+        && request.resource.data.get('status', 'active') in ['active', 'former']
+        && request.resource.data.get('renewals', {}) is map && request.resource.data.get('renewals', {}).size() <= 60;
     }
 
     // Agenda templates: everyone with the club link can use them, only officers manage them.

@@ -1,10 +1,10 @@
-// TM Tools – club-level choice of which sections, tabs and features members see.
+// Toastmasters Tools – club-level choice of which sections, tabs and features members see.
 // Useful when a club already uses another tool (easy-Speak, for example) for some of these jobs.
 // Stored in clubs/{club}/public/modules as {disabled:[keys]}; everyone reads it, officers change it.
 // Without a club link every tool stays visible. The Club officers tab is always visible so officers can undo a choice.
 
 const MODULE_SECTIONS=[
-  {id:'club',    label:'nav.club',   tabs:['club'],                                    subs:[['office.roles','mod.sub.officeRoles']]},
+  {id:'club',    label:'nav.club',   tabs:['club','guestbook','members'],                                    subs:[['office.roles','mod.sub.officeRoles']]},
   {id:'during',  label:'nav.during', tabs:['timer','ah','gram','topics','vote'],        subs:[['reports','mod.sub.reports']]},
   {id:'before',  label:'nav.before', tabs:['agenda','roles','draw','guides','eval'],    subs:[['agenda.templates','mod.sub.templates']]},
   {id:'after',   label:'nav.after',  tabs:['feedback'],                                 subs:[]}
@@ -21,11 +21,13 @@ function modulesLive(){
 }
 // Is this tab or feature shown? Everything is shown without a club link.
 function isOn(key){return !SH.on||ALWAYS_ON.includes(key)||!MODS.disabled.includes(key)}
-const firstOnTab=()=>TABS.find(isOn)||'office';
+const firstOnTab=()=>TABS.find(x=>isOn(x)&&x!=='members')||'office';
+// The Members tab is listed only for signed-in officers.
+const officerOnlyTab=x=>x==='members'&&!(SH.on&&SH.officer===true);
 
 // Hide disabled tabs, and whole sections when none of their tabs is left. Called on every render.
 function applyModules(){
-  document.querySelectorAll('.tab[data-tab]').forEach(b=>{b.hidden=!isOn(b.dataset.tab)});
+  document.querySelectorAll('.tab[data-tab]').forEach(b=>{b.hidden=!isOn(b.dataset.tab)||officerOnlyTab(b.dataset.tab)});
   document.querySelectorAll('nav.tabs .group').forEach(g=>{g.hidden=![...g.querySelectorAll('.tab')].some(b=>!b.hidden)});
   if(!isOn(tab)){tab=firstOnTab();try{history.replaceState(null,'',location.pathname+location.search+'#'+tab)}catch(e){}}
 }

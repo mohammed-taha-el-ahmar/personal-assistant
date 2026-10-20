@@ -1,4 +1,4 @@
-// TM Tools – club officers' space (Bureau): Google sign-in, officer list, meeting archive, history, participation.
+// Toastmasters Tools – club officers' space (Bureau): Google sign-in, officer list, meeting archive, history, participation.
 // Data (see firestore.rules):
 //   clubs/{club}                 {officers:[emails]}   readable and editable by officers only
 //   clubs/{club}/history/{id}    one archived meeting  officers only
@@ -9,7 +9,7 @@ const emailOk=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 const isMember=()=>SH.user&&!SH.user.anon;
 
 // ---------- access ----------
-function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[];if(typeof stopInterestSub==='function')stopInterestSub();if(typeof accessStopOfficerSubs==='function')accessStopOfficerSubs()}
+function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[];if(typeof stopInterestSub==='function')stopInterestSub();if(typeof accessStopOfficerSubs==='function')accessStopOfficerSubs();if(typeof membersStopSubs==='function')membersStopSubs()}
 async function officeAuthChanged(){
   stopOfficerSubs();
   if(!SH.fs||!SH.club||!isMember()){SH.officer=undefined;SH.clubExists=undefined;SH.officers=[];return}
@@ -35,6 +35,7 @@ async function officeAuthChanged(){
 function startOfficerSubs(){
   if(typeof startInterestSub==='function')startInterestSub();
   if(typeof accessOfficerSubs==='function')accessOfficerSubs();
+  if(typeof membersOfficerSubs==='function')membersOfficerSubs();
   OFF.unsubClub=SH.fs.doc('clubs/'+SH.club).onSnapshot(s=>{
     SH.officers=s.exists?(s.data().officers||[]):[];SH.officer=SH.officers.includes(SH.user.email);
     SH.deletion=s.exists?(s.data().deletion||null):null;
@@ -217,7 +218,7 @@ function officerArea(){
       :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div>`;
   }
   return `${who}<div class="notice"><span>${t('office.editClubHint')}</span><button class="small" data-act="go-club-edit">${t('cl.edit')}</button></div>
-    ${accessOn()?'':accessBox()}${linkBox()}${accessOn()?accessBox():''}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${modulesBox()}${officersBox()}${deletionBox()}`;
+    ${accessOn()?'':accessBox()}${isOn('members')?`<div class="notice"><span>${t('mem.officeHint')}</span><button class="small" data-act="go-members">${t('tab.members')}</button></div>`:''}${linkBox()}${accessOn()?accessBox():''}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${modulesBox()}${officersBox()}${deletionBox()}`;
 }
 function linkBox(){
   return `<div class="box"><div class="phead"><div><h3>${t('qr.clubTitle')}</h3><p class="muted">${t('qr.officeText')}</p></div>

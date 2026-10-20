@@ -1,4 +1,4 @@
-// TM Tools – QR codes and the "After the meeting" feedback form.
+// Toastmasters Tools – QR codes and the "After the meeting" feedback form.
 // Feedback is stored in clubs/{club}/feedback/{date}_{uid}: anyone with the club link can send one per device and meeting,
 // only club officers can read it (see firestore.rules and office.js).
 
@@ -24,8 +24,10 @@ function qrSvg(text){
 }
 const feedbackLink=()=>{const u=new URL(shareLink());u.hash='feedback';return u.toString()};
 let QR=null; // {title, text, url}
+function guestbookLink(){const u=new URL(shareLink());u.hash='guestbook';return u.toString()}
 function openQr(kind){
   QR=kind==='feedback'?{title:t('qr.feedbackTitle'),text:t('qr.feedbackText'),url:feedbackLink()}
+    :kind==='guestbook'?{title:t('gb.qrTitle'),text:t('gb.qrText'),url:guestbookLink()}
     :kind==='member'?{title:t('acc.qrTitle'),text:t('acc.qrText'),url:memberLink()}
     :{title:t('qr.clubTitle'),text:t('qr.clubText'),url:shareLink()};
   paintQr();

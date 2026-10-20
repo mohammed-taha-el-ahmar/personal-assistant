@@ -1,4 +1,4 @@
-// TM Tools – app logic. Text and language content live in i18n.js.
+// Toastmasters Tools – app logic. Text and language content live in i18n.js.
 
 // ---------- language ----------
 function detectLang(){
@@ -122,7 +122,7 @@ function setQuery(params){
 function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.searchParams.set('club',SH.club);if(LANG!=='en')u.searchParams.set('lang',LANG);return u.toString()}
 let pendingRender=false;
 function softRender(){
-  if(!['roles','agenda','vote','office','feedback','club','draw'].includes(tab))return;
+  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members'].includes(tab))return;
   const a=document.activeElement;
   if(a&&a.matches&&a.matches('input,textarea,select')){pendingRender=true;return}
   render();
@@ -212,7 +212,7 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['club','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','feedback','office'];
+const TABS=['club','guestbook','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','feedback','office','members'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
 function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -278,7 +278,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView()};
+const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>

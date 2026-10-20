@@ -1,4 +1,4 @@
-// TM Tools – evaluation forms: several forms per meeting, one type each, with pre-filled criteria
+// Toastmasters Tools – evaluation forms: several forms per meeting, one type each, with pre-filled criteria
 // that can be renamed, reordered, removed or added to. Kept on this device; each form can be copied or saved as a PDF.
 
 const EV_TYPES={

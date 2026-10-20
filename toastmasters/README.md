@@ -1,6 +1,6 @@
-# TM Tools
+# Toastmasters Tools
 
-Free meeting tools for Public Speaking clubs, built as a single static page for GitHub Pages.
+Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
 
 **Club:** an introduction page for the club (description, practical information, current officers, announcements, events) edited by the officers, and a page presenting the officer roles with an "I'm interested" form.
 **During the meeting:** speech timer with green/amber/red signals (show colors and time, or colors only; press H to switch), Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
@@ -25,6 +25,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `draw.js` | Random speaking order (contests, speakers) |
 | `deletion.js` | Deleting a club space, with a 3-day delay any officer can cancel |
 | `permissions.js` | Who may do what: visitors, members (device unlocked with the member code) and officers |
+| `members.js` | Guest book (everyone) and member list with dues renewals (officers only) |
 | `modules.js` | Club choice of which sections, tabs and features members see |
 | `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
@@ -170,6 +171,17 @@ Until officers turn it on, a club space is open: anyone with the club link can e
 - **Turn off** makes the club space open again.
 - The database checks all of this itself (see `firestore.rules`): the code is stored where only officers can read it, and a write without the right level is refused, whatever the page shows.
 - A member who clears their browser data or changes phone simply enters the code again.
+
+### Members and guest book
+
+**Guest book** (Club → Guest book, open to everyone with the link): guests leave their name, email or phone, whether it's their first visit, how they heard of the club, and two optional ticks: "I'd like to know how to become a member" and "I agree to receive news". Show **Guest book QR code** at the door, or leave a tablet there: after each guest, "Sign in another guest" clears the form. Only officers can read the entries.
+
+**Members** (Club → Members, visible to signed-in officers only):
+- **Member list**: name, email, phone, member since, Toastmasters member number, status (active or former) and notes. Add members one by one, or **Import CSV** from a spreadsheet or a Club Central export. The first line can name the columns in English or French (name, or first name and last name, email, phone, member since, member number, notes); people already in the list are skipped.
+- **Renewals**: Toastmasters dues cover October–March and April–September. For each period, set every member to Paid, Pending or Not renewing; the counters show where the campaign stands, and **Copy emails of members who haven't paid** gives a list to paste in the BCC of a reminder. Each period is kept, so past ones stay visible. In March and September, the next period is shown first.
+- **Guest follow-up**: the guest book appears below the list, with a status for each guest (new, contacted, became a member, no follow-up). **Add as member** fills the member form from the guest's details.
+- **Export CSV** for the member list and the guest book (semicolon-separated in French, for Excel).
+- **Personal data**: this is personal data under the GDPR. Only officers can read it, guests are told so on the form, and the page offers to delete guest entries older than 12 months. Delete a person's details whenever they ask. Members can also be marked "former" instead of deleted, to keep the club's history.
 
 ### Choosing which tools the club uses
 
