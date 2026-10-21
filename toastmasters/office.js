@@ -1,4 +1,4 @@
-// Toastmasters Tools – club officers' space (Bureau): Google sign-in, officer list, meeting archive, history, participation.
+// Orato – club officers' space (Bureau): Google sign-in, officer list, meeting archive, history, participation.
 // Data (see firestore.rules):
 //   clubs/{club}                 {officers:[emails]}   readable and editable by officers only
 //   clubs/{club}/history/{id}    one archived meeting  officers only

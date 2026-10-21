@@ -20,6 +20,7 @@ rules_version = '2';
 //   clubs/{club}/templates/{id}   agenda templates; everyone reads, officers create, update and delete
 //   clubs/{club}/private/config   {memberCode, v, guestsVote}  the club code; officers only
 //   clubs/{club}/public/access    {on, v, guestsVote}  repeats whether member access is on, for every page
+//   clubs/{club}/media/{id}       club page photos (small and large versions); everyone reads, officers write
 //   clubs/{club}/guestbook/{id}   guests signed in at meetings; anyone creates, officers read
 //   clubs/{club}/members/{id}     member list and renewals; officers only
 //   clubs/{club}/devices/{uid}    one per device unlocked with the club code; valid while its v matches the config
@@ -225,6 +226,18 @@ service cloud.firestore {
       allow update: if open(club) && isOfficer(club)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         && request.resource.data.status in ['new', 'contacted', 'member', 'done'];
+    }
+
+    // Club page photos, resized in the browser: "<id>" is the small version, "<id>-full" the large one.
+    // Everyone reads them with the club page; officers add and delete them.
+    match /clubs/{club}/media/{mediaId} {
+      allow read: if validClub(club) && (!deletionDue(club) || purging(club));
+      allow create, update: if open(club) && isOfficer(club)
+        && mediaId.matches('^[a-z0-9]{6,20}(-full)?$')
+        && request.resource.data.keys().hasOnly(['data', 'w', 'h', 'at', 'by'])
+        && request.resource.data.data is string && request.resource.data.data.size() <= 750000
+        && request.resource.data.w is int && request.resource.data.h is int;
+      allow delete: if validClub(club) && isOfficer(club);
     }
 
     // Member list with renewals: officers only.

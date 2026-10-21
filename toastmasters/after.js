@@ -1,4 +1,4 @@
-// Toastmasters Tools – QR codes and the "After the meeting" feedback form.
+// Orato – QR codes and the "After the meeting" feedback form.
 // Feedback is stored in clubs/{club}/feedback/{date}_{uid}: anyone with the club link can send one per device and meeting,
 // only club officers can read it (see firestore.rules and office.js).
 

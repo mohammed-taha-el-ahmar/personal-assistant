@@ -1,8 +1,8 @@
-# Toastmasters Tools
+# Orato
 
 Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
 
-**Club:** an introduction page for the club (description, practical information, current officers, announcements, events) edited by the officers, and a page presenting the officer roles with an "I'm interested" form.
+**Club:** an introduction page for the club (description, photos and videos, practical information, current officers, announcements, events) edited by the officers, and a page presenting the officer roles with an "I'm interested" form.
 **During the meeting:** speech timer with green/amber/red signals (show colors and time, or colors only; press H to switch), Ah-Counter (with your own filler words), Grammarian, Table Topics question draw, voting.
 **Before the meeting:** agenda builder with meeting templates (2 speeches, 3 speeches, speech contest, plus your own), in person, hybrid or online with the Zoom/Teams link, and PDF download, role sign-up, random speaking order for contests, role guides.
 **Evaluations:** forms for each type of evaluation (prepared speech, Table Topics, evaluator, Toastmaster of the Evening, Table Topics Master, General Evaluator, Timer/Ah-Counter/Grammarian, custom) with pre-filled criteria you can rename, reorder, remove or add to; PDF filled in or blank to print.
@@ -27,6 +27,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `permissions.js` | Who may do what: visitors, members (device unlocked with the member code) and officers |
 | `members.js` | Guest book (everyone) and member list with dues renewals (officers only) |
 | `modules.js` | Club choice of which sections, tabs and features members see |
+| `media.js` | Photos and videos on the club page |
 | `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
 | `qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
@@ -121,6 +122,15 @@ In **Agenda**, **Download PDF** saves an A4 agenda with times, roles and the nam
 **Officer roles.** The Club officers tab (**Bureau**) first presents the seven officer roles with their responsibilities and what each brings. Below, members can leave their name, email, the roles that interest them and when (this year or next) with **I'm interested**. Officers see the list in their area, set a follow-up status (contacted, role offered, joined, declined) or delete an entry. Members can update their own answer; nobody else can read it.
 
 **Evaluation forms.** In **Evaluations**, choose a type and click **Create**. Each type comes with its own criteria; rename one by editing its name, reorder with the arrows, remove with ×, or add your own. Rate 1-5 and add a comment per criterion, then the three written parts. **Download PDF** gives a filled-in form to send to the person evaluated; **Blank form to print** gives the same criteria with empty fields; with several forms, **PDF of all forms** puts them in one file (useful for the General Evaluator). Forms stay on the device where they were written.
+
+### Photos and videos on the club page
+
+In **Edit the club page**, the **Photos and videos** box lets officers:
+- **Add photos** from a computer or phone (several at once, up to 24). Each photo is resized in the browser (a small version for the page, a larger one when someone opens it) and stored in the Firestore database, so no paid Firebase plan is needed. File storage in Firebase (Cloud Storage) now requires the paid Blaze plan, which is why it isn't used.
+- **Add a video** by pasting a YouTube or Vimeo link (or a direct link to an .mp4 or .webm file), up to 12. Videos load only when someone presses play, and YouTube videos use its privacy-enhanced mode.
+- Add a caption, change the order with the arrows, or remove an item. Click **Save** to publish.
+
+Visitors see a photo grid (click a photo to open it full screen, with ← → to browse) and the videos below it. Only post photos of people who agree to appear on the page.
 
 ## 5. After the meeting: feedback
 

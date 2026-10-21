@@ -1,4 +1,4 @@
-// Toastmasters Tools – app logic. Text and language content live in i18n.js.
+// Orato – app logic. Text and language content live in i18n.js.
 
 // ---------- language ----------
 function detectLang(){
@@ -123,6 +123,8 @@ function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.sear
 let pendingRender=false;
 function softRender(){
   if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members'].includes(tab))return;
+  // Don't restart a video someone is watching on the club page.
+  if(tab==='club'&&document.querySelector('#main .vid iframe,#main .vid video'))return;
   const a=document.activeElement;
   if(a&&a.matches&&a.matches('input,textarea,select')){pendingRender=true;return}
   render();
@@ -214,7 +216,7 @@ async function castShared(i,name){
 // ---------- tabs and language ----------
 const TABS=['club','guestbook','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','feedback','office','members'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
-function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
+function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();if(typeof MEDIA!=='undefined')MEDIA.playing={};tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 function setLang(l){
   if(!LANGS.includes(l)||l===LANG)return;

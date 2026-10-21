@@ -1,4 +1,4 @@
-// Toastmasters Tools – random speaking order (contests, speakers, Table Topics…).
+// Orato – random speaking order (contests, speakers, Table Topics…).
 // The draw uses the browser's cryptographic random generator. With a club link, the result is shared live
 // through clubs/{club}/meeting/draw so everyone sees the same order, and each redraw is numbered.
 

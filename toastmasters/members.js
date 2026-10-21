@@ -1,4 +1,4 @@
-// Toastmasters Tools – membership: the guest book (everyone) and the member list with renewals (officers only).
+// Orato – membership: the guest book (everyone) and the member list with renewals (officers only).
 //
 // Data (see firestore.rules):
 //   clubs/{club}/guestbook/{date_uid_x}  one entry per guest who signs in at a meeting; created by anyone with the link,

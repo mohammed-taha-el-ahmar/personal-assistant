@@ -1,4 +1,4 @@
-// Toastmasters Tools – who may do what in a club space.
+// Orato – who may do what in a club space.
 //
 // Three levels:
 //   Visitor  – anyone with the club link: reads everything shared, votes (unless the club says members only),
