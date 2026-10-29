@@ -12,7 +12,7 @@ const isMember=()=>SH.user&&!SH.user.anon;
 function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[];if(typeof stopInterestSub==='function')stopInterestSub();if(typeof accessStopOfficerSubs==='function')accessStopOfficerSubs();if(typeof membersStopSubs==='function')membersStopSubs()}
 async function officeAuthChanged(){
   stopOfficerSubs();
-  if(!SH.fs||!SH.club||!isMember()){SH.officer=undefined;SH.clubExists=undefined;SH.officers=[];return}
+  if(!SH.fs||!SH.club||!isMember()||!SH.user.verified){SH.officer=undefined;SH.clubExists=undefined;SH.officers=[];return}
   SH.officer=undefined;SH.officeErr='';softRender();
   const ref=SH.fs.doc('clubs/'+SH.club);
   try{
@@ -64,7 +64,7 @@ async function sendSignInLink(email){
     LINK.sent=email;
   }catch(e){
     const c=e&&e.code||'';
-    LINK.error=c==='auth/quota-exceeded'?t('link.quota'):c==='auth/operation-not-allowed'?t('link.notEnabled'):c==='auth/unauthorized-continue-uri'||c==='auth/unauthorized-domain'?t('office.domainFail'):t('link.sendFail');
+    LINK.error=c==='auth/operation-not-allowed'?t('link.notEnabled'):authMsg(e);
   }
   LINK.busy=false;render();
 }
@@ -84,36 +84,118 @@ async function completeEmailLink(typed){
     tab='office';toast(t('link.signedIn'));
   }catch(e){
     const c=e&&e.code||'';
-    LINK.error=c==='auth/invalid-email'?t('link.wrongEmail'):c==='auth/invalid-action-code'||c==='auth/expired-action-code'?t('link.expired'):t('link.signInFail');
+    LINK.error=c==='auth/invalid-email'?t('link.wrongEmail'):c==='auth/invalid-action-code'||c==='auth/expired-action-code'?t('link.expired'):authMsg(e);
     LINK.needEmail=c==='auth/invalid-email';tab='office';
   }
   LINK.busy=false;render();
 }
+// ---------- officer sign-in ----------
+// One address field routes each officer: Gmail addresses to Google, every other address (wanadoo.fr, orange.fr,
+// free.fr, a company address…) to a password chosen once and confirmed by email. The one-time email link stays
+// available as a last resort, but Firebase's free plan sends only 5 of those a day for the whole site.
+const PW={email:'',step:'email',busy:false,error:'',info:'',pass:'',n1:'',n2:''}; // typed passwords stay in memory only, to survive a re-render
+const GOOGLE_DOMAINS=/@(gmail|googlemail)\.com$/i;
+function authMsg(e){
+  const c=e&&e.code||'';
+  const map={'auth/invalid-credential':'pw.wrong','auth/invalid-login-credentials':'pw.wrong','auth/wrong-password':'pw.wrong','auth/user-not-found':'pw.wrong',
+    'auth/email-already-in-use':'pw.exists','auth/weak-password':'pw.weak','auth/password-does-not-meet-requirements':'pw.weak',
+    'auth/too-many-requests':'pw.tooMany','auth/operation-not-allowed':'pw.notEnabled','auth/network-request-failed':'auth.network',
+    'auth/invalid-email':'off.invalid','auth/missing-email':'off.invalid','auth/account-exists-with-different-credential':'auth.otherMethod',
+    'auth/unauthorized-domain':'office.domainFail','auth/unauthorized-continue-uri':'office.domainFail','auth/invalid-continue-uri':'office.domainFail',
+    'auth/quota-exceeded':'link.quota','auth/user-disabled':'auth.disabled'};
+  return map[c]?t(map[c]):t('auth.fail',{code:c||String(e&&e.message||e)});
+}
 function signInBox(){
   if(LINK.needEmail)return `<form class="box" data-form="link-confirm" novalidate><h3>${t('link.confirmTitle')}</h3><p class="muted">${t('link.confirmText')}</p>
-    ${LINK.error?`<p class="chip bad" style="align-self:flex-start">${esc(LINK.error)}</p>`:''}
+    ${LINK.error?`<p class="chip bad" style="align-self:flex-start;white-space:normal">${esc(LINK.error)}</p>`:''}
     <div class="btns" style="flex-wrap:nowrap"><input id="link-confirm" type="email" autocomplete="email" placeholder="${t('off.addPh')}"><button type="submit" class="primary" ${LINK.busy?'disabled':''}>${t('link.finish')}</button></div></form>`;
-  return `<div class="box"><p>${t('office.signInText')}</p>
-    <div><button class="primary" data-act="off-signin">${t('office.signIn')}</button></div>
-    <div style="border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px">
-      <h3>${t('link.title')}</h3><p class="muted">${t('link.intro')}</p>
-      ${LINK.sent?`<div class="notice"><span>${t('link.sent',{email:esc(LINK.sent)})}</span><button class="small" data-act="link-again">${t('link.again')}</button></div>`
-        :`<form class="btns" data-form="link-send" style="flex-wrap:nowrap" novalidate><input id="link-email" type="email" autocomplete="email" placeholder="${t('off.addPh')}" aria-label="${t('fb.email')}"><button type="submit" ${LINK.busy?'disabled':''}>${t('link.send')}</button></form>`}
-      ${LINK.error?`<p class="chip bad" style="align-self:flex-start;white-space:normal">${esc(LINK.error)}</p>`:''}
-    </div></div>`;
+  const err=PW.error||LINK.error;
+  const msgs=`${err?`<p class="chip bad" style="align-self:flex-start;white-space:normal" role="alert">${esc(err)}</p>`:''}${PW.info?`<div class="notice"><span>${esc(PW.info)}</span></div>`:''}`;
+  const emailLine=`<p>${t('pw.as',{email:`<b>${esc(PW.email)}</b>`})} <button type="button" class="small ghost" data-act="pw-change">${t('pw.change')}</button></p>`;
+  let body;
+  if(PW.step==='email'){
+    body=`<form class="field" data-form="pw-email" novalidate><label class="label" for="pw-email">${t('pw.emailLabel')}</label>
+      <div class="btns" style="flex-wrap:nowrap"><input id="pw-email" type="email" autocomplete="username" value="${esc(PW.email)}" placeholder="${t('off.addPh')}"><button type="submit" class="primary">${t('pw.continue')}</button></div></form>
+      ${msgs}
+      <div style="border-top:1px solid var(--line);padding-top:12px"><button data-act="off-signin">${t('office.signIn')}</button></div>`;
+  }else if(PW.step==='password'){
+    body=`${emailLine}<form class="field" data-form="pw-signin" novalidate><label class="label" for="pw-pass">${t('pw.password')}</label>
+      <div class="btns" style="flex-wrap:nowrap"><input id="pw-pass" type="password" autocomplete="current-password" data-pw="pass" value="${esc(PW.pass)}"><button type="submit" class="primary" ${PW.busy?'disabled':''}>${t('pw.signIn')}</button></div></form>
+      ${msgs}
+      <div class="btns"><button class="small" data-act="pw-create">${t('pw.firstTime')}</button><button class="small ghost" data-act="pw-reset" ${PW.busy?'disabled':''}>${t('pw.forgot')}</button></div>
+      <details><summary class="muted">${t('pw.otherWays')}</summary><div class="btns" style="margin-top:8px"><button class="small" data-act="off-signin">${t('office.signIn')}</button>
+        ${LINK.sent?`<span class="muted">${t('link.sent',{email:esc(LINK.sent)})}</span>`:`<button class="small ghost" data-act="pw-link" ${LINK.busy?'disabled':''}>${t('link.send')}</button>`}</div>
+        <p class="muted" style="font-size:.85rem">${t('pw.linkNote')}</p></details>`;
+  }else{ // create
+    body=`${emailLine}<form data-form="pw-create" novalidate style="display:flex;flex-direction:column;gap:12px;max-width:420px">
+      <input type="email" autocomplete="username" value="${esc(PW.email)}" hidden>
+      <div class="field"><label class="label" for="pw-new">${t('pw.newPassword')}</label><input id="pw-new" type="password" autocomplete="new-password" data-pw="n1" value="${esc(PW.n1)}"></div>
+      <div class="field"><label class="label" for="pw-new2">${t('pw.confirm')}</label><input id="pw-new2" type="password" autocomplete="new-password" data-pw="n2" value="${esc(PW.n2)}"></div>
+      <div class="btns"><button type="submit" class="primary" ${PW.busy?'disabled':''}>${t('pw.createBtn')}</button><button type="button" data-act="pw-back">${t('common.cancel')}</button></div></form>
+      <p class="muted" style="font-size:.85rem">${t('pw.createNote')}</p>${msgs}`;
+  }
+  return `<div class="box"><div><h3>${t('pw.title')}</h3><p class="muted">${t('office.signInText')}</p></div>${body}</div>`;
+}
+// Signed in with a password but the address is not confirmed yet: the database only trusts confirmed addresses.
+function verifyBox(){
+  return `<div class="box"><h3>${t('pw.verifyTitle')}</h3><p>${t('pw.verifyText',{email:`<b>${esc(SH.user.email)}</b>`})}</p>
+    ${PW.error?`<p class="chip bad" style="align-self:flex-start;white-space:normal" role="alert">${esc(PW.error)}</p>`:''}${PW.info?`<div class="notice"><span>${esc(PW.info)}</span></div>`:''}
+    <div class="btns"><button class="primary" data-act="pw-verified" ${PW.busy?'disabled':''}>${t('pw.verifiedBtn')}</button><button data-act="pw-resend" ${PW.busy?'disabled':''}>${t('pw.resend')}</button></div>
+    <p class="muted" style="font-size:.85rem">${t('pw.spam')}</p></div>`;
+}
+document.addEventListener('input',ev=>{const k=ev.target.dataset&&ev.target.dataset.pw;if(k)PW[k]=ev.target.value});
+async function pwRun(fn){PW.busy=true;PW.error='';PW.info='';LINK.error='';render();try{await fn()}catch(e){PW.error=authMsg(e)}PW.busy=false;render()}
+// Refreshes the account so a just-confirmed address counts straight away (the database reads it from the sign-in token).
+async function refreshVerified(){
+  const u=firebase.auth().currentUser;if(!u||u.isAnonymous)return false;
+  await u.reload();const cu=firebase.auth().currentUser;
+  if(cu&&cu.emailVerified){await cu.getIdToken(true);SH.user.verified=true;return true}
+  return false;
 }
 document.addEventListener('submit',ev=>{
-  const f=ev.target.dataset.form;if(f!=='link-send'&&f!=='link-confirm')return;ev.preventDefault();
-  if(f==='link-send')sendSignInLink(document.getElementById('link-email').value);
-  else completeEmailLink(document.getElementById('link-confirm').value);
+  const f=ev.target.dataset.form;if(!f||!/^(pw-|link-)/.test(f))return;ev.preventDefault();
+  if(f==='link-confirm'){completeEmailLink(document.getElementById('link-confirm').value);return}
+  if(f==='pw-email'){
+    const e=document.getElementById('pw-email').value.trim().toLowerCase();PW.error='';PW.info='';
+    if(!emailOk(e)){PW.error=t('off.invalid');render();return}
+    PW.email=e;
+    if(GOOGLE_DOMAINS.test(e)){officeSignIn(e);return}
+    PW.step='password';render();const i=document.getElementById('pw-pass');if(i)i.focus();return;
+  }
+  if(f==='pw-signin'){const pass=document.getElementById('pw-pass').value;
+    if(!pass){PW.error=t('pw.needPassword');render();return}
+    pwRun(async()=>{await firebase.auth().signInWithEmailAndPassword(PW.email,pass);PW.pass=''});return}
+  if(f==='pw-create'){const a=document.getElementById('pw-new').value,b=document.getElementById('pw-new2').value;
+    if(a.length<8){PW.error=t('pw.weak');render();return}
+    if(a!==b){PW.error=t('pw.mismatch');render();return}
+    pwRun(async()=>{const cred=await firebase.auth().createUserWithEmailAndPassword(PW.email,a);
+      try{await cred.user.sendEmailVerification({url:officeLinkUrl()})}catch(e){}
+      PW.step='password';PW.n1=PW.n2=''});return}
 });
-document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act=link-again]');if(b){LINK.sent='';LINK.error='';render()}});
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-act]');if(!b)return;
+  switch(b.dataset.act){
+  case 'link-again':LINK.sent='';LINK.error='';render();return;
+  case 'pw-change':PW.step='email';PW.error='';PW.info='';render();{const i=document.getElementById('pw-email');if(i)i.focus()}return;
+  case 'pw-create':PW.step='create';PW.error='';PW.info='';render();{const i=document.getElementById('pw-new');if(i)i.focus()}return;
+  case 'pw-back':PW.step='password';PW.error='';render();return;
+  case 'pw-reset':pwRun(async()=>{await firebase.auth().sendPasswordResetEmail(PW.email,{url:officeLinkUrl()});PW.info=t('pw.resetSent',{email:PW.email})});return;
+  case 'pw-link':PW.error='';sendSignInLink(PW.email);return;
+  case 'pw-resend':pwRun(async()=>{await firebase.auth().currentUser.sendEmailVerification({url:officeLinkUrl()});PW.info=t('pw.resent')});return;
+  case 'pw-verified':pwRun(async()=>{if(await refreshVerified()){officeAuthChanged()}else PW.error=t('pw.notYet')});return;
+  }
+});
 
-async function officeSignIn(){
-  try{await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())}
+async function officeSignIn(hint){
+  const p=new firebase.auth.GoogleAuthProvider();
+  try{p.setCustomParameters(typeof hint==='string'&&hint?{login_hint:hint,prompt:'select_account'}:{prompt:'select_account'})}catch(e){}
+  PW.error='';
+  try{await firebase.auth().signInWithPopup(p)}
   catch(e){
     if(e&&(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'))return;
-    toast(t(e&&e.code==='auth/unauthorized-domain'?'office.domainFail':'office.popupFail'));
+    // Some phones and in-app browsers block pop-ups: go through a full-page redirect instead.
+    if(e&&e.code==='auth/popup-blocked'){try{await firebase.auth().signInWithRedirect(p);return}catch(e2){e=e2}}
+    PW.error=authMsg(e);render();
   }
 }
 async function officeSignOut(){try{await firebase.auth().signOut()}catch(e){}}
@@ -208,14 +290,15 @@ function officerArea(){
   if(!SH.on)return `${liveBox()}${configured()?`<p class="muted">${t('office.needLive')}</p>`:''}`;
   if(!isMember()||LINK.needEmail)return signInBox();
   const who=`<div class="notice"><span>${t('office.signedAs',{email:esc(SH.user.email)})}</span><button class="small" data-act="off-signout">${t('office.signOut')}</button></div>`;
-  if(!SH.user.email||!SH.user.verified)return `${who}<div class="box"><p>${t('office.noEmail')}</p></div>`;
+  if(SH.user.email&&!SH.user.verified)return `${who}${verifyBox()}`;
+  if(!SH.user.email)return `${who}<div class="box"><p>${t('office.noEmail')}</p></div>`;
   if(SH.officer===undefined)return `${who}<p class="empty">${t('office.loading')}</p>`;
   if(SH.officeErr==='rules')return `${who}<div class="box"><h3>${t('office.rulesTitle')}</h3><p>${t('office.rulesText')}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div>`;
   if(SH.officeErr)return `${who}<div class="box"><p>${t('office.otherErr',{code:esc(SH.officeErr)})}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div>`;
   if(!SH.officer){
     return `${who}<div class="box">${SH.clubExists===false
       ?`<h3>${t('office.claimTitle')}</h3><p class="muted">${t('office.claimText')}</p><div><button class="primary" data-act="off-claim">${t('office.claim')}</button></div>`
-      :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p>`}</div>`;
+      :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p><p class="muted">${t('office.notOfficerHint')}</p>`}</div>`;
   }
   return `${who}<div class="notice"><span>${t('office.editClubHint')}</span><button class="small" data-act="go-club-edit">${t('cl.edit')}</button></div>
     ${accessOn()?'':accessBox()}${isOn('members')?`<div class="notice"><span>${t('mem.officeHint')}</span><button class="small" data-act="go-members">${t('tab.members')}</button></div>`:''}${linkBox()}${accessOn()?accessBox():''}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${modulesBox()}${officersBox()}${deletionBox()}`;

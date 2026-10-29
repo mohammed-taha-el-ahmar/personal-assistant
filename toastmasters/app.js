@@ -142,11 +142,14 @@ async function initShared(){
   try{
     if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);
     SH.fs=firebase.firestore();
-    if(typeof completeEmailLink==='function')completeEmailLink();
-    // Members are signed in anonymously; club officers sign in with Google (see office.js).
+    // Finish an emailed sign-in link first, so the anonymous sign-in below cannot replace the officer's session.
+    if(typeof completeEmailLink==='function')await completeEmailLink();
+    // Members are signed in anonymously; club officers sign in with Google, a password or an email link (see office.js).
     await new Promise((resolve,reject)=>{let first=true;
       firebase.auth().onAuthStateChanged(async u=>{
-        if(!u){try{await firebase.auth().signInAnonymously()}catch(e){if(first){first=false;reject(e)}}return}
+        if(!u){if(LINK.busy)return;try{await firebase.auth().signInAnonymously()}catch(e){if(first){first=false;reject(e)}}return}
+        // An address confirmed in another tab or from the emailed link: refresh so the database sees it.
+        if(!u.isAnonymous&&u.email&&!u.emailVerified){try{await u.reload();const cu=firebase.auth().currentUser;if(cu&&cu.emailVerified){await cu.getIdToken(true);u=cu}}catch(e){}}
         SH.uid=u.uid;SH.user={email:(u.email||'').toLowerCase(),anon:u.isAnonymous,verified:!!u.emailVerified};
         if(first){first=false;resolve()}
         if(typeof officeAuthChanged==='function')officeAuthChanged();

@@ -64,7 +64,7 @@ The site already works at this point, with data kept on each device. Steps 2 and
 2. **Register a web app:** in **Project settings → General → Your apps**, click the web icon `</>`, give it a name, and skip Firebase Hosting. Copy the `firebaseConfig` values it shows into `firebase-config.js`.
 3. **Turn on anonymous sign-in:** **Build → Authentication → Get started → Sign-in method → Anonymous → Enable**. Members never create accounts; each phone gets an anonymous ID so it can cast one ballot per category.
 4. **Turn on Google sign-in (for club officers):** in the same **Sign-in method** tab, choose **Google → Enable**, pick a support email, and **Save**.
-   **Optional – sign-in by email link (officers without a Google account):** in the same tab, choose **Email/Password → Enable**, then also turn on **Email link (passwordless sign-in)**, and **Save**. You don't need to enable passwords themselves.
+   **Officers without Gmail (wanadoo.fr, orange.fr, free.fr, work addresses…):** in the same tab, open **Email/Password**, turn on the first switch **Email/Password** (this is the important one), optionally also **Email link (passwordless sign-in)**, and **Save**.
 5. **Allow your GitHub domain:** **Authentication → Settings → Authorized domains → Add domain** → `<your-username>.github.io`.
 6. **Create the database:** **Build → Firestore Database → Create database**. Pick a location close to your club (for example `eur3` for Europe) and start in **production mode**.
 7. **Set the rules:** open the **Rules** tab, replace everything with the contents of `firestore.rules`, and click **Publish**.
@@ -153,13 +153,16 @@ Open the **Club officers** tab (**Bureau** in French) with your club link.
 
 Members never need to sign in. Only officers sign in, either with Google or with a link sent by email.
 
-### Officers without a Google account
+### How officers sign in
 
-Under the Google button, **Email me a sign-in link** sends a one-time link to the address typed. Opening it on the same device signs the officer in, with no password; on another device the page asks for the address again. The officer then stays signed in on that device.
-
-- The link works for any address, but **officer access is only given if that address is in the Officers list**, exactly as with Google.
-- On the free Firebase plan, Firebase sends at most **5 sign-in link emails per day for the whole site** (all clubs together). Because officers stay signed in on their devices, this is usually enough. If the limit is reached, the page says so and suggests trying the next day or signing in with Google.
-- The emails come from Firebase (`noreply@<your-project>.firebaseapp.com`) and sometimes land in spam. You can change their wording and sender name in **Authentication → Templates**.
+The officers' area asks for the officer's email address first:
+- **Gmail addresses** go straight to the Google sign-in window.
+- **Any other address** (wanadoo.fr, orange.fr, free.fr, a work address…) uses a password. The first time, the officer clicks **First time? Create your password**, chooses one, and receives an email to confirm the address; after clicking the link, they press **I've confirmed my address**. After that they simply sign in with their address and password, and stay signed in on that device. **Forgot your password?** sends a reset email.
+- Officers who used the one-time email link before already have an account: they use **Forgot your password?** to choose a password.
+- The one-time email link is still offered under **Other ways to sign in**, but Firebase's free plan sends only **5 of those emails a day for the whole site** (all clubs together), which is why it often failed. Password confirmation and reset emails have much higher limits (1,000 and 150 a day).
+- In every case, **officer access is only given if the address is on the Officers list**. An officer with two addresses (wanadoo.fr and orange.fr) must sign in with the one on the list.
+- The emails come from `noreply@<your-project>.firebaseapp.com` and often land in spam with Orange, Wanadoo, Free, SFR or Outlook. You can change their wording and sender name in **Authentication → Templates**.
+- If something fails, the message now ends with the Firebase error code (for example `auth/operation-not-allowed`), which says what to fix.
 
 ### Who can do what: member access
 
