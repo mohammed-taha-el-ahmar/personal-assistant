@@ -95,6 +95,7 @@ fr:{
     modules:'Si votre club utilise déjà un autre outil pour certaines tâches, masquez ici les onglets correspondants. Le choix s’applique à tous et se défait à tout moment.',
     draw:'Un nom par ligne. Les doublons sont retirés. Le tirage utilise le générateur aléatoire sécurisé de votre appareil.',
     request:'Chaque espace de club est vérifié par l’administrateur d’Orato avant son ouverture. Après approbation, vous devenez le premier membre du bureau et ajoutez les autres.'}}};
+Object.assign(H,window.HELP_EXTRA||{}); // other languages (i18n-nl.js, i18n-ar.js…)
 const HL=()=>H[LANG]||H.en;
 
 // Where the small ⓘ buttons go: [tip key, element they follow]. Only placed when that element is on screen.
@@ -141,7 +142,7 @@ function helpHtml(kind,key){
   if(kind==='tip')return `<p>${esc(L.tips[key]||'')}</p>`;
   const G=L.guide;
   return `<h2>${L.ui.guide}</h2><p>${G.intro}</p>
-    <div class="guidegrid">${G.sections.filter(([k])=>isOn(k)).map(([k,title,text])=>`<div class="gsec"><b>${esc(title)}</b><span>${esc(text)}</span><button class="small" data-act="help-goto" data-tab="${k}">${L.ui.go} →</button></div>`).join('')}</div>
+    <div class="guidegrid">${G.sections.filter(([k])=>isOn(k)).map(([k,title,text])=>`<div class="gsec"><b>${esc(title)}</b><span>${esc(text)}</span><button class="small" data-act="help-goto" data-tab="${k}">${L.ui.go} ${isRtl()?'←':'→'}</button></div>`).join('')}</div>
     <h3>${G.levelsTitle}</h3>${list(G.levels)}
     ${SH.on&&SH.officer!==true?'':`<h3>${G.startTitle}</h3><p>${G.start}</p>`}
     <p class="muted">${G.footer}</p>`;

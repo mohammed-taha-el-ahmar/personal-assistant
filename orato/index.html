@@ -14,7 +14,7 @@ body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 try{var th=localStorage.getItem('gt-theme');if(th==='light'||th==='dark')document.documentElement.setAttribute('data-theme',th)}catch(e){}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap">
 <style>
 /* Layout: sticky header with two grouped tab rows (during / before the meeting); one tool panel at a time; timer goes full-bleed in its signal colour. */
 :root{
@@ -298,6 +298,27 @@ html[lang=fr] .testi blockquote{quotes:"« " " »"}
 .supportbtn:hover{background:#ffe94d}
 .supportbtn.inhead{padding:5px 10px;font-size:.85rem;border-radius:999px}
 @media (max-width:600px){#support-head{display:none}}
+.lang button[lang=ar]{font-family:"Noto Sans Arabic",Tahoma,sans-serif;font-size:.9rem;padding-block:2px}
+/* Arabic: right-to-left layout, Arabic font, no letter-spacing (it breaks joined letters) */
+html[lang=ar]{--body:"Noto Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;--display:"Noto Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif}
+html[lang=ar] *{letter-spacing:0!important}
+html[lang=ar] body{line-height:1.7}
+[dir=rtl] .brand .tag{margin-left:0;margin-right:auto}
+@media (max-width:560px){[dir=rtl] #sync{margin-left:0;margin-right:auto}}
+[dir=rtl] nav.tabs .group:not([hidden]) ~ .group:not([hidden]){border-left:0;padding-left:0;border-right:1px solid var(--line);padding-right:18px}
+[dir=rtl] .modsec .check.sub{padding-left:0;padding-right:22px}
+[dir=rtl] .notice button{margin-left:0;margin-right:auto}
+[dir=rtl] th,[dir=rtl] td{text-align:right}
+[dir=rtl] td.num,[dir=rtl] th.num{text-align:left}
+[dir=rtl] .qcard{border-left:1px solid var(--line);border-right:6px solid var(--accent)}
+[dir=rtl] .agenda-doc .li .p{text-align:left}
+[dir=rtl] .gbody ul,[dir=rtl] .mbody ul{padding-left:0;padding-right:18px}
+[dir=rtl] .drawcard,[dir=rtl] .helpcard{text-align:right}
+[dir=rtl] .helpcard ul,[dir=rtl] .helpcard ol{padding-left:0;padding-right:1.3em}
+[dir=rtl] .stars-show .fg{left:auto;right:0}
+[dir=rtl] .infobtn{margin-left:0;margin-right:4px}
+[dir=rtl] input[type=url],[dir=rtl] input[type=email],[dir=rtl] input[type=tel],[dir=rtl] .qrurl,[dir=rtl] .codebig{direction:ltr;text-align:right}
+[dir=rtl] .stage .clock,[dir=rtl] .marks{direction:ltr}
 .codebig{font-family:var(--mono)!important;letter-spacing:.08em}
 .danger-box h3{color:var(--stop)}
 .notice.danger{background:var(--stop-soft);margin-bottom:20px}
@@ -321,7 +342,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
       <button class="themebtn" id="helpbtn" data-act="help-guide" type="button"><span aria-hidden="true">?</span><span class="themelabel">Help</span></button>
       <button class="themebtn" id="themebtn" data-act="theme" type="button"><span aria-hidden="true" id="themeicon">◐</span><span class="themelabel" id="themelabel"></span></button>
       <div class="lang" role="group" data-i18n-aria="lang.label" aria-label="Language">
-        <button data-lang="en" lang="en" aria-pressed="true">EN</button><button data-lang="fr" lang="fr" aria-pressed="false">FR</button>
+        <button data-lang="en" lang="en" aria-pressed="true" title="English">EN</button><button data-lang="fr" lang="fr" aria-pressed="false" title="Français">FR</button><button data-lang="nl" lang="nl" aria-pressed="false" title="Nederlands">NL</button><button data-lang="ar" lang="ar" aria-pressed="false" title="العربية">ع</button>
       </div>
     </div>
     <nav class="tabs" data-i18n-aria="nav.tools" aria-label="Tools">
@@ -361,6 +382,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 </footer>
 
 <script src="i18n.js"></script>
+<script src="i18n-nl.js"></script>
+<script src="i18n-ar.js"></script>
 <script src="qrcode.js"></script>
 <script src="after.js"></script>
 <script src="evals.js"></script>

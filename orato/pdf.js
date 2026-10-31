@@ -13,8 +13,48 @@ function loadJsPdf(){
   return jsPdfPromise;
 }
 
+// ---------- Arabic PDFs ----------
+// The built-in PDF fonts have no Arabic letters, so Arabic PDFs embed the Amiri font (SIL Open Font License, see
+// Amiri-OFL.txt), loaded on first use from this site, or from jsDelivr if the files are missing. jsPDF joins the
+// letters and orders mixed Arabic/Latin text; the page layout is mirrored so it reads from right to left.
+const AMIRI={normal:['Amiri-Regular.ttf','https://cdn.jsdelivr.net/npm/@expo-google-fonts/amiri@0.4.1/400Regular/Amiri_400Regular.ttf'],
+  bold:['Amiri-Bold.ttf','https://cdn.jsdelivr.net/npm/@expo-google-fonts/amiri@0.4.1/700Bold/Amiri_700Bold.ttf']};
+const amiriCache={};
+async function fontBase64(style){
+  if(amiriCache[style])return amiriCache[style];
+  for(const url of AMIRI[style]){
+    try{const r=await fetch(url);if(!r.ok)continue;const b=new Uint8Array(await r.arrayBuffer());
+      let s='';for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));
+      return amiriCache[style]=btoa(s)}catch(e){}
+  }
+  throw new Error('font');
+}
+// Adds the Arabic font and mirrors positions: x becomes W - x, left and right alignments swap.
+async function makeRtl(doc,W){
+  for(const style of ['normal','bold']){doc.addFileToVFS('Amiri-'+style+'.ttf',await fontBase64(style));doc.addFont('Amiri-'+style+'.ttf','Amiri',style)}
+  const o={setFont:doc.setFont.bind(doc),text:doc.text.bind(doc),line:doc.line.bind(doc),rect:doc.rect.bind(doc),roundedRect:doc.roundedRect.bind(doc),circle:doc.circle.bind(doc)};
+  const BIDI={isInputVisual:false,isOutputVisual:true,isInputRtl:true,isOutputRtl:false};
+  doc.setFont=(name,style)=>o.setFont('Amiri',style==='bold'?'bold':'normal');
+  // jsPDF reorders right-to-left text but does not mirror brackets and quotes around Arabic words: swap them first.
+  const AR=/[\u0600-\u06FF]/;
+  const mirror=str=>String(str).replace(/\(([^()]*)\)/g,(m,x)=>AR.test(x)?')'+x+'(':m).replace(/«([^«»]*)»/g,(m,x)=>AR.test(x)?'»'+x+'«':m);
+  doc.text=(txt,x,y,opts={})=>{const align=opts.align==='right'?'left':opts.align==='center'?'center':'right';
+    const {charSpace,...rest}=opts;return o.text(Array.isArray(txt)?txt.map(mirror):mirror(txt),W-x,y,{...rest,...BIDI,align})};
+  doc.textWithLink=(txt,x,y,opts={})=>{doc.text(txt,x,y);const w=doc.getTextWidth(txt);doc.link(W-x-w,y-4,w,5,{url:opts.url});return doc};
+  doc.line=(x1,y1,x2,y2,st)=>o.line(W-x1,y1,W-x2,y2,st);
+  doc.rect=(x,y,w,h,st)=>o.rect(W-x-w,y,w,h,st);
+  doc.roundedRect=(x,y,w,h,rx,ry,st)=>o.roundedRect(W-x-w,y,w,h,rx,ry,st);
+  doc.circle=(x,y,r,st)=>o.circle(W-x,y,r,st);
+  doc.setFont('helvetica','normal');
+}
+async function newPdf(lib){
+  const doc=new lib.jsPDF({unit:'mm',format:'a4'});
+  if(isRtl())await makeRtl(doc,210);
+  return doc;
+}
+
 // The built-in PDF fonts cover Latin-1 (é, è, à, ç, «, » are fine). Swap the few typographic marks they lack.
-const pdfText=s=>String(s??'').replace(/[‘’ʼ]/g,"'").replace(/[“”]/g,'"')
+const pdfText=s=>isRtl()?String(s??'').replace(/[  ]/g,' '):String(s??'').replace(/[‘’ʼ]/g,"'").replace(/[“”]/g,'"')
   .replace(/[–—−]/g,'-').replace(/…/g,'...').replace(/[•●]/g,'-').replace(/[  ]/g,' ');
 
 function timesFor(start,items){
@@ -25,8 +65,8 @@ function timesFor(start,items){
 /* meeting: {club,date,venue,theme,start,items,person(it)->string, sections:[{title,lines:[...] }]} */
 async function buildAgendaPdf(meeting,filename){
   let lib;
-  try{toast(t('pdf.loading'));lib=await loadJsPdf()}catch(e){toast(t('pdf.fail'));return}
-  const doc=new lib.jsPDF({unit:'mm',format:'a4'});
+  let doc;
+  try{toast(t('pdf.loading'));lib=await loadJsPdf();doc=await newPdf(lib)}catch(e){toast(t('pdf.fail'));return}
   const W=210,H=297,M=18,ACC=[15,94,110],INK=[24,32,43],MUTED=[86,98,117],LINE=[217,222,230];
   const times=timesFor(meeting.start,meeting.items);
   let y=0;
@@ -105,8 +145,8 @@ function currentAgendaPdf(){
 // list: evaluation objects from evals.js. blank=true prints the same form with empty fields, to fill in by hand.
 async function buildEvalPdf(list,filename,blank){
   let lib;
-  try{toast(t('pdf.loading'));lib=await loadJsPdf()}catch(e){toast(t('pdf.fail'));return}
-  const doc=new lib.jsPDF({unit:'mm',format:'a4'});
+  let doc;
+  try{toast(t('pdf.loading'));lib=await loadJsPdf();doc=await newPdf(lib)}catch(e){toast(t('pdf.fail'));return}
   const W=210,H=297,M=18,ACC=[15,94,110],INK=[24,32,43],MUTED=[86,98,117],LINE=[217,222,230];
   const BOX=6,GAP=1.6,boxesW=5*BOX+4*GAP,colBox=W-M-boxesW;
   let y=0;

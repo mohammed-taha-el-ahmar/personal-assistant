@@ -35,6 +35,8 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `after.js` | QR codes and the feedback form |
 | `qrcode.js` | QR code generator by Kazuhiko Arase (MIT licence), included so QR codes work without any outside service |
 | `pdf.js` | Agenda PDF (uses jsPDF, loaded from cdnjs the first time someone downloads a PDF) |
+| `i18n-nl.js`, `i18n-ar.js` | Dutch and Arabic: interface text, filler words, Table Topics, role guides, example meeting and help |
+| `Amiri-Regular.ttf`, `Amiri-Bold.ttf`, `Amiri-OFL.txt` | Arabic font for PDFs (SIL Open Font License) |
 | `i18n.js` | All text in English and French, plus each language's filler words, Table Topics questions, role guides and example meeting |
 | `firebase-config.js` | Your Firebase project settings (you fill this in) |
 | `firestore.rules` | Database security rules (you paste these into Firebase) |
@@ -53,11 +55,13 @@ The **◐ / ☀ / ☾** button in the header switches between **Auto** (follows 
 
 ## Languages
 
-The site is in **English and French**. It opens in French for visitors whose browser is set to French, and in English otherwise. The **EN / FR** switch in the header changes language and remembers the choice on that device.
+The site is in **English, French, Dutch and Arabic**. It opens in the language of the visitor's browser when it is one of these, and in English otherwise. The **EN / FR / NL / ع** switch in the header changes language and remembers the choice on that device.
 
-- Add `?lang=fr` to a link to open it in French, for example `…/gavel-and-timer/?club=paris-orators&lang=fr`. The **Copy club link** button adds it automatically when you are using French.
+- Add `?lang=fr`, `?lang=nl` or `?lang=ar` to a link to open it in that language, for example `…/orato/?club=paris-orators&lang=ar`. The **Copy club link** button adds it automatically.
 - In a shared club space, members can each use their own language. Default agenda items, role names and voting categories appear in each person's language; anything someone types (names, custom agenda titles, nominees) stays as typed.
-- To add another language, copy the `en` blocks in `i18n.js`, translate them, and add the language code to `LANGS`.
+- **Arabic** is displayed right to left, with an Arabic font (Noto Sans Arabic, from Google Fonts). Arabic PDFs (agenda, evaluation forms) embed the **Amiri** font: the files `Amiri-Regular.ttf` and `Amiri-Bold.ttf` must be uploaded with the site (if they are missing, they are loaded from jsDelivr). Amiri is under the SIL Open Font License (`Amiri-OFL.txt`).
+- Each language has its own filler words for the Ah-Counter, Table Topics questions, role guides, example meeting and help texts.
+- Files: English and French are in `i18n.js`; Dutch in `i18n-nl.js`; Arabic in `i18n-ar.js`. To add another language, copy `i18n-nl.js`, translate it, rename it and add it to `index.html` after the others. Any text not yet translated falls back to English.
 
 ## 1. Publish on GitHub Pages
 

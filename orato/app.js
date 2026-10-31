@@ -4,7 +4,8 @@
 function detectLang(){
   try{const q=new URLSearchParams(location.search).get('lang');if(LANGS.includes(q))return q;
     const s=localStorage.getItem('gt-lang');if(LANGS.includes(s))return s}catch(e){}
-  return (navigator.language||'').toLowerCase().startsWith('fr')?'fr':'en';
+  const nav=(navigator.language||'').toLowerCase().slice(0,2);
+  return LANGS.includes(nav)?nav:'en';
 }
 let LANG=detectLang();
 function t(k,v){
@@ -12,7 +13,9 @@ function t(k,v){
   return v?s.replace(/\{(\w+)\}/g,(_,x)=>v[x]??''):s;
 }
 const tn=(k,n,v)=>t(k+(n===1?'.one':'.many'),{n,...v});
-const locale=()=>LANG==='fr'?'fr-FR':'en-GB';
+// Arabic dates keep Western digits, as the times and timers do.
+const locale=()=>({fr:'fr-FR',nl:'nl-NL',ar:'ar-u-nu-latn'})[LANG]||'en-GB';
+const isRtl=()=>LANG==='ar';
 
 // ---------- constants ----------
 const KEY='gavel-timer-v2';
@@ -282,6 +285,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('#themebtn'))return;
 function applyChrome(){
   applyTheme();
   document.documentElement.lang=LANG;
+  document.documentElement.dir=isRtl()?'rtl':'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
   document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===LANG));

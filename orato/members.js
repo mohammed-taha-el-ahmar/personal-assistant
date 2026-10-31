@@ -201,7 +201,7 @@ function guestListBox(){
 function monthsAgo(n){const d=new Date();d.setMonth(d.getMonth()-n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 
 // ---------- CSV ----------
-const csvSep=()=>LANG==='fr'?';':',';
+const csvSep=()=>['fr','nl'].includes(LANG)?';':','; // Excel in French and Dutch expects semicolons
 function csvCell(v){v=String(v==null?'':v);if(/^[=+\-@]/.test(v))v="'"+v;return /[";,\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function downloadCsv(name,rows){
   const sep=csvSep();const text='﻿'+rows.map(r=>r.map(csvCell).join(sep)).join('\r\n');
@@ -235,14 +235,14 @@ function columnsOf(header){
   const norm=h=>h.toLocaleLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const map={};
   header.forEach((h,i)=>{const x=norm(h);
-    if(/mail|courriel/.test(x))map.email??=i;
-    else if(/phone|tel|mobile|portable/.test(x))map.phone??=i;
-    else if(/since|depuis|join|adhesion|inscri/.test(x))map.joined??=i;
-    else if(/member.?(id|number|no)|customer|numero|^id$|matricule/.test(x))map.tmId??=i;
-    else if(/first|prenom|given/.test(x))map.first??=i;
-    else if(/last|surname|family|nom de famille/.test(x))map.last??=i;
-    else if(/name|^nom/.test(x))map.name??=i;
-    else if(/note|comment/.test(x))map.notes??=i;
+    if(/mail|courriel|بريد/.test(x))map.email??=i;
+    else if(/phone|tel|mobile|portable|هاتف|جوال/.test(x))map.phone??=i;
+    else if(/since|depuis|join|adhesion|inscri|lid sinds|منذ/.test(x))map.joined??=i;
+    else if(/member.?(id|number|no)|customer|numero|^id$|matricule|lidnummer|رقم/.test(x))map.tmId??=i;
+    else if(/first|prenom|given|voornaam|الاسم الأول/.test(x))map.first??=i;
+    else if(/last|surname|family|nom de famille|achternaam|العائلة|اللقب/.test(x))map.last??=i;
+    else if(/name|^nom|naam|الاسم/.test(x))map.name??=i;
+    else if(/note|comment|notitie|opmerking|ملاحظ/.test(x))map.notes??=i;
   });
   // "Prénom" + "Nom": with a first-name column, a plain name column holds the last name.
   if(map.first!=null&&map.last==null&&map.name!=null){map.last=map.name;delete map.name}
