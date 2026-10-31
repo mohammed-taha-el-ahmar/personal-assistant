@@ -1,0 +1,90 @@
+/* ── Design tokens ────────────────────────────────────────────────────────────
+   All colours meet WCAG AA (≥ 4.5:1) for the text/background pairs they are used in.
+   Theme: follows the OS by default; [data-theme] on <html> forces light or dark
+   (set by js/theme-init.js from the header toggle). */
+
+:root {
+  color-scheme: light;
+
+  --bg: #f7f8f6;
+  --surface: #ffffff;
+  --surface-sunken: #f1f4f2;
+  --border: rgba(16, 33, 28, 0.1);
+  --border-strong: rgba(16, 33, 28, 0.2);
+
+  --text-primary: #16211c;
+  --text-secondary: #4f5f58;
+  --text-tertiary: #5f7169;
+
+  --accent: #0f7a5c; /* fills with white text: 5.3:1 */
+  --accent-hover: #0b6149;
+  --on-accent: #ffffff;
+  --accent-text: #0b6149; /* accent-coloured text on surfaces */
+  --accent-soft: #e1f5ee; /* tinted backgrounds (tags, hover) */
+  --accent-ring: rgba(15, 122, 92, 0.45);
+
+  --warn-soft: #fef3c7;
+  --warn-text: #7a4f06;
+
+  --bubble-bot: #f1f4f2;
+  --shadow-sm: 0 1px 2px rgba(16, 33, 28, 0.06);
+  --shadow-md: 0 8px 24px rgba(16, 33, 28, 0.08);
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --header-h: 60px;
+  --page-max: 1180px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0e1612;
+    --surface: #161f1a;
+    --surface-sunken: #1c2820;
+    --border: rgba(255, 255, 255, 0.09);
+    --border-strong: rgba(255, 255, 255, 0.18);
+    --text-primary: #e8f0ec;
+    --text-secondary: #a3bdb2;
+    --text-tertiary: #869d93;
+    --accent: #4fc39b;
+    --accent-hover: #6fd3b0;
+    --on-accent: #06261b;
+    --accent-text: #7fd9b9;
+    --accent-soft: #0f3326;
+    --accent-ring: rgba(79, 195, 155, 0.5);
+    --warn-soft: #2a230f;
+    --warn-text: #e8c26a;
+    --bubble-bot: #1c2820;
+    --shadow-sm: none;
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e1612;
+  --surface: #161f1a;
+  --surface-sunken: #1c2820;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --text-primary: #e8f0ec;
+  --text-secondary: #a3bdb2;
+  --text-tertiary: #869d93;
+  --accent: #4fc39b;
+  --accent-hover: #6fd3b0;
+  --on-accent: #06261b;
+  --accent-text: #7fd9b9;
+  --accent-soft: #0f3326;
+  --accent-ring: rgba(79, 195, 155, 0.5);
+  --warn-soft: #2a230f;
+  --warn-text: #e8c26a;
+  --bubble-bot: #1c2820;
+  --shadow-sm: none;
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+}

@@ -1,59 +1,141 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Projects & Technical Demos — Mohammed Taha El Ahmar</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="projects.css" />
-</head>
-<body>
-
-<main class="page">
-
-  <a class="nav-link back-link" href="index.html">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-    Back to chatbot
-  </a>
-
-  <header class="page-header">
-    <div class="badge"><div class="badge-dot"></div> Hands-on technical demos</div>
-    <h1>Projects &amp; Technical Demos</h1>
-    <p>
-      A small set of self-contained data engineering builds, each focused on a real
-      operational problem rather than a tech-stack showcase. Click any project to see
-      the architecture, the key decisions behind it, and links to the code.
-    </p>
-  </header>
-
-  <div class="search-bar">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input
-      type="text"
-      id="project-search"
-      placeholder="Filter by keyword — e.g. Kafka, data quality, Snowflake…"
-      autocomplete="off"
-      oninput="filterProjects(this.value)"
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects &amp; Technical Demos — Mohammed Taha El Ahmar</title>
+    <meta
+      name="description"
+      content="Hands-on data engineering and GenAI builds on AWS, Azure and GCP: streaming, orchestration, MLOps and multi-agent systems, each with architecture, key decisions and code."
     />
-  </div>
+    <link rel="canonical" href="https://www.tahaelahmar.dev/projects.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tahaelahmar.dev/projects.html" />
+    <meta property="og:title" content="Projects & Technical Demos — Mohammed Taha El Ahmar" />
+    <meta property="og:description" content="Data engineering and GenAI builds with architecture, decisions and code." />
+    <meta property="og:image" content="https://www.tahaelahmar.dev/assets/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0f7a5c" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 
-  <div class="project-list" id="project-list">
-    <div class="resume-loading" id="projects-loading">Loading projects…</div>
-  </div>
+    <script src="js/theme-init.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/projects.css" />
+    <script type="module" src="js/projects.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#project-list" data-i18n="skip.projects">Skip to projects</a>
 
-  <p class="no-results" id="no-results" hidden>No projects match "<span id="no-results-query"></span>". Try a different keyword.</p>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="brand" href="index.html" aria-label="Mohammed Taha El Ahmar — home">
+          <span class="brand-mark" aria-hidden="true">MT</span>
+          <span class="brand-name">Mohammed Taha El Ahmar</span>
+        </a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="index.html" data-i18n="nav.assistant">Assistant</a>
+          <a href="projects.html" data-i18n="nav.projects" aria-current="page">Projects</a>
+          <a href="#" data-link="cv" data-i18n="nav.cv" hidden>CV</a>
+        </nav>
+        <div class="header-actions">
+          <button
+            class="icon-btn lang-toggle"
+            type="button"
+            data-i18n="header.langShort"
+            data-i18n-aria-label="header.lang"
+            aria-label="Passer en français"
+          >
+            FR
+          </button>
+          <button class="icon-btn theme-toggle" type="button" data-i18n-aria-label="header.theme" aria-label="Toggle dark mode">
+            <svg
+              class="icon-sun"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+              />
+            </svg>
+            <svg
+              class="icon-moon"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+          </button>
+          <a
+            class="btn btn-primary btn-sm"
+            href="https://cal.eu/mohammed-taha-el-ahmar"
+            data-link="cal"
+            data-i18n="header.book"
+            target="_blank"
+            rel="noopener"
+            >Book a call</a
+          >
+        </div>
+      </div>
+    </header>
 
-  <footer class="footer">
-    <a href="https://linkedin.com/in/mohammed-taha-el-ahmar" target="_blank" rel="noopener">LinkedIn</a>
-    &nbsp;·&nbsp;
-    <a href="mailto:med.taha.elahmar@gmail.com">med.taha.elahmar@gmail.com</a>
-  </footer>
+    <main class="page">
+      <header class="page-header">
+        <div class="badge"><span class="badge-dot"></span> <span data-i18n="projects.badge">Hands-on technical demos</span></div>
+        <h1 data-i18n="projects.title">Projects &amp; Technical Demos</h1>
+        <p data-i18n="projects.intro">
+          Self-contained data engineering and GenAI builds, each focused on a real operational problem rather than a tech-stack showcase.
+          Open any card for the architecture, the key decisions behind it, and the code.
+        </p>
+      </header>
 
-</main>
+      <div class="toolbar">
+        <label class="search-bar">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          <span class="sr-only" data-i18n="projects.searchLabel">Filter projects by keyword</span>
+          <input
+            type="search"
+            id="project-search"
+            data-i18n-placeholder="projects.searchPlaceholder"
+            placeholder="Search — e.g. Kafka, data quality, Snowflake…"
+            autocomplete="off"
+          />
+        </label>
+        <div class="filters" id="filters" role="group" data-i18n-aria-label="projects.filters" aria-label="Filter by area"></div>
+        <p class="result-count" id="result-count" aria-live="polite"></p>
+      </div>
 
-<script src="projects.js"></script>
-</body>
+      <div class="project-grid" id="project-list" aria-busy="true">
+        <p class="status-text" id="projects-status" data-i18n="projects.loading">Loading projects…</p>
+      </div>
+
+      <p class="no-results" id="no-results" data-i18n="projects.none" hidden>
+        No projects match these filters. Try another keyword or area.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <span>© Mohammed Taha El Ahmar</span>
+      <a href="https://linkedin.com/in/mohammed-taha-el-ahmar" data-link="linkedin" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/mohammed-taha-el-ahmar" data-link="github" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:med.taha.elahmar@gmail.com" data-link="email" data-link-text>med.taha.elahmar@gmail.com</a>
+    </footer>
+  </body>
 </html>

@@ -1,0 +1,30 @@
+# Cloudflare Worker — recruiter assistant API
+# Deploy:  npm run worker:deploy        (runs build:content first so the knowledge base is fresh)
+# Secret:  npx wrangler secret put GROQ_API_KEY --config worker/wrangler.toml
+name = "recruiter-proxy"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+[vars]
+# Comma-separated list of origins allowed to call the API
+ALLOWED_ORIGINS = "https://www.tahaelahmar.dev,https://tahaelahmar.dev,https://mohammed-taha-el-ahmar.github.io"
+CAL_LINK = "https://cal.eu/mohammed-taha-el-ahmar"
+
+# Models are tried in order; the next one is used if a model is decommissioned, rate-limited or down.
+MODEL = "openai/gpt-oss-120b"
+MODEL_FALLBACKS = "openai/gpt-oss-20b,qwen/qwen3.8-27b"
+
+# Token budgets (≈ 4 characters per token). Lower them if your plan has tight per-minute limits.
+CONTEXT_TOKENS = "1800"
+HISTORY_TOKENS = "700"
+MAX_COMPLETION_TOKENS = "900"
+
+# ── Optional bindings ─────────────────────────────────────────────────────────
+# Multilingual semantic retrieval (fused with keyword search). Uses Workers AI free allocation.
+# [ai]
+# binding = "AI"
+
+# Question / latency / token / feedback analytics (query with SQL in the Cloudflare dashboard).
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+# dataset = "recruiter_assistant"

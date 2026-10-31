@@ -5,6 +5,7 @@ Streaming pipeline that ranks top-K products per click end-to-end in under a sec
 Architecture: POST /events → FastAPI Producer → Kinesis (raw) → Lambda Enricher [DynamoDB feature lookup (user + product) | In-memory session features | LightGBM ranker (top-K)] → Kinesis (enriched) → Redshift Streaming Ingestion (MV) → dbt (staging → marts) → FastAPI Recommender API + Dashboard
 Stack: Kinesis, Lambda, DynamoDB, Redshift Serverless, Streaming Ingestion, LightGBM, dbt, FastAPI, Terraform, Python, Real-Time ML, Personalization
 GitHub: https://github.com/mohammed-taha-el-ahmar/pulsecart
+Article: https://medium.com/@med.taha.elahmar/building-a-real-time-e-commerce-personalization-pipeline-on-aws-697b339e022e
 
 ### IncidentCouncil (Hierarchical Multi-Agent Incident Response) [Live]
 A hierarchical multi-agent system for data-platform incident response — an Incident Commander supervisor delegates in parallel to four specialist agents (Metrics Forensics, Lineage Detective, Change Correlator, Runbook Historian), each running its own bounded tool-calling loop against real backends, and synthesises a structured brief with hypothesis, severity, blast radius, and remediation in seconds instead of manual swivel-chairing across warehouse, lineage graph, deploy feed, and runbook wiki.

@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint & formatting
+        run: npm run lint
+      - name: Content is valid and the assistant's knowledge base is in sync
+        run: npm run check:content
+      - name: Unit tests (chunker, retrieval, worker)
+        run: npm test
