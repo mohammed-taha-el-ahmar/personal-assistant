@@ -25,6 +25,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `draw.js` | Random speaking order (contests, speakers) |
 | `deletion.js` | Deleting a club space, with a 3-day delay any officer can cancel |
 | `permissions.js` | Who may do what: visitors, members (device unlocked with the member code) and officers |
+| `help.js` | Help for new visitors: welcome banner, “Getting started” guide, ⓘ buttons on every page |
 | `admin.js` | Club creation requests and the administrator's page (`?admin`) |
 | `members.js` | Guest book (everyone) and member list with dues renewals (officers only) |
 | `modules.js` | Club choice of which sections, tabs and features members see |
@@ -37,6 +38,13 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `firebase-config.js` | Your Firebase project settings (you fill this in) |
 | `firestore.rules` | Database security rules (you paste these into Firebase) |
 | `.nojekyll` | Tells GitHub Pages to serve the files as they are |
+
+## Help for new visitors
+
+- On the first visit, a **welcome banner** offers a one-minute tour (“Getting started”): the four sections, who can do what, and how a club gets its space. It stays available from the **? Help** button in the header.
+- Every page title has an **ⓘ** button explaining what the page is for, how to use it in three steps, and a tip.
+- Small **ⓘ** buttons next to some features (club link, member code, member access, vote launching, templates, colours-only timer, draw names, dues periods, sections shown, creation request) explain them in one or two sentences.
+- The texts are in `help.js`, in English and French.
 
 ## Display: light, night or automatic
 

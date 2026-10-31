@@ -297,6 +297,7 @@ function render(){
   if(SH.on&&(DEL.done||deletionPassed())){$('#main').innerHTML=deletedView();return}
   $('#main').innerHTML=deletionBanner()+VIEWS[tab]();
   if(tab==='timer') paintTimer();
+  if(typeof decorateHelp==='function')decorateHelp();
 }
 
 // ---------- TIMER ----------
