@@ -100,6 +100,8 @@ async function purgeClub(){
     step('club');
     await SH.fs.doc(`${base}/public/status`).delete();
     await SH.fs.doc(base).delete();
+    // Free the club code: the approved creation request is removed too, so the code can be requested again.
+    try{await SH.fs.doc('requests/'+SH.club).delete()}catch(e){}
     DEL.done=true;
   }catch(e){DEL.failed=true;toast(t('del.purgeFail'))}
   DEL.busy=false;render();

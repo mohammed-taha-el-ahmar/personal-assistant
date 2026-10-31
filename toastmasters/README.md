@@ -25,6 +25,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `draw.js` | Random speaking order (contests, speakers) |
 | `deletion.js` | Deleting a club space, with a 3-day delay any officer can cancel |
 | `permissions.js` | Who may do what: visitors, members (device unlocked with the member code) and officers |
+| `admin.js` | Club creation requests and the administrator's page (`?admin`) |
 | `members.js` | Guest book (everyone) and member list with dues renewals (officers only) |
 | `modules.js` | Club choice of which sections, tabs and features members see |
 | `media.js` | Photos and videos on the club page |
@@ -74,9 +75,27 @@ If you set up Firebase with an earlier version of this site, publish the new `fi
 
 The values in `firebase-config.js` are meant to be public. What protects the data is the rules file.
 
-## 3. Use it with your club
+## 3. Approval of new club spaces (Orato administrator)
 
-1. Open the site, go to **Roles**, **Agenda** or **Voting**, enter a club code (for example `paris-orators`) and click **Go live**.
+Every new club space must be approved by the Orato administrator before anyone can use it.
+
+**Set up the administrators once** (Firebase console → **Firestore Database → Data**):
+1. Click **Start collection**, name it `app`.
+2. Document ID: `config`. Add a field `admins`, type **array**, and put each administrator's email address as a string value, in lower case (for example `you@gmail.com`).
+3. Save. The rules read this document; it is never published on GitHub, and only administrators can read it.
+
+**The administrator's page** is the site address followed by `?admin`, for example `https://<your-username>.github.io/orato/?admin`. Sign in there (Google or password), then:
+- **Requests waiting**: each request shows the club code, club name, city, Toastmasters club number, the requester's email and role, and their message. **Approve** creates the club space with the requester as its first officer and opens your email app with a ready-made message to send them. **Decline** asks for an optional reason, shown to the requester, who can correct and resend.
+- **Club spaces**: every club, its officers and status. **Suspend** closes a club (data kept, nobody can read or change it, officers included); **Reactivate** reopens it.
+- **Contact address**: shown to people who send a request. There are no automatic email notifications (that would need a paid Firebase plan), so check the page regularly.
+
+**For a club**: open the site with the club link (`?club=your-code`). While the code is not approved, every tab shows "this club space is not open" and the **Club officers** tab shows the request form: the officer signs in, fills in the club name, city, club number and role, and sends it. Once approved, they reload the page and are the first officer.
+
+**Clubs created before this change** that already have an officer list keep working (they count as approved). A club code that was used without ever setting up the officers' space now needs a request.
+
+## 4. Use it with your club
+
+1. Open your approved club link (for example `…/orato/?club=paris-orators`). You can also go to **Roles**, **Agenda** or **Voting**, enter your club code and click **Go live**.
 2. Click **Copy club link** and share it in your club chat. The link looks like `https://<your-username>.github.io/gavel-and-timer/?club=paris-orators`.
 3. Members who open the link can:
    - enter their name once and tap **Take it** to claim a role,
@@ -115,7 +134,7 @@ In **Draw order** (**Tirage au sort**), type what the draw is for and the partic
 
 In **Agenda**, **Download PDF** saves an A4 agenda with times, roles and the names of who holds them, ready to print or send. It works with or without live sharing.
 
-## 4. Club page, officer roles and evaluation forms
+## 5. Club page, officer roles and evaluation forms
 
 **Club page.** Anyone opening the club link lands on **About the club** (**Le club**). An officer signed in on the Club officers tab sees **Edit the club page**: club name and description, practical information (where, when, contact, fees, website), the names of the current officers, announcements and the year's events. Upcoming events are listed first; past ones fold away. The next meeting and its online link come from the Agenda tab automatically.
 
@@ -132,7 +151,7 @@ In **Edit the club page**, the **Photos and videos** box lets officers:
 
 Visitors see a photo grid (click a photo to open it full screen, with ← → to browse) and the videos below it. Only post photos of people who agree to appear on the page.
 
-## 5. After the meeting: feedback
+## 6. After the meeting: feedback
 
 The **Feedback** tab (**Avis** in French) is a one-minute form for members and guests: member or guest, a rating out of 5, what they liked most, a suggestion, and, for guests, whether they would come back and an optional email if they want the club to contact them.
 
@@ -140,11 +159,11 @@ The **Feedback** tab (**Avis** in French) is a one-minute form for members and g
 - The form is for the meeting date set in the Agenda tab (today if none is set). Each device can answer once per meeting.
 - Answers can only be read by the club officers, in the officers' space: a summary for the current meeting, and the feedback for each meeting in the history and its PDF.
 
-## 6. The club officers' space (Bureau)
+## 7. The club officers' space (Bureau)
 
 Open the **Club officers** tab (**Bureau** in French) with your club link.
 
-1. **First setup.** Click **Sign in with Google**. If the club has no officers yet, click **Set up the officers' space**: you become the first officer.
+1. **First setup.** The person whose creation request was approved signs in with the same address: they are the first officer.
 2. **Add the other officers** by their Google email address in **Officers**. Only people on this list can see the space; the history is hidden from everyone else by the database rules, not just by the page.
 3. **During the meeting**, the Timer, Ah-Counter and Grammarian tap **Send to the club officers** under their report.
 4. **After the meeting**, an officer clicks **Archive this meeting**. The agenda, who held each role, the vote results and the reports received are saved to the history. Leave **Then reset…** ticked to clear roles, nominees, votes and reports for the next meeting (the agenda structure is kept).
@@ -174,11 +193,13 @@ Until officers turn it on, a club space is open: anyone with the club link can e
 | Vote, give feedback, "I'm interested" form | ✓ (voting can be limited to members) | ✓ | ✓ |
 | Take a free role or give up their own | – | ✓ | ✓ |
 | Send Timer, Ah-Counter and Grammarian reports | – | ✓ | ✓ |
-| Edit the agenda, templates, nominees, results, draw; assign or clear anyone's role | – | – | ✓ |
+| Launch a vote (nominees, show results, new vote) | – | ✓ (see below) | ✓ |
+| Edit the agenda, templates, draw; assign or clear anyone's role | – | – | ✓ |
 | Officers' area (history, feedback, settings) | – | – | ✓ |
 
 - **Turn on member access** creates a random 8-character **member code** (for example `K7MQ-2PXA`). Share it in your members' private group with **Copy invitation message**. Each member enters it once, in the Roles tab (or any shared tab); the device then stays a member device.
 - **Copy member link** and **Member QR code** contain the code and unlock the phone directly. Share them with members only, never on a public page or on a screen guests can see.
+- **Who runs a vote:** a vote belongs to the person who launched it (by typing the nominees or pressing "Start a new vote"). Until its results are shown, only that person and the officers see the **Show results** and **Start a new vote** buttons and can change the nominees; everyone else sees "Vote launched by …" and can only vote. Once the results are shown, the next vote can be launched by anyone allowed to (any member, or anyone with the link while member access is off). The database enforces this too.
 - **Guests can vote**: untick it to keep voting for members and officers.
 - **Change the code** creates a new one: every device unlocked with the old code becomes a visitor again until it enters the new one. Use it at the start of each club year, or when someone leaves. You can also remove a single device from the list.
 - **Turn off** makes the club space open again.

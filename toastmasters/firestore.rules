@@ -4,11 +4,13 @@ rules_version = '2';
 // Paste this file into Firebase console → Firestore Database → Rules, then Publish.
 //
 // Data layout, one space per club code:
-//   clubs/{club}                  {officers: [emails], deletion?}  the club officers (bureau); officers only
+//   clubs/{club}                  {officers: [emails], status, name, deletion?}  created by the Orato administrator on approval
+//   requests/{club}               a request to open a club space; the requester and administrators read it
+//   app/config, app/public        administrators' list (made in the console) and public contact address
 //   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
 //   clubs/{club}/meeting/agenda   the running order
-//   clubs/{club}/meeting/vote     voting categories, nominees, reveal flag
+//   clubs/{club}/meeting/vote     voting categories, nominees, reveal flag, who launched the vote (by, byName)
 //   clubs/{club}/meeting/reports  reports sent by the Timer, Ah-Counter and Grammarian
 //   clubs/{club}/meeting/draw     the latest random speaking order
 //   clubs/{club}/ballots/{uid}    one ballot per device; only that device can write it
@@ -66,8 +68,21 @@ service cloud.firestore {
         && get(clubPath(club)).data.get('deletion', null) != null
         && request.time > get(clubPath(club)).data.deletion.requestedAt + duration.value(3, 'd');
     }
+    // ----- Orato administrators and club approval -----
+    // app/config {admins: [emails]} is created by hand in the Firebase console (see the README).
+    function appConfigPath() {
+      return /databases/$(database)/documents/app/config;
+    }
+    function isAppAdmin() {
+      return hasVerifiedEmail() && exists(appConfigPath()) && myEmail() in get(appConfigPath()).data.admins;
+    }
+    // A club space works only once the administrator has approved it (clubs created before approvals existed
+    // have no status and count as approved). A suspended club is closed until it is reactivated.
+    function approved(club) {
+      return exists(clubPath(club)) && get(clubPath(club)).data.get('status', 'approved') == 'approved';
+    }
     function open(club) {
-      return validClub(club) && !deletionDue(club);
+      return validClub(club) && approved(club) && !deletionDue(club);
     }
     // ----- member access -----
     function cfgPath(club) {
@@ -118,21 +133,40 @@ service cloud.firestore {
         );
     }
 
+    // Voting: a vote belongs to whoever launched it ("by") until its results are shown ("reveal").
+    // While it runs, only that person (or an officer) may change it. Anyone else who changes the vote document
+    // must have waited for the results, and becomes the owner of the next vote.
+    function voteControl() {
+      let owner = resource == null ? '' : resource.data.get('by', '');
+      let revealed = resource == null ? true : resource.data.get('reveal', false);
+      return (owner == '' || owner == request.auth.uid || revealed == true)
+        && request.resource.data.get('by', '') == request.auth.uid
+        && request.resource.data.get('byName', '') is string && request.resource.data.get('byName', '').size() <= 60;
+    }
+
     // Officers erasing a club whose delay has passed.
     function purging(club) {
       return validClub(club) && isOfficer(club) && deletionDue(club);
     }
 
-    // The officers list. Anyone signed in with Google may check whether the club has one yet (empty read),
-    // and the first such person may create it with only their own address. After that, only officers see or change it.
+    // The club and its officer list. Only the Orato administrator creates a club, when approving a request, with the
+    // requester as first officer. Officers see and change the officer list; the administrator suspends or reactivates.
+    // Anyone signed in with a verified email may check whether a club exists (empty read).
     match /clubs/{club} {
       allow get: if validClub(club) && hasVerifiedEmail()
-        && (resource == null || myEmail() in resource.data.officers);
-      allow create: if validClub(club) && hasVerifiedEmail()
-        && request.resource.data.keys().hasOnly(['officers'])
-        && request.resource.data.officers == [myEmail()];
-      allow update: if isOfficer(club) && !deletionDue(club)
-        && request.resource.data.keys().hasOnly(['officers', 'deletion'])
+        && (resource == null || myEmail() in resource.data.officers || isAppAdmin());
+      allow list: if isAppAdmin();
+      allow create: if validClub(club) && isAppAdmin()
+        && request.resource.data.keys().hasOnly(['officers', 'status', 'name', 'approvedAt', 'approvedBy'])
+        && request.resource.data.officers is list
+        && request.resource.data.officers.size() >= 1 && request.resource.data.officers.size() <= 20
+        && request.resource.data.status == 'approved'
+        && request.resource.data.approvedBy == myEmail();
+      allow update: if isAppAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'statusAt', 'statusBy'])
+        && request.resource.data.status in ['approved', 'suspended'];
+      allow update: if isOfficer(club) && approved(club) && !deletionDue(club)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['officers', 'deletion'])
         && request.resource.data.officers is list
         && request.resource.data.officers.size() >= 1
         && request.resource.data.officers.size() <= 20
@@ -153,7 +187,44 @@ service cloud.firestore {
             && request.resource.data.officers == resource.data.officers)
         );
       allow delete: if purging(club);
-      allow list: if false;
+    }
+
+    // Requests to open a club space, one per club code. The requester (verified email) creates it while the code is
+    // free, reads it, cancels it, and may send it again after a refusal. The administrator reads, decides and deletes.
+    function validRequest(club) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['club', 'name', 'city', 'tiNumber', 'role', 'message', 'email', 'lang', 'at', 'status'])
+        && d.club == club && d.email == myEmail() && d.status == 'pending'
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 120
+        && d.city is string && d.city.size() <= 120
+        && d.tiNumber is string && d.tiNumber.size() <= 20
+        && d.role is string && d.role.size() <= 20
+        && d.message is string && d.message.size() <= 1000;
+    }
+    match /requests/{club} {
+      allow get: if validClub(club) && hasVerifiedEmail()
+        && (resource == null || resource.data.email == myEmail() || isAppAdmin());
+      allow list: if isAppAdmin();
+      allow create: if validClub(club) && hasVerifiedEmail() && !exists(clubPath(club)) && validRequest(club);
+      allow update: if validClub(club) && hasVerifiedEmail() && !exists(clubPath(club))
+        && resource.data.email == myEmail() && resource.data.status == 'rejected' && validRequest(club);
+      allow update: if isAppAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'reason', 'decidedAt', 'decidedBy'])
+        && request.resource.data.status in ['pending', 'approved', 'rejected']
+        && request.resource.data.get('reason', '') is string && request.resource.data.get('reason', '').size() <= 300;
+      allow delete: if isAppAdmin()
+        || (hasVerifiedEmail() && resource.data.email == myEmail() && resource.data.status != 'approved')
+        // once a club has been erased, its old request can be removed so the code can be requested again
+        || (hasVerifiedEmail() && !exists(clubPath(club)) && resource.data.status == 'approved');
+    }
+
+    // app/config: the administrators (created in the console, read only by them).
+    // app/public: the contact address shown to requesters (everyone reads, administrators write).
+    match /app/{docId} {
+      allow get: if docId == 'public' || (docId == 'config' && isAppAdmin());
+      allow create, update: if docId == 'public' && isAppAdmin()
+        && request.resource.data.keys().hasOnly(['contact', 'updatedAt'])
+        && request.resource.data.contact is string && request.resource.data.contact.size() <= 120;
     }
 
     match /clubs/{club}/history/{meetingId} {
@@ -297,7 +368,8 @@ service cloud.firestore {
         && open(club)
         && docId in ['roles', 'agenda', 'vote', 'reports', 'draw']
         && request.resource.data.keys().size() <= 10
-        && (canManage(club)
+        && ((docId != 'vote' && canManage(club))
+          || (docId == 'vote' && (isOfficer(club) || (memberLevel(club) && voteControl())))
           || (docId == 'reports' && memberLevel(club))
           || (docId == 'roles' && memberLevel(club) && memberRoleEdit()));
       allow delete: if purging(club);

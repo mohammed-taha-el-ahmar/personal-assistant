@@ -20,6 +20,7 @@ async function officeAuthChanged(){
     SH.clubExists=d.exists;SH.officers=d.exists?(d.data().officers||[]):[];
     SH.officer=d.exists&&SH.officers.includes(SH.user.email);
     SH.deletion=d.exists?(d.data().deletion||null):null;
+    SH.clubStatus=d.exists?(d.data().status||'approved'):'';
   }catch(e){
     SH.officer=false;SH.officers=[];
     if(e&&e.code==='permission-denied'){
@@ -29,7 +30,7 @@ async function officeAuthChanged(){
       catch(e2){SH.officeErr='rules'}
     }else{SH.officeErr=(e&&e.code)||'error'}
   }
-  if(SH.officer)startOfficerSubs();
+  if(SH.officer&&!SH.closed)startOfficerSubs();
   softRender();
 }
 function startOfficerSubs(){
@@ -54,7 +55,9 @@ function startOfficerSubs(){
 // the page asks for the address again (Firebase requires it to match). Access still depends on the officer list.
 const LINK_KEY='gt-emailForSignIn';
 const LINK={sent:'',needEmail:false,busy:false,error:''};
-function officeLinkUrl(){const u=new URL(shareLink());u.hash='office';return u.toString()}
+function officeLinkUrl(){
+  if(SH.adminMode){const u=new URL(location.href);u.search='?admin';u.hash='';return u.toString()}
+  const u=new URL(shareLink());u.hash='office';return u.toString()}
 async function sendSignInLink(email){
   email=email.trim().toLowerCase();if(!emailOk(email)){toast(t('off.invalid'));return}
   LINK.busy=true;LINK.error='';render();
@@ -103,6 +106,8 @@ function authMsg(e){
     'auth/invalid-email':'off.invalid','auth/missing-email':'off.invalid','auth/account-exists-with-different-credential':'auth.otherMethod',
     'auth/unauthorized-domain':'office.domainFail','auth/unauthorized-continue-uri':'office.domainFail','auth/invalid-continue-uri':'office.domainFail',
     'auth/quota-exceeded':'link.quota','auth/user-disabled':'auth.disabled'};
+  // Name the exact web address to add in Firebase, and the error code, so the fix is unambiguous.
+  if(map[c]==='office.domainFail')return t('office.domainFail',{domain:location.hostname||location.protocol,code:c});
   return map[c]?t(map[c]):t('auth.fail',{code:c||String(e&&e.message||e)});
 }
 function signInBox(){
@@ -144,6 +149,13 @@ function verifyBox(){
     <p class="muted" style="font-size:.85rem">${t('pw.spam')}</p></div>`;
 }
 document.addEventListener('input',ev=>{const k=ev.target.dataset&&ev.target.dataset.pw;if(k)PW[k]=ev.target.value});
+// Confirmation and reset emails bring the officer back to this page. If Firebase refuses this page's address,
+// send them without it: the link still works, it just ends on Firebase's own confirmation page.
+const DOMAIN_CODES=['auth/unauthorized-continue-uri','auth/invalid-continue-uri','auth/unauthorized-domain'];
+async function withReturn(send){
+  try{return await send({url:officeLinkUrl()})}
+  catch(e){if(e&&DOMAIN_CODES.includes(e.code))return await send(undefined);throw e}
+}
 async function pwRun(fn){PW.busy=true;PW.error='';PW.info='';LINK.error='';render();try{await fn()}catch(e){PW.error=authMsg(e)}PW.busy=false;render()}
 // Refreshes the account so a just-confirmed address counts straight away (the database reads it from the sign-in token).
 async function refreshVerified(){
@@ -169,7 +181,7 @@ document.addEventListener('submit',ev=>{
     if(a.length<8){PW.error=t('pw.weak');render();return}
     if(a!==b){PW.error=t('pw.mismatch');render();return}
     pwRun(async()=>{const cred=await firebase.auth().createUserWithEmailAndPassword(PW.email,a);
-      try{await cred.user.sendEmailVerification({url:officeLinkUrl()})}catch(e){}
+      try{await withReturn(acs=>cred.user.sendEmailVerification(acs))}catch(e){}
       PW.step='password';PW.n1=PW.n2=''});return}
 });
 document.addEventListener('click',ev=>{
@@ -179,9 +191,9 @@ document.addEventListener('click',ev=>{
   case 'pw-change':PW.step='email';PW.error='';PW.info='';render();{const i=document.getElementById('pw-email');if(i)i.focus()}return;
   case 'pw-create':PW.step='create';PW.error='';PW.info='';render();{const i=document.getElementById('pw-new');if(i)i.focus()}return;
   case 'pw-back':PW.step='password';PW.error='';render();return;
-  case 'pw-reset':pwRun(async()=>{await firebase.auth().sendPasswordResetEmail(PW.email,{url:officeLinkUrl()});PW.info=t('pw.resetSent',{email:PW.email})});return;
+  case 'pw-reset':pwRun(async()=>{await withReturn(acs=>firebase.auth().sendPasswordResetEmail(PW.email,acs));PW.info=t('pw.resetSent',{email:PW.email})});return;
   case 'pw-link':PW.error='';sendSignInLink(PW.email);return;
-  case 'pw-resend':pwRun(async()=>{await firebase.auth().currentUser.sendEmailVerification({url:officeLinkUrl()});PW.info=t('pw.resent')});return;
+  case 'pw-resend':pwRun(async()=>{const u=firebase.auth().currentUser;await withReturn(acs=>u.sendEmailVerification(acs));PW.info=t('pw.resent')});return;
   case 'pw-verified':pwRun(async()=>{if(await refreshVerified()){officeAuthChanged()}else PW.error=t('pw.notYet')});return;
   }
 });
@@ -236,7 +248,7 @@ async function closeMeeting(){
     if(OFF.reset){
       SH.roles={};await SH.ref.roles.set({roles:{}});
       await SH.ref.reports.set({});
-      S.vote.cats.forEach(c=>{c.round=(c.round||0)+1;c.cands=[]});S.vote.reveal=false;await pushVote();
+      S.vote.cats.forEach(c=>{c.round=(c.round||0)+1;c.cands=[]});S.vote.reveal=false;await pushVote('none');
       S.agenda.date='';S.agenda.theme='';S.agenda.items.forEach(it=>{if(it.k)it.title=null});
       clearTimeout(SH.agendaTimer);SH.agendaDirty=false;await SH.ref.agenda.set(clone(S.agenda));
     }
@@ -287,6 +299,7 @@ function officeView(){
   ${officerArea()}</section>`;
 }
 function officerArea(){
+  if(SH.closed)return requestArea();
   if(!SH.on)return `${liveBox()}${configured()?`<p class="muted">${t('office.needLive')}</p>`:''}`;
   if(!isMember()||LINK.needEmail)return signInBox();
   const who=`<div class="notice"><span>${t('office.signedAs',{email:esc(SH.user.email)})}</span><button class="small" data-act="off-signout">${t('office.signOut')}</button></div>`;
@@ -296,9 +309,7 @@ function officerArea(){
   if(SH.officeErr==='rules')return `${who}<div class="box"><h3>${t('office.rulesTitle')}</h3><p>${t('office.rulesText')}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div>`;
   if(SH.officeErr)return `${who}<div class="box"><p>${t('office.otherErr',{code:esc(SH.officeErr)})}</p><div><button class="small" data-act="off-retry">${t('office.retry')}</button></div></div>`;
   if(!SH.officer){
-    return `${who}<div class="box">${SH.clubExists===false
-      ?`<h3>${t('office.claimTitle')}</h3><p class="muted">${t('office.claimText')}</p><div><button class="primary" data-act="off-claim">${t('office.claim')}</button></div>`
-      :`<p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p><p class="muted">${t('office.notOfficerHint')}</p>`}</div>`;
+    return `${who}<div class="box"><p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p><p class="muted">${t('office.notOfficerHint')}</p></div>`;
   }
   return `${who}<div class="notice"><span>${t('office.editClubHint')}</span><button class="small" data-act="go-club-edit">${t('cl.edit')}</button></div>
     ${accessOn()?'':accessBox()}${isOn('members')?`<div class="notice"><span>${t('mem.officeHint')}</span><button class="small" data-act="go-members">${t('tab.members')}</button></div>`:''}${linkBox()}${accessOn()?accessBox():''}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${modulesBox()}${officersBox()}${deletionBox()}`;
@@ -368,7 +379,6 @@ function officeAct(a,b){
   case 'off-signout':officeSignOut();break;
   case 'off-retry':officeAuthChanged();break;
   case 'go-club-edit':CL.draft=normInfo(CL.info);if(!CL.draft.name)CL.draft.name=(S.agenda&&S.agenda.club)||'';CL.edit=true;setTab('club');break;
-  case 'off-claim':SH.fs.doc('clubs/'+SH.club).set({officers:[SH.user.email]}).then(officeAuthChanged).catch(writeFail);break;
   case 'off-reset':OFF.reset=b.checked;break;
   case 'off-close-ask':OFF.confirmClose=true;render();break;
   case 'off-close-cancel':OFF.confirmClose=false;render();break;
