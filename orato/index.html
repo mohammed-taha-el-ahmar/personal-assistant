@@ -277,6 +277,27 @@ h2 .infobtn{font-size:.9rem;width:26px;height:26px}
 .gsec span{font-size:.9rem;color:var(--muted);flex:1}.gsec button{align-self:flex-start}
 .welcome{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--go-soft);border:1px solid var(--go);border-radius:12px;padding:14px 16px;margin-bottom:18px}
 .welcome p{margin:4px 0 0;max-width:60ch}
+.social{gap:8px}
+.soc{border-radius:999px}
+.avgline{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.avgline b{font-family:var(--display);font-size:1.6rem}
+.stars-show{position:relative;display:inline-block;font-size:1.5rem;line-height:1;letter-spacing:2px}
+.stars-show .bg{color:var(--line)}
+.stars-show .fg{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:var(--warn)}
+.testis{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.testi{margin:0;background:var(--bg);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.testi blockquote{margin:0;font-size:1rem;line-height:1.5;quotes:"“" "”"}
+html[lang=fr] .testi blockquote{quotes:"« " " »"}
+.testi blockquote::before{content:open-quote}.testi blockquote::after{content:close-quote}
+.testi figcaption{font-size:.9rem}
+.picklist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.picklist li{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;border-top:1px solid var(--line);padding-top:8px}
+.supportline:empty,#support-head:empty{display:none}
+.supportline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
+.supportbtn{background:#ffdd00;color:#1b1b1b;border-color:#e6c700}
+.supportbtn:hover{background:#ffe94d}
+.supportbtn.inhead{padding:5px 10px;font-size:.85rem;border-radius:999px}
+@media (max-width:600px){#support-head{display:none}}
 .codebig{font-family:var(--mono)!important;letter-spacing:.08em}
 .danger-box h3{color:var(--stop)}
 .notice.danger{background:var(--stop-soft);margin-bottom:20px}
@@ -296,6 +317,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
       <h1>Orato</h1>
       <span class="tag" data-i18n="tagline">Tools for Toastmasters club meetings</span>
       <span id="sync"></span>
+      <span id="support-head"></span>
       <button class="themebtn" id="helpbtn" data-act="help-guide" type="button"><span aria-hidden="true">?</span><span class="themelabel">Help</span></button>
       <button class="themebtn" id="themebtn" data-act="theme" type="button"><span aria-hidden="true" id="themeicon">◐</span><span class="themelabel" id="themelabel"></span></button>
       <div class="lang" role="group" data-i18n-aria="lang.label" aria-label="Language">
@@ -334,6 +356,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <main class="wrap" id="main"></main>
 
 <footer class="wrap">
+  <p id="support-foot" class="supportline"></p>
   <p data-i18n="footer"></p>
 </footer>
 
@@ -343,6 +366,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <script src="evals.js"></script>
 <script src="club.js"></script>
 <script src="media.js"></script>
+<script src="reviews.js"></script>
 <script src="templates.js"></script>
 <script src="draw.js"></script>
 <script src="deletion.js"></script>

@@ -21,6 +21,48 @@ function loadContact(){
   SH.fs.doc('app/public').get().then(s=>{REQ.contact=s.exists&&s.data().contact||'';ADM.contactDraft=ADM.contactDraft??REQ.contact;softRender()},()=>{});
 }
 
+// ---------- support button (e.g. Buy Me a Coffee), chosen by the administrator ----------
+// Stored in app/public → support {show, url, label, header}. Read by every visitor, even without a club link,
+// and remembered on the device so the button doesn't flicker on the next visit.
+const SUPPORT_KEY='gt-support';
+let SUPPORT=(()=>{try{return JSON.parse(localStorage.getItem(SUPPORT_KEY))||null}catch(e){return null}})();
+function loadSupport(){
+  if(!configured())return;
+  try{if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG)}catch(e){return}
+  firebase.firestore().doc('app/public').get().then(s=>{
+    const d=s.exists?s.data():{};SUPPORT=d.support||null;
+    if(!REQ.contact)REQ.contact=d.contact||'';
+    try{localStorage.setItem(SUPPORT_KEY,JSON.stringify(SUPPORT))}catch(e){}
+    if(!ADM.supportDraft)ADM.supportDraft=supportDraftFrom(SUPPORT);
+    paintSupport();if(SH.adminMode)render();
+  },()=>{});
+}
+const supportDraftFrom=x=>({show:!!(x&&x.show),url:(x&&x.url)||'',label:(x&&x.label)||'',header:!!(x&&x.header)});
+const supportLabel=()=>SUPPORT&&SUPPORT.label||t('sup.default');
+// Footer button (and header button if chosen). Called on every render, so the language follows.
+function paintSupport(){
+  const ok=SUPPORT&&SUPPORT.show&&safeUrl(SUPPORT.url);
+  const link=cls=>`<a class="btn small supportbtn ${cls}" href="${esc(safeUrl(SUPPORT.url))}" target="_blank" rel="noopener noreferrer">${esc(supportLabel())}</a>`;
+  const f=document.getElementById('support-foot');
+  if(f)f.innerHTML=ok?`<span class="muted">${t('sup.footText')}</span> ${link('')}`:'';
+  const h=document.getElementById('support-head');
+  if(h)h.innerHTML=ok&&SUPPORT.header?link('inhead'):'';
+}
+function supportBox(){
+  const d=ADM.supportDraft||(ADM.supportDraft=supportDraftFrom(SUPPORT));
+  const bad=d.url&&!safeUrl(d.url);
+  return `<form class="box" data-form="adm-support" novalidate><div><h3>${t('sup.title')}</h3><p class="muted">${t('sup.intro')}</p></div>
+    <label class="check" for="sup-show"><input type="checkbox" id="sup-show" data-sup="show" ${d.show?'checked':''}><span>${t('sup.show')}</span></label>
+    <div class="fields">
+      <div class="field"><label class="label" for="sup-url">${t('sup.url')}</label><input id="sup-url" type="url" inputmode="url" data-sup="url" maxlength="300" value="${esc(d.url)}" placeholder="https://buymeacoffee.com/…">${bad?`<span class="chip bad" style="align-self:flex-start">${t('on.badUrl')}</span>`:''}</div>
+      <div class="field"><label class="label" for="sup-label">${t('sup.label')}</label><input id="sup-label" data-sup="label" maxlength="40" value="${esc(d.label)}" placeholder="${esc(t('sup.default'))}"></div>
+    </div>
+    <label class="check" for="sup-header"><input type="checkbox" id="sup-header" data-sup="header" ${d.header?'checked':''}><span>${t('sup.header')}</span></label>
+    <div class="btns" style="align-items:center"><button type="submit" class="primary">${t('cl.save')}</button>
+      ${d.show&&safeUrl(d.url)?`<span class="muted">${t('sup.preview')}</span> <a class="btn small supportbtn" href="${esc(safeUrl(d.url))}" target="_blank" rel="noopener noreferrer">${esc(d.label||t('sup.default'))}</a>`:''}</div>
+  </form>`;
+}
+
 // ---------- club not open yet: request form (on the club officers tab) ----------
 async function loadMyRequest(){
   REQ.mine=undefined;REQ.other=false;
@@ -125,6 +167,7 @@ function adminView(){
       <td>${r.status==='approved'?`<span class="chip ok">${t('adm.st.approved')}</span>`:`<span class="chip bad">${t('adm.st.rejected')}</span>${r.reason?`<br><span class="muted" style="font-size:.85rem">${esc(r.reason)}</span>`:''}`}
       <button class="ghost small" data-act="adm-req-del" data-id="${esc(r.id)}" aria-label="${t('common.remove')}">×</button></td></tr>`).join('')}
     </tbody></table></div></details>`:''}
+  ${supportBox()}
   <form class="box" data-form="adm-contact" novalidate><h3>${t('adm.contactTitle')}</h3><p class="muted">${t('adm.contactIntro')}</p>
     <div class="btns" style="flex-wrap:nowrap"><input id="adm-contact" type="email" value="${esc(ADM.contactDraft??REQ.contact)}" placeholder="${t('off.addPh')}"><button type="submit">${t('cl.save')}</button></div></form>
   </section>`;
@@ -171,7 +214,10 @@ document.addEventListener('input',ev=>{
   if(ev.target.id==='adm-reason')ADM.reason=ev.target.value;
   if(ev.target.id==='adm-contact')ADM.contactDraft=ev.target.value;
 });
-document.addEventListener('change',ev=>{const k=ev.target.dataset&&ev.target.dataset.rq;if(k)REQ.draft[k]=ev.target.value});
+document.addEventListener('change',ev=>{const k=ev.target.dataset&&ev.target.dataset.rq;if(k)REQ.draft[k]=ev.target.value;
+  const sk=ev.target.dataset&&ev.target.dataset.sup;
+  if(sk&&ADM.supportDraft){ADM.supportDraft[sk]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;render()}});
+document.addEventListener('input',ev=>{const sk=ev.target.dataset&&ev.target.dataset.sup;if(sk&&ev.target.type!=='checkbox'&&ADM.supportDraft)ADM.supportDraft[sk]=ev.target.value});
 document.addEventListener('submit',async ev=>{
   const f=ev.target.dataset.form;
   if(f==='req'){ev.preventDefault();sendRequest();return}
@@ -179,9 +225,18 @@ document.addEventListener('submit',async ev=>{
     try{await SH.fs.doc(`requests/${id}`).update({status:'rejected',reason:ADM.reason.trim().slice(0,300),decidedAt:new Date().toISOString(),decidedBy:SH.user.email});toast(t('adm.rejected'))}
     catch(e){toast(t('adm.fail',{code:e&&e.code||'error'}))}
     ADM.reject=null;ADM.reason='';render();return}
+  if(f==='adm-support'){ev.preventDefault();const d=ADM.supportDraft;
+    let url=d.url.trim();if(url&&!/^[a-z]+:/i.test(url))url='https://'+url;
+    if(d.show&&!safeUrl(url)){toast(t('sup.needUrl'));return}
+    const support={show:!!d.show,url:safeUrl(url)||'',label:d.label.trim().slice(0,40),header:!!d.header};
+    try{await SH.fs.doc('app/public').set({support,updatedAt:new Date().toISOString()},{merge:true});SUPPORT=support;ADM.supportDraft=supportDraftFrom(support);
+      try{localStorage.setItem(SUPPORT_KEY,JSON.stringify(SUPPORT))}catch(e){}
+      paintSupport();render();toast(t('sup.saved'))}
+    catch(e){toast(t('adm.fail',{code:e&&e.code||'error'}))}
+    return}
   if(f==='adm-contact'){ev.preventDefault();const c=(ADM.contactDraft||'').trim().toLowerCase();
     if(c&&!emailOk(c)){toast(t('off.invalid'));return}
-    try{await SH.fs.doc('app/public').set({contact:c,updatedAt:new Date().toISOString()});REQ.contact=c;toast(t('adm.contactSaved'))}catch(e){toast(t('adm.fail',{code:e&&e.code||'error'}))}
+    try{await SH.fs.doc('app/public').set({contact:c,updatedAt:new Date().toISOString()},{merge:true});REQ.contact=c;toast(t('adm.contactSaved'))}catch(e){toast(t('adm.fail',{code:e&&e.code||'error'}))}
     return}
 });
 document.addEventListener('click',async ev=>{

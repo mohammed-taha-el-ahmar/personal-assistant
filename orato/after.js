@@ -74,7 +74,7 @@ function onlineLines(a){
 
 // ---------- feedback form ----------
 const LIKES=['speeches','topics','evals','atmosphere','organisation','online'];
-let FB={kind:'',rating:0,likes:[],again:'',comment:'',name:'',contact:false,email:''};
+let FB={kind:'',rating:0,likes:[],again:'',comment:'',name:'',contact:false,email:'',publishOk:false};
 let FBsending=false;
 const meetingDate=()=>S.agenda&&S.agenda.date?S.agenda.date:todayISO();
 const fbKey=()=>'gt-fb-'+SH.club+'-'+meetingDate();
@@ -96,6 +96,7 @@ function feedbackView(){
     <div class="field"><span class="label">${t('fb.likes')}</span><div class="speakers">${likes.map(k=>chip('fb-like',k,f.likes.includes(k),t('like.'+k))).join('')}</div></div>
     ${guest?`<div class="field"><span class="label">${t('fb.again')}</span><div class="speakers">${['yes','maybe','no'].map(v=>chip('fb-again',v,f.again===v,t('again.'+v))).join('')}</div></div>`:''}
     <div class="field"><label class="label" for="fb-comment">${t('fb.comment')}</label><textarea id="fb-comment" data-fb="comment" maxlength="1000" placeholder="${t('fb.commentPh')}">${esc(f.comment)}</textarea></div>
+    <label class="check" for="fb-publish"><input type="checkbox" id="fb-publish" data-fb="publishOk" ${f.publishOk?'checked':''}><span>${t('fb.publishOk')}</span></label>
     <div class="field"><label class="label" for="fb-name">${t('fb.name')}</label><input id="fb-name" data-fb="name" maxlength="80" value="${esc(f.name)}" autocomplete="name"></div>
     ${guest?`<label class="check" for="fb-contact"><input type="checkbox" id="fb-contact" data-fb="contact" ${f.contact?'checked':''}><span>${t('fb.contact')}</span></label>
       ${f.contact?`<div class="field"><label class="label" for="fb-email">${t('fb.email')}</label><input id="fb-email" type="email" data-fb="email" maxlength="120" value="${esc(f.email)}" autocomplete="email"><span class="muted" style="font-size:.85rem">${t('fb.privacy')}</span></div>`:''}`:''}
@@ -109,12 +110,12 @@ async function sendFeedback(){
   if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast(t('off.invalid'));return}
   const date=meetingDate();
   const data={date,kind:f.kind,rating:f.rating,likes:f.likes.slice(0,8),again:f.kind==='guest'?f.again:'',
-    comment:f.comment.trim().slice(0,1000),name:f.name.trim().slice(0,80),email,contact:!!email,lang:LANG,at:new Date().toISOString()};
+    comment:f.comment.trim().slice(0,1000),name:f.name.trim().slice(0,80),email,contact:!!email,publishOk:!!(f.publishOk&&f.comment.trim()),lang:LANG,at:new Date().toISOString()};
   FBsending=true;render();
   try{
     await SH.fs.doc(`clubs/${SH.club}/feedback/${date}_${SH.uid}`).set(data);
     try{localStorage.setItem(fbKey(),'1')}catch(e){}
-    FB={kind:'',rating:0,likes:[],again:'',comment:'',name:'',contact:false,email:''};
+    FB={kind:'',rating:0,likes:[],again:'',comment:'',name:'',contact:false,email:'',publishOk:false};
   }catch(e){
     // The rules refuse a second answer from the same device for the same meeting.
     if(e&&e.code==='permission-denied'){try{localStorage.setItem(fbKey(),'1')}catch(_){}toast(t('fb.already'))}
@@ -133,7 +134,8 @@ document.addEventListener('click',e=>{
   if(a==='fb-again')FB.again=FB.again===v?'':v;
   render();
 });
-document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.fb;if(!k||k==='contact')return;FB[k]=e.target.value});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.fb;if(!k||k==='contact'||k==='publishOk')return;FB[k]=e.target.value});
+document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.fb==='publishOk')FB.publishOk=e.target.checked});
 document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.fb==='contact'){FB.contact=e.target.checked;render()}});
 document.addEventListener('submit',e=>{if(e.target.dataset.form!=='feedback')return;e.preventDefault();sendFeedback()});
 

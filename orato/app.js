@@ -287,6 +287,7 @@ function applyChrome(){
   document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===LANG));
   const d=document.querySelector('meta[name=description]');if(d)d.content=t('tagline');
   if(typeof applyModules==='function')applyModules();
+  if(typeof paintSupport==='function')paintSupport();
 }
 function render(){
   applyChrome();
@@ -649,3 +650,4 @@ if(S.sample&&S.lang!==LANG){const custom=S.topics.custom;S=sample();S.topics.cus
 render();
 updateStatus();
 initShared();
+if(typeof loadSupport==='function')loadSupport();

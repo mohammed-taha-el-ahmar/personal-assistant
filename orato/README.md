@@ -29,6 +29,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `admin.js` | Club creation requests and the administrator's page (`?admin`) |
 | `members.js` | Guest book (everyone) and member list with dues renewals (officers only) |
 | `modules.js` | Club choice of which sections, tabs and features members see |
+| `reviews.js` | Social network links, average rating and testimonials on the club page |
 | `media.js` | Photos and videos on the club page |
 | `club.js` | Club introduction page, officer roles and the "interested in joining the officers" form |
 | `after.js` | QR codes and the feedback form |
@@ -95,6 +96,7 @@ Every new club space must be approved by the Orato administrator before anyone c
 **The administrator's page** is the site address followed by `?admin`, for example `https://<your-username>.github.io/orato/?admin`. Sign in there (Google or password), then:
 - **Requests waiting**: each request shows the club code, club name, city, Toastmasters club number, the requester's email and role, and their message. **Approve** creates the club space with the requester as its first officer and opens your email app with a ready-made message to send them. **Decline** asks for an optional reason, shown to the requester, who can correct and resend.
 - **Club spaces**: every club, its officers and status. **Suspend** closes a club (data kept, nobody can read or change it, officers included); **Reactivate** reopens it.
+- **Support button**: tick **Show the support button** and paste the link of your Buy Me a Coffee, Ko-fi, Liberapay or PayPal page (the button text can be changed). It appears at the bottom of every page for all visitors, with or without a club link, and optionally in the header too (on wide screens). Untick to hide it.
 - **Contact address**: shown to people who send a request. There are no automatic email notifications (that would need a paid Firebase plan), so check the page regularly.
 
 **For a club**: open the site with the club link (`?club=your-code`). While the code is not approved, every tab shows "this club space is not open" and the **Club officers** tab shows the request form: the officer signs in, fills in the club name, city, club number and role, and sends it. Once approved, they reload the page and are the first officer.
@@ -158,6 +160,15 @@ In **Edit the club page**, the **Photos and videos** box lets officers:
 - Add a caption, change the order with the arrows, or remove an item. Click **Save** to publish.
 
 Visitors see a photo grid (click a photo to open it full screen, with ← → to browse) and the videos below it. Only post photos of people who agree to appear on the page.
+
+### Social networks, rating and testimonials on the club page
+
+In **Edit the club page**:
+- **Social networks**: paste the links of the club's Facebook, Instagram, LinkedIn, TikTok, YouTube, X, WhatsApp group or Meetup pages. They appear as buttons under the presentation. `facebook.com/yourclub` is completed with `https://` automatically.
+- **What our members and guests say**:
+  - Tick **Show the average rating** to display the average of the feedback form answers of the last 12 months (stars, score out of 5 and number of answers). It appears from 3 answers, and the figure is refreshed each time an officer saves the page.
+  - **Testimonials** (up to 12): pick comments from the feedback form, or type one in. Only comments whose authors ticked "I agree that my comment may be shown on the club page" can be picked; they appear with the first name and the initial of the last name, which you can change.
+- The feedback answers themselves stay visible to officers only.
 
 ## 6. After the meeting: feedback
 
