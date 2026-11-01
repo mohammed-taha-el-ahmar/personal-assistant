@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>QuizLive — Play</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="player-shell">
+    <header class="player-bar">
+      <span id="p-name">…</span>
+      <span id="p-progress"></span>
+      <span id="p-score">0</span>
+    </header>
+    <div class="timebar" id="p-timebar" hidden><div></div></div>
+
+    <main class="player-main">
+      <section data-view="loading" class="result"><div class="pill">Connecting…</div></section>
+
+      <section data-view="lobby" class="result" hidden>
+        <div class="stack">
+          <div class="big">You're in!</div>
+          <p>See your nickname on screen?</p>
+          <div class="pill">Waiting for the host to start</div>
+        </div>
+      </section>
+
+      <section data-view="question" class="tiles player-tiles" id="p-tiles" hidden></section>
+
+      <section data-view="answered" class="result" hidden>
+        <div class="stack">
+          <div class="big">Answer locked in</div>
+          <p>Were you fast enough?</p>
+        </div>
+      </section>
+
+      <section data-view="result" class="result" id="p-result" hidden>
+        <div class="stack">
+          <div class="big" id="p-verdict"></div>
+          <div class="pill" id="p-points"></div>
+          <p id="p-streak"></p>
+          <p id="p-rank"></p>
+        </div>
+      </section>
+
+      <section data-view="final" class="result" hidden>
+        <div class="stack">
+          <div class="big" id="p-final-rank"></div>
+          <div class="pill" id="p-final-score"></div>
+          <p><a href="index.html">Play again</a></p>
+        </div>
+      </section>
+
+      <section data-view="gone" class="result" hidden>
+        <div class="stack">
+          <div class="big" id="p-gone-title">Game over</div>
+          <p id="p-gone-text"></p>
+          <p><a href="index.html">Back to join screen</a></p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="js/player.js"></script>
+</body>
+</html>

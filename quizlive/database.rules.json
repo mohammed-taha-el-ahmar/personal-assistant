@@ -1,0 +1,38 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "games": {
+      "$pin": {
+        ".validate": "$pin.matches(/^[0-9]{6}$/)",
+        ".read": "auth != null",
+        ".write": "auth != null && ((data.exists() && data.child('hostUid').val() === auth.uid) || (!data.exists() && newData.child('hostUid').val() === auth.uid && auth.token.firebase.sign_in_provider !== 'anonymous'))",
+
+        "players": {
+          "$uid": {
+            "nickname": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('games/' + $pin + '/state/phase').val() === 'lobby'",
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 15"
+            },
+            "connected": {
+              ".write": "auth != null && auth.uid === $uid && newData.parent().child('nickname').exists()",
+              ".validate": "newData.isBoolean()"
+            }
+          }
+        },
+
+        "answers": {
+          "$q": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('games/' + $pin + '/players/' + $uid + '/nickname').exists() && root.child('games/' + $pin + '/state/phase').val() === 'question' && root.child('games/' + $pin + '/state/key').val() === $q && now <= root.child('games/' + $pin + '/state/startedAt').val() + root.child('games/' + $pin + '/state/timeLimit').val() * 1000 + 1500",
+              ".validate": "newData.hasChildren(['choice', 'at']) && newData.child('choice').isNumber() && newData.child('choice').val() >= 0 && newData.child('choice').val() < root.child('games/' + $pin + '/state/answerCount').val() && newData.child('at').val() === now",
+              "choice": { ".validate": true },
+              "at": { ".validate": true },
+              "$other": { ".validate": false }
+            }
+          }
+        }
+      }
+    }
+  }
+}

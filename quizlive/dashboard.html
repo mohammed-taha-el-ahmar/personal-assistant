@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html" style="text-decoration:none">Quiz<span>Live</span></a>
+    <div class="row">
+      <span id="user-name" class="muted"></span>
+      <button id="sign-out" class="btn ghost small" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <section data-view="loading" class="center"><div class="pill">Loading…</div></section>
+
+  <section data-view="signin" class="center" hidden>
+    <div class="card narrow stack">
+      <h2>Host a quiz</h2>
+      <p style="color:var(--ink-soft)">Sign in to create quizzes and run live games.</p>
+      <button id="sign-in" class="btn block">Sign in with Google</button>
+      <div id="signin-error" class="error"></div>
+    </div>
+  </section>
+
+  <main data-view="list" class="container" hidden>
+    <div class="row spread" style="margin-bottom:20px">
+      <h1>My quizzes</h1>
+      <a class="btn" href="editor.html">+ New quiz</a>
+    </div>
+    <div id="quiz-list" class="quiz-list"></div>
+    <p id="empty" class="muted" hidden>No quizzes yet. Create your first one!</p>
+  </main>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

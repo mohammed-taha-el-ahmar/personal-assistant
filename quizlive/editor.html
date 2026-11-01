@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive — Quiz editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="dashboard.html" style="text-decoration:none">Quiz<span>Live</span></a>
+    <div class="row">
+      <a class="btn ghost small" href="dashboard.html">Cancel</a>
+      <button id="save" class="btn small">Save quiz</button>
+    </div>
+  </header>
+
+  <section data-view="loading" class="center"><div class="pill">Loading…</div></section>
+
+  <main data-view="editor" class="container stack" hidden>
+    <div class="card stack">
+      <div>
+        <label for="title">Quiz title</label>
+        <input id="title" maxlength="100" placeholder="e.g. Data engineering trivia">
+      </div>
+      <div>
+        <label for="description">Description (optional)</label>
+        <input id="description" maxlength="200">
+      </div>
+    </div>
+
+    <div id="questions" class="stack"></div>
+
+    <div class="row">
+      <button id="add-question" class="btn dark">+ Add question</button>
+    </div>
+    <div id="error" class="error" role="alert"></div>
+  </main>
+
+  <script type="module" src="js/editor.js"></script>
+</body>
+</html>

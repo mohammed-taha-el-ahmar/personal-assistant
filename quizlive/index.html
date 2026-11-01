@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive — Join a game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <main class="center">
+    <div class="stack" style="width:100%;max-width:380px">
+      <div class="logo">Quiz<span>Live</span></div>
+      <form id="join-form" class="card narrow stack" autocomplete="off">
+        <input id="pin" class="big" inputmode="numeric" maxlength="6" placeholder="Game PIN" required>
+        <input id="nickname" class="big" maxlength="15" placeholder="Nickname" required>
+        <button class="btn block dark" type="submit">Enter</button>
+        <div id="error" class="error" role="alert"></div>
+      </form>
+      <p class="muted">Hosting a quiz? <a href="dashboard.html">Go to the dashboard</a></p>
+    </div>
+  </main>
+  <script type="module" src="js/join.js"></script>
+</body>
+</html>
