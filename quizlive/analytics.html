@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="dashboard.html" style="text-decoration:none">Quiz<span>Live</span></a>
+    <div class="row">
+      <a class="btn ghost small" href="dashboard.html" data-i18n="stats.back"></a>
+      <div class="float-controls" id="controls"></div>
+    </div>
+  </header>
+
+  <section data-view="loading" class="center"><div class="pill" data-i18n="common.loading"></div></section>
+
+  <main data-view="stats" class="container stack" hidden>
+    <div class="row spread">
+      <div>
+        <h1 id="s-title"></h1>
+        <p class="muted" data-i18n="stats.subtitle"></p>
+      </div>
+      <div class="row">
+        <label class="sr-only" for="s-session" data-i18n="stats.session"></label>
+        <select id="s-session" style="width:auto"></select>
+        <button class="btn small dark" id="s-export" data-i18n="stats.export"></button>
+      </div>
+    </div>
+
+    <div class="kpis" id="s-kpis"></div>
+
+    <h2 style="margin-top:24px" data-i18n="stats.perQuestion"></h2>
+    <div id="s-questions" class="stack"></div>
+
+    <h2 style="margin-top:24px" data-i18n="stats.sessions"></h2>
+    <div class="card"><table class="table" id="s-sessions"></table></div>
+  </main>
+
+  <section data-view="empty" class="center" hidden>
+    <div class="card narrow stack">
+      <h2 data-i18n="stats.emptyTitle"></h2>
+      <p style="color:var(--ink-soft)" data-i18n="stats.emptyText"></p>
+      <a class="btn" href="dashboard.html" data-i18n="stats.back"></a>
+    </div>
+  </section>
+
+  <script type="module" src="js/analytics.js"></script>
+</body>
+</html>

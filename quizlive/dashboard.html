@@ -3,39 +3,81 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QuizLive — Dashboard</title>
+  <title>QuizLive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <a class="skip-link btn" href="#main" data-i18n="common.skip"></a>
   <header class="topbar">
     <a class="logo" href="index.html" style="text-decoration:none">Quiz<span>Live</span></a>
     <div class="row">
       <span id="user-name" class="muted"></span>
-      <button id="sign-out" class="btn ghost small" hidden>Sign out</button>
+      <button id="sign-out" class="btn ghost small" hidden data-i18n="auth.signOut"></button>
+      <div class="float-controls" id="controls"></div>
     </div>
   </header>
+  <div class="notice" id="verify-notice" hidden>
+    <span data-i18n="auth.verifyNotice"></span>
+    <button class="linklike" id="resend-verify" data-i18n="auth.resend"></button>
+  </div>
 
-  <section data-view="loading" class="center"><div class="pill">Loading…</div></section>
+  <div id="main">
+  <section data-view="loading" class="center"><div class="pill" data-i18n="common.loading"></div></section>
 
+  <!-- Sign-in -->
   <section data-view="signin" class="center" hidden>
-    <div class="card narrow stack">
-      <h2>Host a quiz</h2>
-      <p style="color:var(--ink-soft)">Sign in to create quizzes and run live games.</p>
-      <button id="sign-in" class="btn block">Sign in with Google</button>
-      <div id="signin-error" class="error"></div>
+    <div class="card narrow stack" style="text-align:left">
+      <h2 data-i18n="auth.title"></h2>
+      <p style="color:var(--ink-soft)" data-i18n="auth.subtitle"></p>
+
+      <button id="google" class="btn block dark" data-i18n="auth.google"></button>
+      <div class="divider" data-i18n="auth.or"></div>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tab-signin" aria-controls="panel-signin" aria-selected="true" data-i18n="auth.tabSignIn"></button>
+        <button role="tab" id="tab-signup" aria-controls="panel-signup" aria-selected="false" data-i18n="auth.tabSignUp"></button>
+        <button role="tab" id="tab-link" aria-controls="panel-link" aria-selected="false" data-i18n="auth.tabLink"></button>
+      </div>
+
+      <form id="panel-signin" role="tabpanel" aria-labelledby="tab-signin" class="stack" novalidate>
+        <div><label for="si-email" data-i18n="auth.email"></label><input id="si-email" type="email" autocomplete="email" required></div>
+        <div><label for="si-password" data-i18n="auth.password"></label><input id="si-password" type="password" autocomplete="current-password" required></div>
+        <button class="btn block" type="submit" data-i18n="auth.signIn"></button>
+        <button class="linklike" type="button" id="forgot" data-i18n="auth.forgot"></button>
+      </form>
+
+      <form id="panel-signup" role="tabpanel" aria-labelledby="tab-signup" class="stack" novalidate hidden>
+        <div><label for="su-name" data-i18n="auth.displayName"></label><input id="su-name" autocomplete="name" maxlength="40" required></div>
+        <div><label for="su-email" data-i18n="auth.email"></label><input id="su-email" type="email" autocomplete="email" required></div>
+        <div><label for="su-password" data-i18n="auth.password"></label><input id="su-password" type="password" autocomplete="new-password" minlength="8" required aria-describedby="pw-hint"></div>
+        <small id="pw-hint" style="color:var(--ink-soft)" data-i18n="auth.pwHint"></small>
+        <div><label for="su-confirm" data-i18n="auth.confirm"></label><input id="su-confirm" type="password" autocomplete="new-password" required></div>
+        <button class="btn block" type="submit" data-i18n="auth.createAccount"></button>
+      </form>
+
+      <form id="panel-link" role="tabpanel" aria-labelledby="tab-link" class="stack" novalidate hidden>
+        <p style="color:var(--ink-soft);margin:0" data-i18n="auth.linkExplain"></p>
+        <div><label for="ml-email" data-i18n="auth.email"></label><input id="ml-email" type="email" autocomplete="email" required></div>
+        <button class="btn block" type="submit" data-i18n="auth.sendLink"></button>
+      </form>
+
+      <div id="auth-error" class="error" role="alert"></div>
+      <div id="auth-success" class="success" role="status"></div>
     </div>
   </section>
 
+  <!-- Quiz list -->
   <main data-view="list" class="container" hidden>
     <div class="row spread" style="margin-bottom:20px">
-      <h1>My quizzes</h1>
-      <a class="btn" href="editor.html">+ New quiz</a>
+      <h1 data-i18n="dash.title"></h1>
+      <a class="btn" href="editor.html" data-i18n="dash.new"></a>
     </div>
     <div id="quiz-list" class="quiz-list"></div>
-    <p id="empty" class="muted" hidden>No quizzes yet. Create your first one!</p>
+    <p id="empty" class="muted" hidden data-i18n="dash.empty"></p>
   </main>
+  </div>
 
   <script type="module" src="js/dashboard.js"></script>
 </body>

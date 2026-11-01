@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>QuizLive — Play</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
@@ -13,27 +13,41 @@
     <header class="player-bar">
       <span id="p-name">…</span>
       <span id="p-progress"></span>
-      <span id="p-score">0</span>
+      <div class="row" style="gap:8px">
+        <span id="p-score" aria-live="off">0</span>
+        <div class="float-controls" id="controls"></div>
+      </div>
     </header>
-    <div class="timebar" id="p-timebar" hidden><div></div></div>
+    <div class="timebar" id="p-timebar" role="progressbar" aria-valuemin="0" hidden><div></div></div>
 
     <main class="player-main">
-      <section data-view="loading" class="result"><div class="pill">Connecting…</div></section>
+      <section data-view="loading" class="result"><div class="pill" data-i18n="common.connecting"></div></section>
 
       <section data-view="lobby" class="result" hidden>
         <div class="stack">
-          <div class="big">You're in!</div>
-          <p>See your nickname on screen?</p>
-          <div class="pill">Waiting for the host to start</div>
+          <div class="big bounce" data-i18n="play.youreIn"></div>
+          <p data-i18n="play.seeName"></p>
+          <div class="pill" data-i18n="play.waitHost"></div>
         </div>
       </section>
 
-      <section data-view="question" class="tiles player-tiles" id="p-tiles" hidden></section>
+      <section data-view="intro" class="result" hidden>
+        <div class="stack">
+          <div class="pill" id="p-intro-num"></div>
+          <div class="big bounce" data-i18n="play.getReady"></div>
+          <p id="p-intro-text" class="p-question"></p>
+        </div>
+      </section>
+
+      <section data-view="question" class="player-main" hidden>
+        <p id="p-qtext" class="p-question" hidden></p>
+        <div class="tiles player-tiles" id="p-tiles" role="group"></div>
+      </section>
 
       <section data-view="answered" class="result" hidden>
         <div class="stack">
-          <div class="big">Answer locked in</div>
-          <p>Were you fast enough?</p>
+          <div class="big" data-i18n="play.locked"></div>
+          <p data-i18n="play.fastEnough"></p>
         </div>
       </section>
 
@@ -43,26 +57,33 @@
           <div class="pill" id="p-points"></div>
           <p id="p-streak"></p>
           <p id="p-rank"></p>
+          <p id="p-gap"></p>
         </div>
       </section>
 
       <section data-view="final" class="result" hidden>
-        <div class="stack">
+        <div class="stack" style="width:100%;max-width:420px">
           <div class="big" id="p-final-rank"></div>
-          <div class="pill" id="p-final-score"></div>
-          <p><a href="index.html">Play again</a></p>
+          <div class="summary">
+            <div><strong id="p-sum-score">0</strong><span data-i18n="play.sumScore"></span></div>
+            <div><strong id="p-sum-correct">0</strong><span data-i18n="play.sumCorrect"></span></div>
+            <div><strong id="p-sum-streak">0</strong><span data-i18n="play.sumStreak"></span></div>
+          </div>
+          <p><a href="index.html" data-i18n="play.again"></a></p>
         </div>
       </section>
 
       <section data-view="gone" class="result" hidden>
         <div class="stack">
-          <div class="big" id="p-gone-title">Game over</div>
+          <div class="big" id="p-gone-title"></div>
           <p id="p-gone-text"></p>
-          <p><a href="index.html">Back to join screen</a></p>
+          <p><a href="index.html" data-i18n="play.backToJoin"></a></p>
         </div>
       </section>
     </main>
   </div>
+
+  <div class="offline-banner" id="p-host-offline" role="status" hidden data-i18n="play.hostOffline"></div>
   <script type="module" src="js/player.js"></script>
 </body>
 </html>

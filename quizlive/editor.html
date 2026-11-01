@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QuizLive — Quiz editor</title>
+  <title>QuizLive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
@@ -12,21 +12,22 @@
   <header class="topbar">
     <a class="logo" href="dashboard.html" style="text-decoration:none">Quiz<span>Live</span></a>
     <div class="row">
-      <a class="btn ghost small" href="dashboard.html">Cancel</a>
-      <button id="save" class="btn small">Save quiz</button>
+      <a class="btn ghost small" href="dashboard.html" data-i18n="common.cancel"></a>
+      <button id="save" class="btn small" data-i18n="edit.save"></button>
+      <div class="float-controls" id="controls"></div>
     </div>
   </header>
 
-  <section data-view="loading" class="center"><div class="pill">Loading…</div></section>
+  <section data-view="loading" class="center"><div class="pill" data-i18n="common.loading"></div></section>
 
   <main data-view="editor" class="container stack" hidden>
     <div class="card stack">
       <div>
-        <label for="title">Quiz title</label>
-        <input id="title" maxlength="100" placeholder="e.g. Data engineering trivia">
+        <label for="title" data-i18n="edit.title"></label>
+        <input id="title" maxlength="100" data-i18n-placeholder="edit.titlePh">
       </div>
       <div>
-        <label for="description">Description (optional)</label>
+        <label for="description" data-i18n="edit.description"></label>
         <input id="description" maxlength="200">
       </div>
     </div>
@@ -34,7 +35,7 @@
     <div id="questions" class="stack"></div>
 
     <div class="row">
-      <button id="add-question" class="btn dark">+ Add question</button>
+      <button id="add-question" class="btn dark" data-i18n="edit.add"></button>
     </div>
     <div id="error" class="error" role="alert"></div>
   </main>

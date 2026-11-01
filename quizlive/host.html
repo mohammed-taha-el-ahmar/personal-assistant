@@ -3,44 +3,58 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QuizLive — Host</title>
+  <title>QuizLive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 </head>
 <body>
-  <section data-view="loading" class="center"><div class="pill" id="h-loading">Loading game…</div></section>
+  <div class="float-controls" id="controls"></div>
+
+  <section data-view="loading" class="center"><div class="pill" data-i18n="common.loading"></div></section>
 
   <!-- Lobby -->
   <main data-view="lobby" class="container stack" style="text-align:center" hidden>
-    <h2 id="h-title"></h2>
+    <h1 id="h-title"></h1>
     <div class="row" style="justify-content:center;gap:24px">
       <div class="stack">
-        <div class="muted">Join at <strong id="h-url"></strong></div>
-        <div class="pin-box"><div class="muted" style="color:var(--ink-soft)">Game PIN</div><div class="pin" id="h-pin"></div></div>
+        <div class="muted"><span data-i18n="host.joinAt"></span> <strong id="h-url"></strong></div>
+        <div class="pin-box">
+          <div style="color:var(--ink-soft)" data-i18n="host.pin"></div>
+          <div class="pin" id="h-pin"></div>
+        </div>
       </div>
-      <div class="qr" id="h-qr"></div>
+      <div class="qr" id="h-qr" role="img" data-i18n-aria="host.qr"></div>
     </div>
     <div class="row spread">
-      <span class="pill" id="h-count">0 players</span>
-      <button class="btn" id="h-start" disabled>Start</button>
+      <span class="lobby-count" id="h-count" aria-live="polite"></span>
+      <button class="btn" id="h-start" disabled data-i18n="host.start"></button>
     </div>
-    <div class="chips" id="h-players"></div>
-    <p class="muted" id="h-waiting">Waiting for players… Click a name to remove it.</p>
+    <div class="chips" id="h-players" aria-label="Players"></div>
+    <p class="muted" id="h-waiting"></p>
+  </main>
+
+  <!-- Intro: question alone before answers open -->
+  <main data-view="intro" class="intro" hidden>
+    <div style="width:100%">
+      <div class="pill" id="h-intro-num"></div>
+      <div class="question-head" id="h-intro-text" style="margin-top:20px"></div>
+      <div class="intro-bar" id="h-intro-bar"><div></div></div>
+    </div>
   </main>
 
   <!-- Question -->
   <main data-view="question" class="container" hidden>
     <div class="row spread muted" style="margin-bottom:10px">
       <span id="h-qprogress"></span>
-      <button class="btn small ghost" id="h-skip">Skip ⏭</button>
+      <button class="btn small ghost" id="h-skip" data-i18n="host.skip"></button>
     </div>
     <div class="question-head" id="h-qtext"></div>
     <div class="q-mid">
-      <div class="circle" id="h-timer">20</div>
+      <div class="circle" id="h-timer" role="timer" aria-live="off">20</div>
       <div id="h-qimage" style="text-align:center"></div>
-      <div class="counter"><span id="h-answers">0</span><small>answers</small></div>
+      <div class="counter"><span id="h-answers">0</span><small data-i18n="host.answers"></small></div>
     </div>
     <div class="tiles" id="h-tiles"></div>
   </main>
@@ -50,14 +64,14 @@
     <div class="question-head" id="h-rtext"></div>
     <div class="bars" id="h-bars"></div>
     <div class="tiles" id="h-rtiles"></div>
-    <div class="host-footer"><button class="btn" id="h-to-board">Next</button></div>
+    <div class="host-footer"><button class="btn" id="h-to-board" data-i18n="host.next"></button></div>
   </main>
 
   <!-- Leaderboard -->
   <main data-view="leaderboard" class="container" hidden>
-    <h1 style="text-align:center;margin-bottom:20px">Scoreboard</h1>
+    <h1 style="text-align:center;margin-bottom:20px" data-i18n="host.scoreboard"></h1>
     <div class="board" id="h-board"></div>
-    <div class="host-footer"><button class="btn" id="h-next">Next question</button></div>
+    <div class="host-footer"><button class="btn" id="h-next"></button></div>
   </main>
 
   <!-- Podium -->
@@ -65,16 +79,16 @@
     <h1 id="h-ptitle"></h1>
     <div class="podium" id="h-podium"></div>
     <div class="row" style="justify-content:center">
-      <button class="btn dark" id="h-csv">Download results (CSV)</button>
-      <button class="btn danger" id="h-end">End game</button>
+      <button class="btn dark" id="h-csv" data-i18n="host.csv"></button>
+      <button class="btn danger" id="h-end" data-i18n="host.end"></button>
     </div>
   </main>
 
   <section data-view="error" class="center" hidden>
     <div class="card narrow stack">
-      <h2>Can't open this game</h2>
+      <h2 data-i18n="host.cantOpen"></h2>
       <p id="h-error" style="color:var(--ink-soft)"></p>
-      <a class="btn" href="dashboard.html">Back to dashboard</a>
+      <a class="btn" href="dashboard.html" data-i18n="host.backDash"></a>
     </div>
   </section>
 

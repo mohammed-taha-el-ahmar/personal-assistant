@@ -2,10 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Hosts are signed-in, non-anonymous users (Google, email/password or email link).
     function isHost() {
       return request.auth != null
         && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
+    function ownsExisting() { return isHost() && resource.data.ownerUid == request.auth.uid; }
+    function ownsIncoming() { return isHost() && request.resource.data.ownerUid == request.auth.uid; }
 
     function validQuiz(d) {
       return d.title is string && d.title.size() > 0 && d.title.size() <= 100
@@ -13,14 +16,33 @@ service cloud.firestore {
     }
 
     match /quizzes/{quizId} {
-      allow read, delete: if isHost() && resource.data.ownerUid == request.auth.uid;
-      allow create: if isHost()
-        && request.resource.data.ownerUid == request.auth.uid
-        && validQuiz(request.resource.data);
-      allow update: if isHost()
-        && resource.data.ownerUid == request.auth.uid
-        && request.resource.data.ownerUid == request.auth.uid
-        && validQuiz(request.resource.data);
+      allow read, delete: if ownsExisting();
+      allow create: if ownsIncoming() && validQuiz(request.resource.data);
+      allow update: if ownsExisting() && ownsIncoming() && validQuiz(request.resource.data);
+    }
+
+    // ---------- analytics ----------
+    // One document per game.
+    match /gameSessions/{sessionId} {
+      allow read: if ownsExisting();
+      allow create: if ownsIncoming() && request.resource.data.schemaVersion is int;
+      allow update: if ownsExisting() && ownsIncoming();
+      allow delete: if ownsExisting();
+    }
+
+    // One document per player per question. Ids are deterministic, so a retry
+    // overwrites (update) instead of duplicating.
+    match /answerEvents/{eventId} {
+      allow read: if ownsExisting();
+      allow create, update: if ownsIncoming()
+        && (resource == null || resource.data.ownerUid == request.auth.uid)
+        && request.resource.data.schemaVersion is int
+        && request.resource.data.sessionId is string
+        && request.resource.data.questionIndex is int
+        && request.resource.data.answered is bool
+        && request.resource.data.correct is bool
+        && eventId == request.resource.data.sessionId + '_q' + string(request.resource.data.questionIndex) + '_' + request.resource.data.playerId;
+      allow delete: if ownsExisting();
     }
   }
 }

@@ -12,7 +12,7 @@
   --bad: #e5384b;
   --red: #e21b3c;
   --blue: #1368ce;
-  --yellow: #d89e00;
+  --yellow: #b07a00;  /* darker than Kahoot yellow for white-text contrast */
   --green: #26890c;
   --radius: 14px;
   --shadow: 0 6px 0 rgba(0, 0, 0, .18);
@@ -243,3 +243,100 @@ label { font-weight: 600; font-size: .9rem; display: block; margin-bottom: 4px; 
   .step { width: 100px; }
   .answers-edit, .grid-3 { grid-template-columns: 1fr; }
 }
+
+/* ======================================================= v2 additions */
+
+/* ---------- accessibility ---------- */
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+:focus-visible { outline: 3px solid #ffd23f; outline-offset: 3px; }
+.card :focus-visible { outline-color: var(--accent); }
+.skip-link { position: absolute; left: -999px; top: 8px; z-index: 100; }
+.skip-link:focus { left: 8px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- floating controls (language, sound, fullscreen) ---------- */
+.float-controls { position: fixed; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 50; }
+.icon-btn {
+  font: inherit; font-weight: 700; font-size: .85rem;
+  min-width: 40px; height: 40px; padding: 0 10px; border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, .5); background: rgba(0, 0, 0, .3); color: #fff; cursor: pointer;
+}
+.icon-btn:hover { background: rgba(0, 0, 0, .5); }
+.icon-btn[aria-pressed="true"] { background: #fff; color: var(--ink); }
+.topbar .float-controls, .player-bar .float-controls { position: static; }
+
+/* ---------- auth ---------- */
+.tabs { display: flex; gap: 4px; background: var(--line); padding: 4px; border-radius: 10px; }
+.tabs button {
+  flex: 1; font: inherit; font-weight: 600; font-size: .9rem; border: 0; border-radius: 8px;
+  padding: 8px; background: transparent; color: var(--ink-soft); cursor: pointer;
+}
+.tabs button[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.divider { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: .85rem; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.linklike { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-decoration: underline; }
+.notice { background: #fff4cc; color: #5c4400; padding: 10px 16px; font-weight: 600; text-align: center; }
+.notice .linklike { color: #5c4400; }
+.success { color: var(--ok); font-weight: 600; }
+
+/* ---------- lobby ---------- */
+.lobby-count { font-size: 1.6rem; font-weight: 800; }
+.chip.pop { animation: pop .45s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.bounce { animation: bounce 1.6s ease-in-out infinite; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* ---------- intro ---------- */
+.intro {
+  min-height: 100vh; display: grid; place-items: center; text-align: center; padding: 24px;
+}
+.intro .question-head { font-size: 2.6rem; max-width: 1000px; animation: zoom .5s ease both; }
+@keyframes zoom { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+.intro-bar { height: 10px; width: min(600px, 80vw); margin: 28px auto 0; background: rgba(255,255,255,.2); border-radius: 99px; overflow: hidden; }
+.intro-bar > div { height: 100%; background: #ffd23f; width: 100%; transform-origin: left; }
+.intro-bar.run > div { animation: shrink linear forwards; }
+@keyframes shrink { to { transform: scaleX(0); } }
+
+/* ---------- host presence ---------- */
+.offline-banner {
+  position: fixed; inset: auto 0 0 0; z-index: 60;
+  background: #111; color: #fff; text-align: center; font-weight: 700; padding: 14px;
+}
+
+/* ---------- player text mode (answers on device) ---------- */
+.p-question { padding: 12px 14px 0; font-weight: 700; font-size: 1.1rem; text-align: center; }
+.player-tiles.text-mode .tile { justify-content: flex-start; font-size: 1.05rem; text-align: left; }
+.player-tiles.text-mode .tile svg { width: 32px; height: 32px; }
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+.summary div { background: rgba(0,0,0,.2); border-radius: 10px; padding: 10px; }
+.summary strong { display: block; font-size: 1.5rem; }
+
+/* ---------- analytics ---------- */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.kpi { background: #fff; color: var(--ink); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+.kpi .v { font-size: 1.8rem; font-weight: 800; }
+.kpi .l { color: var(--ink-soft); font-size: .85rem; font-weight: 600; }
+.stat-q .head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.flag { display: inline-block; font-size: .75rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; margin-left: 6px; }
+.flag.hard { background: #ffe0e4; color: #9b1026; }
+.flag.easy { background: #dff5e6; color: #146c34; }
+.flag.trap { background: #fff0cc; color: #6b4b00; }
+.hbar { display: grid; grid-template-columns: 26px 1fr 54px; align-items: center; gap: 8px; margin: 6px 0; font-size: .9rem; }
+.hbar .track { background: var(--line); border-radius: 6px; height: 22px; overflow: hidden; }
+.hbar .fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; color: #fff; font-weight: 700; font-size: .8rem; white-space: nowrap; }
+.hbar .shape svg { width: 22px; height: 22px; }
+.hbar .shape { border-radius: 6px; display: grid; place-items: center; height: 26px; }
+.c0-bg { background: var(--red); } .c1-bg { background: var(--blue); }
+.c2-bg { background: var(--yellow); } .c3-bg { background: var(--green); }
+.hbar.wrong .fill { opacity: .55; }
+.table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.table th, .table td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); }
+.table th { color: var(--ink-soft); font-weight: 600; }

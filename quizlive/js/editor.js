@@ -5,9 +5,13 @@ import {
   doc, getDoc, setDoc, addDoc, collection, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 import { $, $$, params, showView, escapeHTML, SHAPES, toast } from "./utils.js";
+import { t, initI18n, mountLangToggle, onLangChange } from "./i18n.js";
+
+initI18n();
+mountLangToggle($("#controls"));
 
 const TIME_LIMITS = [5, 10, 20, 30, 60, 90, 120];
-const POINTS = [[1000, "Standard"], [2000, "Double points"], [0, "No points"]];
+const POINTS = [[1000, "edit.pointsStandard"], [2000, "edit.pointsDouble"], [0, "edit.pointsNone"]];
 
 let quizId = params().get("id");
 let user = null;
@@ -24,7 +28,7 @@ onAuthStateChanged(auth, async (u) => {
   user = u;
   if (quizId) {
     const snap = await getDoc(doc(fs, "quizzes", quizId));
-    if (!snap.exists()) { toast("Quiz not found"); quizId = null; }
+    if (!snap.exists()) { toast(t("edit.notFound")); quizId = null; }
     else {
       const q = snap.data();
       $("#title").value = q.title || "";
@@ -41,34 +45,38 @@ onAuthStateChanged(auth, async (u) => {
   showView("editor");
 });
 
+onLangChange(() => { if (user) { collect(); render(); } });
+
 function render() {
   $("#questions").innerHTML = questions.map((q, i) => `
-    <section class="card q-card stack" data-index="${i}">
+    <section class="card q-card stack" data-index="${i}" aria-label="${t("edit.question", { n: i + 1 })}">
       <div class="row spread">
-        <span class="q-num">Question ${i + 1}</span>
+        <span class="q-num">${t("edit.question", { n: i + 1 })}</span>
         <div class="row">
-          <button class="btn small dark" data-action="up" ${i === 0 ? "disabled" : ""} aria-label="Move up">↑</button>
-          <button class="btn small dark" data-action="down" ${i === questions.length - 1 ? "disabled" : ""} aria-label="Move down">↓</button>
-          <button class="btn small dark" data-action="copy">Duplicate</button>
-          <button class="btn small danger" data-action="remove">Delete</button>
+          <button class="btn small dark" data-action="up" ${i === 0 ? "disabled" : ""} aria-label="${t("edit.moveUp")}">↑</button>
+          <button class="btn small dark" data-action="down" ${i === questions.length - 1 ? "disabled" : ""} aria-label="${t("edit.moveDown")}">↓</button>
+          <button class="btn small dark" data-action="copy">${t("dash.duplicate")}</button>
+          <button class="btn small danger" data-action="remove">${t("dash.delete")}</button>
         </div>
       </div>
-      <input data-field="text" maxlength="200" placeholder="Type your question" value="${escapeHTML(q.text)}">
+      <input data-field="text" maxlength="200" aria-label="${t("edit.questionText")}" placeholder="${t("edit.questionText")}" value="${escapeHTML(q.text)}">
       <div class="grid-3">
-        <input data-field="imageUrl" placeholder="Image URL (optional)" value="${escapeHTML(q.imageUrl)}">
-        <select data-field="timeLimit" aria-label="Time limit">
-          ${TIME_LIMITS.map((t) => `<option value="${t}" ${t === q.timeLimit ? "selected" : ""}>${t} seconds</option>`).join("")}
+        <input data-field="imageUrl" aria-label="${t("edit.image")}" placeholder="${t("edit.image")}" value="${escapeHTML(q.imageUrl)}">
+        <select data-field="timeLimit" aria-label="${t("edit.timeLimit")}">
+          ${TIME_LIMITS.map((s) => `<option value="${s}" ${s === q.timeLimit ? "selected" : ""}>${t("edit.seconds", { n: s })}</option>`).join("")}
         </select>
-        <select data-field="points" aria-label="Points">
-          ${POINTS.map(([v, l]) => `<option value="${v}" ${v === q.points ? "selected" : ""}>${l}</option>`).join("")}
+        <select data-field="points" aria-label="${t("edit.points")}">
+          ${POINTS.map(([v, k]) => `<option value="${v}" ${v === q.points ? "selected" : ""}>${t(k)}</option>`).join("")}
         </select>
       </div>
       <div class="answers-edit">
         ${q.answers.map((a, j) => `
           <div class="answer-edit c${j}">
             ${SHAPES[j]}
-            <input type="text" data-answer="${j}" maxlength="75" placeholder="Answer ${j + 1}${j > 1 ? " (optional)" : ""}" value="${escapeHTML(a)}">
-            <input type="checkbox" data-correct="${j}" ${q.correct.includes(j) ? "checked" : ""} title="Correct answer" aria-label="Answer ${j + 1} is correct">
+            <input type="text" data-answer="${j}" maxlength="75" aria-label="${t("edit.answer", { n: j + 1 })}"
+              placeholder="${t("edit.answer", { n: j + 1 })}${j > 1 ? ` (${t("edit.optional")})` : ""}" value="${escapeHTML(a)}">
+            <input type="checkbox" data-correct="${j}" ${q.correct.includes(j) ? "checked" : ""}
+              title="${t("edit.isCorrect")}" aria-label="${t("edit.answerCorrect", { n: j + 1 })}">
           </div>`).join("")}
       </div>
     </section>`).join("");
@@ -76,6 +84,7 @@ function render() {
 
 // Read the form back into the model.
 function collect() {
+  if (!$$(".q-card").length) return;
   questions = $$(".q-card").map((card) => ({
     text: $('[data-field="text"]', card).value.trim(),
     imageUrl: $('[data-field="imageUrl"]', card).value.trim(),
@@ -93,7 +102,7 @@ $("#questions").addEventListener("click", (e) => {
   const i = Number(button.closest("[data-index]").dataset.index);
   const action = button.dataset.action;
   if (action === "remove") {
-    if (questions.length === 1) return toast("A quiz needs at least one question.");
+    if (questions.length === 1) return toast(t("edit.needOne"));
     questions.splice(i, 1);
   }
   if (action === "copy") questions.splice(i + 1, 0, structuredClone(questions[i]));
@@ -106,7 +115,9 @@ $("#add-question").addEventListener("click", () => {
   collect();
   questions.push(blankQuestion());
   render();
-  $$(".q-card").at(-1).scrollIntoView({ behavior: "smooth" });
+  const last = $$(".q-card").at(-1);
+  last.scrollIntoView({ behavior: "smooth" });
+  $('[data-field="text"]', last).focus({ preventScroll: true });
 });
 
 // Drop empty answer slots and remap correct indices to the compacted list.
@@ -123,13 +134,13 @@ function compact(q) {
 }
 
 function validate(title, list) {
-  if (!title) return "Give your quiz a title.";
+  if (!title) return t("edit.err.title");
   for (const [i, q] of list.entries()) {
-    const n = `Question ${i + 1}`;
-    if (!q.text) return `${n}: the question text is empty.`;
-    if (q.answers.length < 2) return `${n}: add at least two answers.`;
-    if (!q.correct.length) return `${n}: tick at least one correct answer.`;
-    if (q.imageUrl && !/^https:\/\//.test(q.imageUrl)) return `${n}: image URL must start with https://`;
+    const n = t("edit.question", { n: i + 1 });
+    if (!q.text) return `${n}: ${t("edit.err.text")}`;
+    if (q.answers.length < 2) return `${n}: ${t("edit.err.answers")}`;
+    if (!q.correct.length) return `${n}: ${t("edit.err.correct")}`;
+    if (q.imageUrl && !/^https:\/\//.test(q.imageUrl)) return `${n}: ${t("edit.err.image")}`;
   }
   return null;
 }
