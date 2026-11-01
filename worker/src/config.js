@@ -1,6 +1,11 @@
 // Static defaults. Deploy-specific values come from wrangler.toml [vars] (env).
 
+// Bump when the API changes; GET /health reports it so you can check what is deployed.
+export const WORKER_VERSION = '2.1.0';
+
 export const DEFAULTS = {
+  // Used when no ALLOWED_ORIGINS variable is set (e.g. code pasted in the dashboard).
+  ALLOWED_ORIGINS: 'https://www.tahaelahmar.dev,https://tahaelahmar.dev,https://mohammed-taha-el-ahmar.github.io',
   // Llama 3.3 70B was shut down on Groq (Aug 2026). gpt-oss / Qwen are the supported replacements.
   MODEL: 'openai/gpt-oss-120b',
   MODEL_FALLBACKS: 'openai/gpt-oss-20b,qwen/qwen3.8-27b',
@@ -30,7 +35,7 @@ export function settings(env = {}) {
   return {
     models,
     calLink: env.CAL_LINK || 'https://cal.eu/mohammed-taha-el-ahmar',
-    allowedOrigins: (env.ALLOWED_ORIGINS || '')
+    allowedOrigins: (env.ALLOWED_ORIGINS || DEFAULTS.ALLOWED_ORIGINS)
       .split(',')
       .map((o) => o.trim())
       .filter(Boolean),

@@ -1,4 +1,4 @@
-# FAQ — Mohammed Taha El Ahmar
+# FAQ — Mohammed Taha EL AHMAR
 
 ## Availability & Work Preferences
 

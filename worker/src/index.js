@@ -1,15 +1,17 @@
 /**
- * Cloudflare Worker — recruiter assistant API for Mohammed Taha El Ahmar's website.
+ * Cloudflare Worker — recruiter assistant API for Mohammed Taha EL AHMAR's website.
  *
  *   POST /chat      { messages, lang?, mode?: 'chat' | 'jd', jd?, stream? }
  *                   stream=true  → text/event-stream: meta {sources, suggestions, model} · delta {t} · done · error
  *                   stream=false → { content: [{ type: 'text', text }], sources, suggestions }
  *   POST /feedback  { id, rating: 'up' | 'down', question? }  → 204
+ *   GET  /health    { ok, version, models, kbChunks, features }
  *
  * One LLM call per question: the knowledge base is bundled (src/generated/kb.js) and the relevant
  * chunks are picked by retrieval under a fixed token budget, so it works with small-context models.
  */
-import { settings, DEFAULTS } from './config.js';
+import { settings, DEFAULTS, WORKER_VERSION } from './config.js';
+import KB from './generated/kb.js';
 import { corsHeaders, errorJson, json } from './http.js';
 import { isRateLimited } from './ratelimit.js';
 import { retrieve } from './retrieval.js';
@@ -270,6 +272,21 @@ export async function handleRequest(request, env, { fetchImpl = fetch, waitUntil
 
   // NOTE: requests without an Origin header (curl, scripts) are still accepted — see audit item #2.
   if (origin && !cfg.allowedOrigins.includes(origin)) return new Response('Forbidden', { status: 403 });
+
+  // Deployment check: curl https://<worker>/health
+  if (request.method === 'GET' && url.pathname === '/health') {
+    return json(
+      {
+        ok: true,
+        version: WORKER_VERSION,
+        models: cfg.models,
+        kbChunks: KB.chunks.length,
+        features: ['stream', 'jd', 'feedback'],
+      },
+      200,
+      cors,
+    );
+  }
 
   if (request.method !== 'POST' || !['/chat', '/feedback'].includes(url.pathname)) {
     return new Response('Not found', { status: 404 });

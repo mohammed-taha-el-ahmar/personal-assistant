@@ -1,6 +1,6 @@
 # personal-assistant
 
-Recruiter-facing website for **Mohammed Taha El Ahmar**, live at [www.tahaelahmar.dev](https://www.tahaelahmar.dev).
+Recruiter-facing website for **Mohammed Taha EL AHMAR**, live at [www.tahaelahmar.dev](https://www.tahaelahmar.dev).
 
 - **Assistant page**: an AI assistant that answers recruiters' questions from my resume, FAQ and portfolio (English or French, streamed, with sources), checks a pasted job description against my profile, and hands off to a call with the conversation pre-filled in the booking notes.
 - **Projects page**: filterable grid of hands-on data engineering and GenAI demos, each with architecture flow, key decisions and code links. Deep links: `projects.html#<project-id>`.
@@ -93,11 +93,16 @@ To publish a CV: commit `assets/cv.pdf` and set `LINKS.cv = 'assets/cv.pdf'`; th
 ## Deploying
 
 - **Site**: GitHub Pages from the repository root (`CNAME` → www.tahaelahmar.dev).
-- **Worker**:
-  ```bash
-  npx wrangler secret put GROQ_API_KEY --config worker/wrangler.toml   # once
-  npm run worker:deploy                                                 # builds content, then deploys
-  ```
+- **Worker** — the Worker is several modules plus a generated knowledge base, so it can no longer be pasted into the dashboard as-is. Either:
+  - **Wrangler (recommended)**
+    ```bash
+    npx wrangler login                                                   # once
+    npx wrangler secret put GROQ_API_KEY --config worker/wrangler.toml   # once
+    npm run worker:deploy                                                # builds content, then deploys
+    ```
+  - **Dashboard**: run `npm run worker:bundle`, then paste `worker/dist/worker.js` into the Worker's editor and copy the `[vars]` from `worker/wrangler.toml` into _Settings → Variables_.
+- **Check what is live**: `curl https://recruiter-proxy.med-taha-elahmar.workers.dev/health` returns the Worker version, models and knowledge-base size. A 404 there means the old Worker is still deployed.
+- **After editing `docs/`**: redeploy the Worker (the knowledge base is bundled into it).
 - **Optional**: uncomment the `[ai]` binding in `wrangler.toml` for multilingual semantic retrieval, and the `ANALYTICS` dataset for question / latency / token / feedback analytics (query it with SQL in the Cloudflare dashboard). Without it, events are written as JSON lines visible with `npx wrangler tail`.
 
 ## CI

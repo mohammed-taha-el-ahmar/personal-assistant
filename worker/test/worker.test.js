@@ -141,3 +141,43 @@ test('optional Workers AI embeddings are fused when the binding exists', async (
   assert.ok(calls >= 2);
   resetEmbeddingCache();
 });
+
+test('health endpoint reports version and knowledge base size', async () => {
+  const res = await handleRequest(new Request('https://worker.test/health', { headers: { Origin: ORIGIN } }), ENV);
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.ok(data.version);
+  assert.ok(data.kbChunks > 50);
+  assert.ok(data.features.includes('jd'));
+});
+
+test('job-description request that also carries messages (as the site sends it) still uses JD mode', async () => {
+  const { fetchImpl, calls } = fakeGroq({ '*': { text: '**Overall fit:** good' } });
+  const jd =
+    'Senior Data Engineer with Azure Databricks, PySpark, Terraform, Kafka and GenAI experience for our lakehouse platform.';
+  const res = await handleRequest(
+    chatRequest({ mode: 'jd', jd, messages: [{ role: 'user', content: `Job description:\n${jd}` }] }),
+    ENV,
+    { fetchImpl },
+  );
+  assert.equal(res.status, 200);
+  assert.match(calls[0].messages[0].content, /Overall fit/);
+  assert.equal(calls[0].messages.length, 2);
+});
+
+test('works with no variables at all (code pasted in the dashboard): site origin allowed by default', async () => {
+  const { fetchImpl } = fakeGroq({ '*': { text: 'ok' } });
+  const res = await handleRequest(
+    chatRequest(msgs('Is he open to remote work?')),
+    { GROQ_API_KEY: 'k' },
+    { fetchImpl },
+  );
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('access-control-allow-origin'), 'https://www.tahaelahmar.dev');
+  const blocked = await handleRequest(
+    chatRequest(msgs('hi'), 'https://evil.example'),
+    { GROQ_API_KEY: 'k' },
+    { fetchImpl },
+  );
+  assert.equal(blocked.status, 403);
+});

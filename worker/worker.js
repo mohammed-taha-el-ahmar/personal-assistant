@@ -1,6 +1,6 @@
 /**
  * Cloudflare Worker — Groq API proxy with agent-style doc selection
- * for Mohammed Taha El Ahmar's recruiter chatbot
+ * for Mohammed Taha EL AHMAR's recruiter chatbot
  *
  * How it works (2-pass):
  *   Pass 1 — Router: ask the LLM which documents are relevant to the question.
@@ -55,7 +55,7 @@ const DOC_CACHE_TTL  = 5 * 60 * 1000; // 5 minutes
 // ── PERSONA (no document content here — docs are injected dynamically) ───────
 
 const BASE_PROMPT = `
-You are an AI assistant representing Mohammed Taha El Ahmar, a Senior Cloud Data Engineer based in Paris, France.
+You are an AI assistant representing Mohammed Taha EL AHMAR, a Senior Cloud Data Engineer based in Paris, France.
 Answer recruiters' questions in a professional, warm, and concise tone — as if you are his knowledgeable personal assistant.
 Be specific and reference real projects, technologies, and achievements from the documents provided.
 Never invent information not present in the documents. If something is not covered, say he would be happy to discuss it on a call.

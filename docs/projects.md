@@ -1,4 +1,4 @@
-Key Projects — Mohammed Taha El Ahmar
+Key Projects — Mohammed Taha EL AHMAR
 
 ### Senior Data Engineer (Full time)
 **TotalEnergies · Paris · Jul 2023 – Present**

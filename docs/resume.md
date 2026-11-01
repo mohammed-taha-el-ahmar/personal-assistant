@@ -1,4 +1,4 @@
-# Mohammed Taha El Ahmar — Resume
+# Mohammed Taha EL AHMAR — Resume
 
 ## Profile
 - **Title:** Senior Cloud Data Engineer

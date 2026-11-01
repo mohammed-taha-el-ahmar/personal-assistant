@@ -360,7 +360,12 @@ async function matchJobDescription(jd) {
   state.messages.push({ id: uid(), role: 'user', content: t('jd.userMsg', words), kind: 'jd' });
   save();
   renderAll();
-  return request({ mode: 'jd', jd });
+  // `messages` is ignored by the current worker in JD mode; it keeps older deployments answering.
+  return request({
+    mode: 'jd',
+    jd,
+    messages: [{ role: 'user', content: `Job description:\n${jd}\n\nHow well does he fit this role?` }],
+  });
 }
 
 function sendFeedback(msg, rating, row) {
