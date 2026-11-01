@@ -20,8 +20,9 @@ POST /feedback {rating}   ──▶ logged (Analytics Engine if bound)
 ```
 
 - **One LLM call per question.** There is no router pass: the knowledge base (`docs/*.md` + `docs/projects.json`) is split at build time into ~80 small titled chunks (≤ ~200 tokens each) and bundled into the Worker, so nothing is fetched at runtime.
-- **Built for small-context models.** A typical prompt is ~1–2.5k tokens (system ≈ 300, context ≤ 1,800, history ≤ 700) plus ≤ 900 completion tokens. Budgets are `[vars]` in `worker/wrangler.toml`.
+- **Built for small-context models.** A typical prompt is ~1–2.5k tokens (system ≈ 300, context ≤ 1,800, history ≤ 700) plus ≤ 2,048 completion tokens (on reasoning models the hidden reasoning counts against this, so don't set it too low). Budgets are `[vars]` in `worker/wrangler.toml`.
 - **Model-agnostic.** Llama 3.3 70B was shut down on Groq in Aug 2026. Models are tried in order (`MODEL`, then `MODEL_FALLBACKS`) and the next one is used when a model is decommissioned, rate-limited or down. Reasoning output is disabled per model family (`reasoning_effort` / `include_reasoning`).
+- **No silent truncation.** If an answer still stops on the output limit (`finish_reason: "length"`), the Worker asks the model once to finish it; errors sent mid-stream are shown to the user. Each request logs `finish`, `reasoningTokens` and `continuations`, so `npx wrangler tail` shows when the budget is too tight.
 - **Follow-up suggestions** come from the retrieved chunks (no extra LLM call).
 
 ## Repository layout

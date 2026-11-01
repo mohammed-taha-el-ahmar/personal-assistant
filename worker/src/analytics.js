@@ -16,6 +16,7 @@ export function logEvent(env, event) {
           event.rating ?? '',
           (event.question ?? '').slice(0, 200),
           event.status ?? '',
+          event.finish ?? '',
         ],
         doubles: [event.ms ?? 0, event.promptTokens ?? 0, event.completionTokens ?? 0, event.contextTokens ?? 0],
       });

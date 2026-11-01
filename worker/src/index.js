@@ -15,10 +15,24 @@ import { isRateLimited } from './ratelimit.js';
 import { retrieve } from './retrieval.js';
 import { prepareMessages, retrievalQuery } from './history.js';
 import { chatSystemPrompt, jdSystemPrompt } from './prompt.js';
-import { chatCompletion, streamDeltas, stripThinking, UpstreamError } from './llm.js';
+import {
+  chatCompletion,
+  streamDeltas,
+  stripThinking,
+  UpstreamError,
+  continuationMessages,
+  reasoningTokens,
+} from './llm.js';
 import { followUps } from './suggestions.js';
 import { sseStream } from './sse.js';
 import { logEvent } from './analytics.js';
+
+/** Joins an answer and its continuation, adding a space when the cut fell between words. */
+function joinParts(a, b) {
+  if (!a || !b) return a + b;
+  if (/\s$/.test(a) || /^[\s.,;:!?)]/.test(b)) return a + b;
+  return `${a} ${b}`;
+}
 
 const sourcesOf = (chunks) => {
   const seen = new Map();
@@ -102,22 +116,43 @@ async function handleChat(request, env, cfg, cors, fetchImpl) {
 
   if (!wantStream) {
     try {
-      const { res, model } = await chatCompletion({
+      let { res, model } = await chatCompletion({
         apiKey: env.GROQ_API_KEY,
         models: cfg.models,
         messages,
         maxTokens: cfg.maxCompletionTokens,
         fetchImpl,
       });
-      const data = await res.json();
-      const text = stripThinking(data.choices?.[0]?.message?.content ?? '');
+      let data = await res.json();
+      let text = stripThinking(data.choices?.[0]?.message?.content ?? '');
+      let finish = data.choices?.[0]?.finish_reason;
+      const usage = { ...data.usage };
+      let continuations = 0;
+      while (finish === 'length' && continuations < DEFAULTS.MAX_CONTINUATIONS) {
+        continuations++;
+        ({ res, model } = await chatCompletion({
+          apiKey: env.GROQ_API_KEY,
+          models: [model, ...cfg.models.filter((m) => m !== model)],
+          messages: continuationMessages(messages, text),
+          maxTokens: cfg.maxCompletionTokens,
+          fetchImpl,
+        }));
+        data = await res.json();
+        text = joinParts(text, stripThinking(data.choices?.[0]?.message?.content ?? ''));
+        finish = data.choices?.[0]?.finish_reason;
+        usage.completion_tokens = (usage.completion_tokens ?? 0) + (data.usage?.completion_tokens ?? 0);
+      }
+      if (finish === 'length') text = `${text.trimEnd()}…`;
       log({
         model,
-        status: 'ok',
-        promptTokens: data.usage?.prompt_tokens,
-        completionTokens: data.usage?.completion_tokens,
+        status: finish === 'length' ? 'truncated' : 'ok',
+        finish,
+        continuations,
+        promptTokens: usage.prompt_tokens,
+        completionTokens: usage.completion_tokens,
+        reasoningTokens: reasoningTokens(data.usage),
       });
-      return json({ content: [{ type: 'text', text }], ...meta, model }, 200, cors);
+      return json({ content: [{ type: 'text', text }], ...meta, model, truncated: finish === 'length' }, 200, cors);
     } catch (err) {
       log({ status: `error:${err.status ?? 'unknown'}` });
       console.error('chat failed', err);
@@ -145,28 +180,55 @@ async function handleChat(request, env, cfg, cors, fetchImpl) {
   const sse = sseStream();
   const pump = (async () => {
     let usage;
-    let chars = 0;
+    let text = '';
+    let finish;
+    let continuations = 0;
+    let current = upstream;
+    let joinNext = false;
     try {
       await sse.send('meta', { ...meta, model: upstream.model });
-      for await (const part of streamDeltas(upstream.res)) {
-        if (part.text) {
-          chars += part.text.length;
-          await sse.send('delta', { t: part.text });
+      for (;;) {
+        finish = undefined;
+        for await (const part of streamDeltas(current.res)) {
+          if (part.text) {
+            // The first piece of a continuation may need a space to join the cut-off text.
+            const piece = joinNext ? joinParts(text, part.text).slice(text.length) : part.text;
+            joinNext = false;
+            text += piece;
+            await sse.send('delta', { t: piece });
+          }
+          if (part.finish) finish = part.finish;
+          if (part.usage) usage = part.usage;
         }
-        if (part.usage) usage = part.usage;
+        if (finish !== 'length' || continuations >= DEFAULTS.MAX_CONTINUATIONS || !text) break;
+        // Hit the output-token limit mid-answer: ask the same model to finish it.
+        continuations++;
+        current = await chatCompletion({
+          apiKey: env.GROQ_API_KEY,
+          models: [current.model, ...cfg.models.filter((m) => m !== current.model)],
+          messages: continuationMessages(messages, text),
+          maxTokens: cfg.maxCompletionTokens,
+          stream: true,
+          fetchImpl,
+        });
+        joinNext = true;
       }
-      if (!chars) await sse.send('error', { message: friendly(null, lang) });
-      await sse.send('done', {});
+      if (!text) await sse.send('error', { message: friendly(null, lang) });
+      if (finish === 'length' && text) await sse.send('delta', { t: '…' });
+      await sse.send('done', { truncated: finish === 'length' });
       log({
-        model: upstream.model,
-        status: chars ? 'ok' : 'empty',
+        model: current.model,
+        status: !text ? 'empty' : finish === 'length' ? 'truncated' : 'ok',
+        finish,
+        continuations,
         promptTokens: usage?.prompt_tokens,
         completionTokens: usage?.completion_tokens,
+        reasoningTokens: reasoningTokens(usage),
       });
     } catch (err) {
       console.error('stream failed', err);
       await sse.send('error', { message: friendly(err, lang) });
-      log({ model: upstream.model, status: 'error:stream' });
+      log({ model: current.model, status: `error:stream:${err.status ?? 'unknown'}`, continuations });
     } finally {
       await sse.close();
     }

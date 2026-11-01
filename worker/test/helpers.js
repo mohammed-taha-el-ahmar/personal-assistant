@@ -2,8 +2,10 @@
 export const ORIGIN = 'https://www.tahaelahmar.dev';
 export const ENV = { GROQ_API_KEY: 'test', ALLOWED_ORIGINS: `${ORIGIN},https://x.github.io` };
 
-export function sseBody(parts, usage) {
+export function sseBody(parts, usage, finish = 'stop', error = null) {
   const lines = parts.map((t) => `data: ${JSON.stringify({ choices: [{ delta: { content: t } }] })}\n\n`);
+  if (error) lines.push(`data: ${JSON.stringify({ error })}\n\n`);
+  else lines.push(`data: ${JSON.stringify({ choices: [{ delta: {}, finish_reason: finish }] })}\n\n`);
   if (usage) lines.push(`data: ${JSON.stringify({ choices: [{ delta: {} }], x_groq: { usage } })}\n\n`);
   lines.push('data: [DONE]\n\n');
   // Split into awkward byte chunks to exercise buffering.
@@ -23,12 +25,15 @@ export function fakeGroq(behaviour) {
   const fetchImpl = async (url, init) => {
     const body = JSON.parse(init.body);
     calls.push(body);
-    const b = behaviour[body.model] ?? behaviour['*'];
+    let b = behaviour[body.model] ?? behaviour['*'];
+    if (Array.isArray(b)) b = b.length > 1 ? b.shift() : b[0]; // sequence of responses, last one repeats
     if (typeof b === 'number') return new Response(`{"error":{"message":"status ${b}"}}`, { status: b });
     if (body.stream)
-      return new Response(sseBody(b.parts ?? [b.text], b.usage), { headers: { 'Content-Type': 'text/event-stream' } });
+      return new Response(sseBody(b.parts ?? [b.text], b.usage, b.finish, b.error), {
+        headers: { 'Content-Type': 'text/event-stream' },
+      });
     return Response.json({
-      choices: [{ message: { content: b.text } }],
+      choices: [{ message: { content: b.text }, finish_reason: b.finish ?? 'stop' }],
       usage: { prompt_tokens: 10, completion_tokens: 5 },
     });
   };

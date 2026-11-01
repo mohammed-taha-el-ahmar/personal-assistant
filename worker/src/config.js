@@ -10,7 +10,10 @@ export const DEFAULTS = {
   // Token budgets — sized for small-context / low-TPM models. Total prompt ≈ 300 + context + history.
   CONTEXT_TOKENS: 1800, // retrieved knowledge chunks
   HISTORY_TOKENS: 700, // previous turns
-  MAX_COMPLETION_TOKENS: 900, // answer (+ low-effort reasoning on gpt-oss)
+  // Output budget. On reasoning models (gpt-oss, Qwen) hidden reasoning tokens count against it,
+  // so it must leave room for reasoning + a ~250-word answer. It does not enlarge the prompt.
+  MAX_COMPLETION_TOKENS: 2048,
+  MAX_CONTINUATIONS: 1, // automatic "continue" calls when an answer is still cut off
   MAX_QUESTION_CHARS: 1000,
   MAX_JD_CHARS: 3000,
 

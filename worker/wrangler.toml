@@ -17,7 +17,7 @@ MODEL_FALLBACKS = "openai/gpt-oss-20b,qwen/qwen3.8-27b"
 # Token budgets (≈ 4 characters per token). Lower them if your plan has tight per-minute limits.
 CONTEXT_TOKENS = "1800"
 HISTORY_TOKENS = "700"
-MAX_COMPLETION_TOKENS = "900"
+MAX_COMPLETION_TOKENS = "2048"
 
 # ── Optional bindings ─────────────────────────────────────────────────────────
 # Multilingual semantic retrieval (fused with keyword search). Uses Workers AI free allocation.

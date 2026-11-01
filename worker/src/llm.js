@@ -110,14 +110,37 @@ export async function* streamDeltas(res) {
       } catch {
         continue;
       }
+      // Groq reports mid-stream failures (rate limit, overload) as a data line with an error.
+      if (json.error) throw new UpstreamError(json.error.status ?? 502, json.error.message ?? 'stream error', 'stream');
       const delta = json.choices?.[0]?.delta?.content;
       if (delta) {
         const text = filter(delta);
         if (text) yield { text };
       }
+      const finish = json.choices?.[0]?.finish_reason;
+      if (finish) yield { finish };
       const usage = json.x_groq?.usage ?? json.usage;
       if (usage) yield { usage };
     }
   }
   if (pending && !inThink) yield { text: pending };
 }
+
+/**
+ * When an answer stops because it hit the output-token limit (finish_reason "length"),
+ * ask the model to carry on from where it stopped. Works with any chat-completions provider.
+ */
+export function continuationMessages(messages, partial) {
+  return [
+    ...messages,
+    { role: 'assistant', content: partial },
+    {
+      role: 'user',
+      content:
+        'Your previous answer was cut off. Continue it exactly where it stopped, without repeating anything and without any preamble. Finish within 80 words.',
+    },
+  ];
+}
+
+/** Reasoning tokens spent (gpt-oss reports them inside completion_tokens). */
+export const reasoningTokens = (usage) => usage?.completion_tokens_details?.reasoning_tokens;
