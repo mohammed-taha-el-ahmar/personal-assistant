@@ -56,6 +56,15 @@ dialog p{color:var(--muted);font-size:.88rem;margin:6px 0}
 #log{max-height:40vh;overflow-y:auto;font-size:.9rem}
 #log div{padding:6px 0;border-bottom:1px solid var(--line)}
 .err{background:var(--b-soft);border:1px solid var(--b);border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:.92rem}
+.meter{display:flex;flex-direction:column;gap:4px;margin:0 0 10px;font-size:.82rem;color:var(--muted)}
+.meter .top{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+.bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--live);transition:width .4s}
+.meter.warn .bar i{background:#d97706}
+.meter.out .bar i{background:#dc2626}
+.alert{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;background:var(--b-soft);border:1px solid var(--b);border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:.92rem}
+.alert strong{display:block;margin-bottom:2px}
+.alert ul{margin:4px 0 0;padding-left:18px}
 </style>
 </head>
 <body>
@@ -68,6 +77,14 @@ dialog p{color:var(--muted);font-size:.88rem;margin:6px 0}
   </div>
 </header>
 <div id="support" class="err" hidden></div>
+<div class="meter" id="meter">
+  <div class="top"><span id="meterLabel">Free translation today</span><span id="meterNums">0 / 5,000</span></div>
+  <div class="bar" role="progressbar" aria-label="Free characters used today" aria-valuemin="0" aria-valuemax="100" id="meterBar"><i id="meterFill"></i></div>
+</div>
+<div class="alert" id="quotaAlert" role="alert" hidden>
+  <div><strong id="alertTitle"></strong><span id="alertBody"></span><ul id="alertTips"></ul></div>
+  <button class="iconbtn" id="alertClose" aria-label="Dismiss">✕</button>
+</div>
 <main>
   <section class="side" id="sideA" data-who="a">
     <div class="row"><select id="langA" aria-label="Language of the top speaker"></select><button class="replay" data-replay="a">Replay</button></div>
@@ -130,7 +147,7 @@ const mmCode = speech => (LANGS.find(l=>l[1]===speech)||[])[2] || speech.slice(0
 $("email").value = store.get("email","");
 $("rate").value = store.get("rate",0.95);
 $("autoSpeak").checked = store.get("autoSpeak",true);
-$("email").onchange = e => store.set("email",e.target.value.trim());
+$("email").onchange = e => { store.set("email",e.target.value.trim()); const u = usage(); u.warned = false; u.exhausted = false; store.set("usage",u); if (typeof renderUsage === "function") renderUsage(); };
 $("rate").onchange = e => store.set("rate",+e.target.value);
 $("autoSpeak").onchange = e => store.set("autoSpeak",e.target.checked);
 
@@ -141,6 +158,44 @@ if (!SR) msgs.push("This browser can't capture speech. Use Chrome or Edge on des
 if (!window.speechSynthesis) msgs.push("This browser can't read text aloud.");
 if (!window.isSecureContext) msgs.push("The microphone only works over https:// or on localhost. Host this file (e.g. GitHub Pages) instead of opening it from disk.");
 if (msgs.length){ $("support").hidden=false; $("support").textContent = msgs.join(" "); }
+
+// ---- Free-quota tracking (local estimate: MyMemory doesn't report what's left) ----
+const LIMIT_ANON = 5000, LIMIT_EMAIL = 50000, WARN_AT = 0.10;
+const today = () => new Date().toISOString().slice(0,10);   // UTC day
+function usage(){
+  const u = store.get("usage", null);
+  return (u && u.day === today()) ? u : { day: today(), chars: 0, warned: false, exhausted: false };
+}
+const limit = () => store.get("email","") ? LIMIT_EMAIL : LIMIT_ANON;
+function addUsage(n){ const u = usage(); u.chars += n; store.set("usage", u); renderUsage(); }
+function markExhausted(){ const u = usage(); u.exhausted = true; u.chars = Math.max(u.chars, limit()); store.set("usage", u); renderUsage(); }
+function renderUsage(){
+  const u = usage(), lim = limit();
+  const left = Math.max(0, lim - u.chars), pct = Math.min(100, u.chars / lim * 100);
+  $("meterNums").textContent = u.chars.toLocaleString() + " / " + lim.toLocaleString() + " chars";
+  $("meterLabel").textContent = u.exhausted || left === 0 ? "Free translation used up today" : left.toLocaleString() + " characters left today";
+  $("meterFill").style.width = pct + "%";
+  $("meterBar").setAttribute("aria-valuenow", Math.round(pct));
+  const m = $("meter");
+  m.classList.toggle("out", u.exhausted || left === 0);
+  m.classList.toggle("warn", !(u.exhausted || left === 0) && left / lim <= WARN_AT);
+  if ((u.exhausted || left / lim <= WARN_AT) && !u.warned) showQuotaAlert(u.exhausted || left === 0, left);
+}
+function showQuotaAlert(isOut, left){
+  const u = usage(); u.warned = true; store.set("usage", u);
+  const hasEmail = !!store.get("email","");
+  $("alertTitle").textContent = isOut ? "Today's free translations are used up" : "Less than 10% of today's free translations left";
+  $("alertBody").textContent = isOut ? "New phrases won't translate until the quota resets." : "About " + left.toLocaleString() + " characters remain, roughly " + Math.max(1, Math.round(left/60)) + " short phrases.";
+  const tips = [];
+  if (!hasEmail) tips.push("Add your email in Settings. MyMemory raises the daily limit from 5,000 to 50,000 characters.");
+  tips.push("The quota resets daily (around midnight UTC, " + new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()+1)).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) + " your time).");
+  tips.push("Keep phrases short and avoid repeating them. Use Replay instead of speaking again.");
+  tips.push("For heavier use, set up a second provider such as Azure Translator's free tier as a fallback.");
+  const ul = $("alertTips"); ul.innerHTML = "";
+  for (const t of tips){ const li = document.createElement("li"); li.textContent = t; ul.append(li); }
+  $("quotaAlert").hidden = false;
+}
+$("alertClose").onclick = () => { $("quotaAlert").hidden = true; };
 
 // ---- Translation (MyMemory, free, no key) ----
 async function translate(text, from, to){
@@ -159,8 +214,13 @@ async function translate(text, from, to){
     const r = await fetch(u);
     if (!r.ok) throw new Error("Translation service returned "+r.status);
     const j = await r.json();
+    if (j.quotaFinished || /MYMEMORY WARNING/i.test(j.responseData && j.responseData.translatedText || "")
+        || r.status === 429 || j.responseStatus == 429) {
+      markExhausted();
+      throw new Error("Today's free translation limit is reached. See the tips at the top.");
+    }
     if (j.responseStatus != 200) throw new Error(j.responseDetails || "Translation failed");
-    if (/MYMEMORY WARNING/i.test(j.responseData.translatedText)) throw new Error("Daily free limit reached. Add an email in Settings to raise it.");
+    addUsage(c.trim().length);
     out.push(decode(j.responseData.translatedText));
   }
   return out.join(" ");
@@ -244,6 +304,9 @@ $("talkB").onclick = () => start("b");
 document.querySelectorAll("[data-replay]").forEach(b => b.onclick = () => {
   const l = last[b.dataset.replay]; if (l) speak(l.text, l.lang);
 });
+
+renderUsage();
+setInterval(renderUsage, 60000);   // picks up the daily reset if the app stays open
 
 // ---- Toolbar ----
 $("faceBtn").onclick = e => {
