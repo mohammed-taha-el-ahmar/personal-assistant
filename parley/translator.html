@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Parley Translator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: two facing halves of one screen, like two people across a table. Each half owns a language, a big talk button and its latest line. */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#16202b; --muted:#5b6876; --line:#d6dde4;
+  --a:#1f6feb; --a-soft:#e3edfd; --b:#c2410c; --b-soft:#fbe9df; --live:#16a34a;
+  --display:"Bricolage Grotesque", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0e141b; --panel:#161e27; --ink:#e7edf3; --muted:#93a1b0; --line:#2a3542;
+  --a:#5b9bff; --a-soft:#18273d; --b:#f08a4b; --b-soft:#33211a; --live:#4ade80; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;
+  display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top,0px) max(12px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(12px,env(safe-area-inset-left,0px))}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:10px}
+h1{font-family:var(--display);font-weight:700;font-size:1.25rem;margin:0;letter-spacing:-.01em}
+.tools{display:flex;gap:6px}
+.iconbtn{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.iconbtn[aria-pressed="true"]{border-color:var(--ink)}
+main{flex:1;display:grid;grid-template-rows:1fr 1fr;gap:10px;min-height:0;padding-bottom:10px}
+.side{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:0;transition:transform .3s}
+body.facing #sideA{transform:rotate(180deg)}
+.side[data-who="a"]{--c:var(--a);--soft:var(--a-soft)}
+.side[data-who="b"]{--c:var(--b);--soft:var(--b-soft)}
+.row{display:flex;align-items:center;gap:8px}
+select{font:inherit;flex:1;min-width:0;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.out{flex:1;min-height:0;overflow-y:auto;background:var(--soft);border-radius:12px;padding:12px 14px}
+.heard{color:var(--muted);font-size:.9rem;margin:0 0 6px}
+.said{font-family:var(--display);font-weight:500;font-size:clamp(1.3rem,4.5vw,1.9rem);line-height:1.25;margin:0;text-wrap:pretty}
+.hint{color:var(--muted);font-size:.95rem;margin:0}
+.talk{font:inherit;font-weight:700;font-size:1.05rem;border:0;border-radius:14px;padding:16px;background:var(--c);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.talk:focus-visible,.iconbtn:focus-visible,select:focus-visible{outline:3px solid var(--c,var(--a));outline-offset:2px}
+.talk.on{background:var(--live)}
+.dot{width:10px;height:10px;border-radius:50%;background:#fff;opacity:.9}
+.talk.on .dot{animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.6);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.talk.on .dot{animation:none}.side{transition:none}}
+.replay{font:inherit;font-size:.85rem;background:none;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 10px;cursor:pointer}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);max-width:min(440px,92vw);padding:18px}
+dialog::backdrop{background:#0008}
+dialog h2{font-family:var(--display);margin:0 0 10px;font-size:1.15rem}
+dialog label{display:block;font-size:.9rem;margin:12px 0 4px}
+dialog input{font:inherit;width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+dialog p{color:var(--muted);font-size:.88rem;margin:6px 0}
+#log{max-height:40vh;overflow-y:auto;font-size:.9rem}
+#log div{padding:6px 0;border-bottom:1px solid var(--line)}
+.err{background:var(--b-soft);border:1px solid var(--b);border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:.92rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Parley</h1>
+  <div class="tools">
+    <button class="iconbtn" id="faceBtn" aria-pressed="false" title="Flip the top half for the person across the table">Face-to-face</button>
+    <button class="iconbtn" id="histBtn">History</button>
+    <button class="iconbtn" id="setBtn">Settings</button>
+  </div>
+</header>
+<div id="support" class="err" hidden></div>
+<main>
+  <section class="side" id="sideA" data-who="a">
+    <div class="row"><select id="langA" aria-label="Language of the top speaker"></select><button class="replay" data-replay="a">Replay</button></div>
+    <div class="out" id="outA"><p class="hint">Tap the button and speak. Your words appear translated on the other half and are read aloud.</p></div>
+    <button class="talk" id="talkA"><span class="dot"></span><span class="lbl">Speak</span></button>
+  </section>
+  <section class="side" id="sideB" data-who="b">
+    <div class="row"><select id="langB" aria-label="Language of the bottom speaker"></select><button class="replay" data-replay="b">Replay</button></div>
+    <div class="out" id="outB"><p class="hint">Tap the button and speak. Your words appear translated on the other half and are read aloud.</p></div>
+    <button class="talk" id="talkB"><span class="dot"></span><span class="lbl">Speak</span></button>
+  </section>
+</main>
+
+<dialog id="settings">
+  <h2>Settings</h2>
+  <label for="email">Email for MyMemory (optional)</label>
+  <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+  <p>Without an email, MyMemory allows about 5,000 characters a day per network. Adding one raises it to about 50,000. It is only sent to MyMemory and kept in this browser.</p>
+  <label for="rate">Reading speed</label>
+  <input id="rate" type="range" min="0.6" max="1.4" step="0.1" value="0.95">
+  <label><input id="autoSpeak" type="checkbox" checked style="width:auto"> Read translations aloud automatically</label>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="iconbtn" id="closeSet">Done</button></div>
+</dialog>
+
+<dialog id="history">
+  <h2>Conversation</h2>
+  <div id="log"><p>Nothing yet.</p></div>
+  <div class="row" style="justify-content:flex-end;gap:8px;margin-top:14px">
+    <button class="iconbtn" id="clearHist">Clear</button>
+    <button class="iconbtn" id="closeHist">Close</button>
+  </div>
+</dialog>
+
+<script>
+// ---- Languages: speech code (recognition + voice) and MyMemory code ----
+const LANGS = [
+  ["English","en-US","en"],["French","fr-FR","fr"],["Spanish","es-ES","es"],["Arabic","ar-SA","ar"],
+  ["German","de-DE","de"],["Italian","it-IT","it"],["Portuguese","pt-PT","pt"],["Portuguese (Brazil)","pt-BR","pt"],
+  ["Dutch","nl-NL","nl"],["Polish","pl-PL","pl"],["Romanian","ro-RO","ro"],["Russian","ru-RU","ru"],
+  ["Ukrainian","uk-UA","uk"],["Turkish","tr-TR","tr"],["Hindi","hi-IN","hi"],["Urdu","ur-PK","ur"],
+  ["Bengali","bn-IN","bn"],["Chinese (Mandarin)","zh-CN","zh-CN"],["Japanese","ja-JP","ja"],["Korean","ko-KR","ko"],
+  ["Vietnamese","vi-VN","vi"],["Thai","th-TH","th"],["Indonesian","id-ID","id"],["Persian","fa-IR","fa"],
+  ["Greek","el-GR","el"],["Swahili","sw-KE","sw"]
+];
+const $ = id => document.getElementById(id);
+const store = {
+  get(k,d){try{const v=localStorage.getItem("parley."+k);return v===null?d:JSON.parse(v)}catch{return d}},
+  set(k,v){try{localStorage.setItem("parley."+k,JSON.stringify(v))}catch{}}
+};
+
+for (const sel of [$("langA"),$("langB")]) {
+  for (const [name,speech] of LANGS) sel.add(new Option(name,speech));
+}
+$("langA").value = store.get("langA","fr-FR");
+$("langB").value = store.get("langB","en-US");
+$("langA").onchange = e => store.set("langA",e.target.value);
+$("langB").onchange = e => store.set("langB",e.target.value);
+const mmCode = speech => (LANGS.find(l=>l[1]===speech)||[])[2] || speech.slice(0,2);
+
+$("email").value = store.get("email","");
+$("rate").value = store.get("rate",0.95);
+$("autoSpeak").checked = store.get("autoSpeak",true);
+$("email").onchange = e => store.set("email",e.target.value.trim());
+$("rate").onchange = e => store.set("rate",+e.target.value);
+$("autoSpeak").onchange = e => store.set("autoSpeak",e.target.checked);
+
+// ---- Support check ----
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const msgs = [];
+if (!SR) msgs.push("This browser can't capture speech. Use Chrome or Edge on desktop/Android, or Safari on iPhone.");
+if (!window.speechSynthesis) msgs.push("This browser can't read text aloud.");
+if (!window.isSecureContext) msgs.push("The microphone only works over https:// or on localhost. Host this file (e.g. GitHub Pages) instead of opening it from disk.");
+if (msgs.length){ $("support").hidden=false; $("support").textContent = msgs.join(" "); }
+
+// ---- Translation (MyMemory, free, no key) ----
+async function translate(text, from, to){
+  if (mmCode(from) === mmCode(to)) return text;
+  // MyMemory accepts up to 500 bytes per request: split long speech on sentence breaks.
+  const parts = text.match(/[^.!?؟。！？]+[.!?؟。！？]?/g) || [text];
+  const chunks=[]; let cur="";
+  for (const p of parts){ if (new Blob([cur+p]).size>450 && cur){chunks.push(cur);cur=p}else cur+=p }
+  if (cur) chunks.push(cur);
+  const out=[];
+  for (const c of chunks){
+    const u = new URL("https://api.mymemory.translated.net/get");
+    u.searchParams.set("q", c.trim());
+    u.searchParams.set("langpair", mmCode(from)+"|"+mmCode(to));
+    const email = store.get("email",""); if (email) u.searchParams.set("de", email);
+    const r = await fetch(u);
+    if (!r.ok) throw new Error("Translation service returned "+r.status);
+    const j = await r.json();
+    if (j.responseStatus != 200) throw new Error(j.responseDetails || "Translation failed");
+    if (/MYMEMORY WARNING/i.test(j.responseData.translatedText)) throw new Error("Daily free limit reached. Add an email in Settings to raise it.");
+    out.push(decode(j.responseData.translatedText));
+  }
+  return out.join(" ");
+}
+function decode(s){const t=document.createElement("textarea");t.innerHTML=s;return t.value}
+
+// ---- Speech output ----
+let voices=[];
+function loadVoices(){ voices = speechSynthesis.getVoices(); }
+if (window.speechSynthesis){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+function speak(text, lang){
+  if (!window.speechSynthesis || !text) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang; u.rate = +store.get("rate",0.95);
+  const base = lang.slice(0,2).toLowerCase();
+  u.voice = voices.find(v=>v.lang.replace("_","-")===lang) || voices.find(v=>v.lang.toLowerCase().startsWith(base)) || null;
+  speechSynthesis.speak(u);
+}
+
+// ---- Conversation state ----
+const last = { a:null, b:null };   // last text shown on each side (already in that side's language)
+const history = [];
+function show(side, said, heard){
+  const out = $(side==="a"?"outA":"outB");
+  out.innerHTML = "";
+  if (heard){ const h=document.createElement("p"); h.className="heard"; h.textContent=heard; out.append(h); }
+  const p=document.createElement("p"); p.className="said"; p.textContent=said; out.append(p);
+}
+function showError(side, msg){
+  const out = $(side==="a"?"outA":"outB");
+  out.innerHTML = ""; const p=document.createElement("p"); p.className="hint"; p.textContent=msg; out.append(p);
+}
+
+// ---- Speech capture ----
+let rec=null, activeSide=null;
+function stop(){ if (rec) rec.stop(); }
+function start(side){
+  if (!SR) return;
+  if (rec){ const was=activeSide; stop(); if (was===side) return; }
+  speechSynthesis && speechSynthesis.cancel();
+  const fromLang = $(side==="a"?"langA":"langB").value;
+  const toLang   = $(side==="a"?"langB":"langA").value;
+  const other    = side==="a"?"b":"a";
+  const btn = $(side==="a"?"talkA":"talkB");
+  rec = new SR(); activeSide = side;
+  rec.lang = fromLang; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  let finalText = "";
+  btn.classList.add("on"); btn.querySelector(".lbl").textContent = "Listening… tap to stop";
+  rec.onresult = e => {
+    let interim=""; finalText="";
+    for (const r of e.results){ if (r.isFinal) finalText += r[0].transcript; else interim += r[0].transcript; }
+    show(side, finalText || interim, "You're saying");
+  };
+  rec.onerror = e => {
+    const m = { "not-allowed":"Microphone access was blocked. Allow it in the browser's site settings.",
+                "no-speech":"Didn't hear anything. Tap and try again.",
+                "network":"Speech recognition needs an internet connection.",
+                "language-not-supported":"This browser can't recognise that language." }[e.error] || ("Speech error: "+e.error);
+    showError(side, m);
+  };
+  rec.onend = async () => {
+    btn.classList.remove("on"); btn.querySelector(".lbl").textContent = "Speak";
+    rec=null; activeSide=null;
+    const text = finalText.trim();
+    if (!text) return;
+    show(side, text, "You said");
+    showError(other, "Translating…");
+    try{
+      const t = await translate(text, fromLang, toLang);
+      last[other] = { text:t, lang:toLang };
+      show(other, t, "They said");
+      history.push({ side, text, t, from:fromLang, to:toLang, at:new Date() });
+      if (store.get("autoSpeak",true)) speak(t, toLang);
+    }catch(err){ showError(other, err.message); }
+  };
+  try { rec.start(); } catch(err){ showError(side, err.message); }
+}
+$("talkA").onclick = () => start("a");
+$("talkB").onclick = () => start("b");
+document.querySelectorAll("[data-replay]").forEach(b => b.onclick = () => {
+  const l = last[b.dataset.replay]; if (l) speak(l.text, l.lang);
+});
+
+// ---- Toolbar ----
+$("faceBtn").onclick = e => {
+  const on = document.body.classList.toggle("facing");
+  e.currentTarget.setAttribute("aria-pressed", on); store.set("facing", on);
+};
+if (store.get("facing",false)){ document.body.classList.add("facing"); $("faceBtn").setAttribute("aria-pressed","true"); }
+$("setBtn").onclick = () => $("settings").showModal();
+$("closeSet").onclick = () => $("settings").close();
+$("histBtn").onclick = () => {
+  const log=$("log"); log.innerHTML="";
+  if (!history.length) log.innerHTML="<p>Nothing yet.</p>";
+  for (const h of history){
+    const d=document.createElement("div");
+    const name = c => (LANGS.find(l=>l[1]===c)||[c])[0];
+    d.innerHTML = `<strong></strong><br><span></span><br><em style="color:var(--muted)"></em>`;
+    d.querySelector("strong").textContent = h.at.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) + " · " + name(h.from) + " → " + name(h.to);
+    d.querySelector("span").textContent = h.text;
+    d.querySelector("em").textContent = h.t;
+    log.append(d);
+  }
+  $("history").showModal();
+};
+$("closeHist").onclick = () => $("history").close();
+$("clearHist").onclick = () => { history.length=0; $("history").close(); };
+</script>
+</body>
+</html>
