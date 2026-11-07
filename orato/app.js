@@ -207,6 +207,7 @@ async function initShared(){
   if(typeof modulesLive==='function')modulesLive();
   if(typeof accessLive==='function')accessLive();
   if(typeof contestLive==='function')contestLive();
+  if(typeof planLive==='function')planLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}

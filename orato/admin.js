@@ -151,14 +151,15 @@ function adminView(){
     ${pending.length?pending.map(reqCard).join(''):`<p class="empty">${t('adm.noPending')}</p>`}
     <p class="muted" style="font-size:.85rem">${t('adm.noNotif')}</p></div>
   <div class="box"><div class="phead"><h3>${t('adm.clubs')}</h3><span class="muted">${ADM.clubs.length}</span></div>
-    ${ADM.clubs.length?`<div class="tablewrap"><table><thead><tr><th>${t('adm.code')}</th><th>${t('req.name')}</th><th>${t('adm.officers')}</th><th>${t('adm.status')}</th><th></th></tr></thead><tbody>
+    ${ADM.clubs.length?`<div class="tablewrap"><table><thead><tr><th>${t('adm.code')}</th><th>${t('req.name')}</th><th>${t('adm.officers')}</th><th>${t('adm.status')}</th><th>${t('plan.col')}</th><th></th></tr></thead><tbody>
     ${ADM.clubs.map(c=>{const st=c.status||'approved';const u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('club',c.id);
       return `<tr><td><a href="${esc(u.toString())}" target="_blank" rel="noopener">${esc(c.id)}</a></td><td>${esc(c.name||'')}</td><td style="font-size:.9rem">${esc((c.officers||[]).join(', '))}</td>
       <td>${st==='approved'?`<span class="chip ok">${t('adm.st.approved')}</span>`:`<span class="chip bad">${t('adm.st.suspended')}</span>`}${c.deletion?` <span class="chip warn">${t('adm.deleting')}</span>`:''}</td>
+      <td style="white-space:nowrap">${planCell(c)}</td>
       <td style="white-space:nowrap">${st==='approved'
         ?(ADM.suspendAsk===c.id?`<button class="small danger" data-act="adm-suspend" data-id="${esc(c.id)}">${t('adm.suspendYes')}</button><button class="small ghost" data-act="adm-suspend-cancel">${t('common.cancel')}</button>`
           :`<button class="small ghost" data-act="adm-suspend-ask" data-id="${esc(c.id)}">${t('adm.suspend')}</button>`)
-        :`<button class="small" data-act="adm-reactivate" data-id="${esc(c.id)}">${t('adm.reactivate')}</button>`}</td></tr>`}).join('')}
+        :`<button class="small" data-act="adm-reactivate" data-id="${esc(c.id)}">${t('adm.reactivate')}</button>`}</td></tr>${planEditor(c)}`}).join('')}
     </tbody></table></div>`:`<p class="empty">${t('adm.noClubs')}</p>`}
     <p class="muted" style="font-size:.85rem">${t('adm.suspendNote')}</p></div>
   ${done.length?`<details class="box"><summary><b>${t('adm.history',{n:done.length})}</b></summary>

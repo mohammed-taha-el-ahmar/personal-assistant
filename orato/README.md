@@ -22,6 +22,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `office.js` | The club officers' space: sign-in, archive, history, participation |
 | `evals.js` | Evaluation forms by type |
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
+| `plan.js` | Premium features per club: the administrator's switches, the officers' box, `hasFeature()` |
 | `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
@@ -112,6 +113,12 @@ Every new club space must be approved by the Orato administrator before anyone c
 **For a club**: open the site with the club link (`?club=your-code`). While the code is not approved, every tab shows "this club space is not open" and the **Club officers** tab shows the request form: the officer signs in, fills in the club name, city, club number and role, and sends it. Once approved, they reload the page and are the first officer.
 
 **Clubs created before this change** that already have an officer list keep working (they count as approved). A club code that was used without ever setting up the officers' space now needs a request.
+
+### Premium features
+
+On the administration page (`?admin`), the **Premium** column shows each club's premium features. **Manage** opens the list: tick a feature, optionally set an end date (leave it empty for no end date), and save. The club's officers see the result in the **Premium features** box of their officers' page, with your contact address.
+
+The choice is stored in `clubs/{club}/public/plan` (everyone reads it, only the administrator writes it). To make a tab premium, add it to `PREMIUM_KEYS` in `plan.js`: it is then hidden in clubs without the feature. The Firestore rules offer `planFeature(club, 'id')` to protect premium data too, since hiding a tab is not protection. The features listed today (Contests pro, Officer toolkit, Club statistics and DCP) are marked *Coming soon*: switching them on does nothing yet.
 
 ## 4. Use it with your club
 

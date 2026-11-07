@@ -21,7 +21,8 @@ function modulesLive(){
   },()=>{});
 }
 // Is this tab or feature shown? Everything is shown without a club link.
-function isOn(key){return !SH.on||ALWAYS_ON.includes(key)||!MODS.disabled.includes(key)}
+// Premium tabs and options (plan.js) are hidden while the club does not have the feature that unlocks them.
+function isOn(key){if(typeof premiumLocked==='function'&&premiumLocked(key))return false;return !SH.on||ALWAYS_ON.includes(key)||!MODS.disabled.includes(key)}
 const firstOnTab=()=>TABS.find(x=>isOn(x)&&x!=='members')||'office';
 // The Members tab is listed only for signed-in officers.
 const officerOnlyTab=x=>x==='members'&&!(SH.on&&SH.officer===true);

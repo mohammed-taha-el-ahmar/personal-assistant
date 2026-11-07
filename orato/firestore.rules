@@ -145,6 +145,23 @@ service cloud.firestore {
     }
 
     // Officers erasing a club whose delay has passed.
+    // Premium features (clubs/{club}/public/plan). planFeature(club, 'id') is true while the administrator has switched
+    // the feature on for the club and its end date (if any) has not passed: use it in the rules of premium data.
+    function planPath(club) {
+      return /databases/$(database)/documents/clubs/$(club)/public/plan;
+    }
+    function planFeature(club, f) {
+      let feats = exists(planPath(club)) ? get(planPath(club)).data.get('features', {}) : {};
+      let x = feats.get(f, null);
+      return x != null && (x.get('untilMs', null) == null || x.untilMs > request.time.toMillis());
+    }
+    function validPlan() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['features', 'updatedAt', 'updatedBy'])
+        && d.features is map && d.features.size() <= 20
+        && d.features.keys().hasOnly(['contestsPro', 'officerKit', 'stats'])
+        && d.updatedBy == myEmail();
+    }
     function purging(club) {
       return validClub(club) && isOfficer(club) && deletionDue(club);
     }
@@ -266,6 +283,8 @@ service cloud.firestore {
     match /clubs/{club}/public/{docId} {
       allow read: if validClub(club) && (docId == 'status' || !deletionDue(club));
       allow write: if open(club) && docId in ['info', 'status', 'modules', 'access', 'contest'] && isOfficer(club);
+      // Premium features of the club: only the Orato administrator switches them on and off.
+      allow write: if docId == 'plan' && validClub(club) && isAppAdmin() && validPlan();
       allow delete: if purging(club);
     }
 

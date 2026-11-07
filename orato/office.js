@@ -312,7 +312,7 @@ function officerArea(){
     return `${who}<div class="box"><p>${t('office.notOfficer',{email:esc(SH.user.email)})}</p><p class="muted">${t('office.notOfficerHint')}</p></div>`;
   }
   return `${who}<div class="notice"><span>${t('office.editClubHint')}</span><button class="small" data-act="go-club-edit">${t('cl.edit')}</button></div>
-    ${accessOn()?'':accessBox()}${isOn('members')?`<div class="notice"><span>${t('mem.officeHint')}</span><button class="small" data-act="go-members">${t('tab.members')}</button></div>`:''}${linkBox()}${accessOn()?accessBox():''}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${modulesBox()}${officersBox()}${deletionBox()}`;
+    ${accessOn()?'':accessBox()}${isOn('members')?`<div class="notice"><span>${t('mem.officeHint')}</span><button class="small" data-act="go-members">${t('tab.members')}</button></div>`:''}${linkBox()}${accessOn()?accessBox():''}${closeBox()}${isOn('feedback')?currentFeedbackBox():''}${interestListBox()}${historyBox()}${participationBox()}${typeof planBox==='function'?planBox():''}${modulesBox()}${officersBox()}${deletionBox()}`;
 }
 function linkBox(){
   return `<div class="box"><div class="phead"><div><h3>${t('qr.clubTitle')}</h3><p class="muted">${t('qr.officeText')}</p></div>
