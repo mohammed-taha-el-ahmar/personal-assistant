@@ -301,7 +301,8 @@ function applyChrome(){
 function render(){
   applyChrome();
   // The administrator's page (?admin) replaces the tools.
-  if(SH.adminMode){const n=document.querySelector('nav.tabs');if(n)n.hidden=true;$('#main').innerHTML=adminView();return}
+  if(typeof paintNav==='function')paintNav();
+  if(SH.adminMode){$('#main').innerHTML=adminView();return}
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===tab));
   // A club whose deletion delay has passed shows only the deletion notice.
   if(SH.on&&(DEL.done||deletionPassed())){$('#main').innerHTML=deletedView();return}

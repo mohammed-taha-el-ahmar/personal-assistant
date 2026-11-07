@@ -63,15 +63,34 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background
 @media (max-width:560px){.brand .tag{display:none}#sync{margin-left:auto}}
 .mine{font-weight:700}
 .ballot button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-nav.tabs{display:flex;gap:18px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin}
-.group{display:flex;flex-direction:column;gap:4px;flex:none}
-.group .row{display:flex;gap:4px}
+.snav{display:flex;gap:4px;padding-bottom:8px;flex-wrap:wrap}
+.snav button{display:flex;align-items:center;gap:7px;border:0;background:none;color:var(--muted);font:inherit;font-size:.93rem;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer}
+.snav button:hover{color:var(--ink);background:var(--bg)}
+.snav svg,.offbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.snav button[aria-current=page]{background:var(--accent);color:var(--accent-ink)}
+.subnav{display:flex;gap:6px;overflow-x:auto;padding:10px 0;scrollbar-width:none;border-top:1px solid var(--line)}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{flex:none;font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:5px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.subnav button:hover{border-color:var(--accent)}
+.subnav button[aria-selected=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--accent);font-weight:700}
+.offbtn{color:var(--ink);border:1px solid var(--line)}
+.offbtn[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.offbtn[aria-pressed=true] svg{color:var(--accent-ink)}
+@media (max-width:700px){
+ .snav{position:fixed;left:0;right:0;bottom:0;z-index:20;flex-wrap:nowrap;background:var(--surface);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));justify-content:space-around;gap:0;box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+ .snav button{flex:1;flex-direction:column;gap:3px;font-size:.68rem;padding:6px 2px;border-radius:12px;max-width:88px;text-align:center;line-height:1.15;min-width:0}
+ .snav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .snav svg{width:22px;height:22px}
+ .snav button[aria-current=page]{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+ .subnav{border-top:0;padding-top:4px}
+}
+@media print{.snav,#subnav{display:none!important}}
 .tab{font:inherit;font-size:.92rem;border:1px solid transparent;background:none;color:var(--muted);padding:6px 11px;border-radius:999px;cursor:pointer;white-space:nowrap}
 .tab:hover{color:var(--ink);background:var(--bg)}
 .tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
 .sep{width:1px;background:var(--line);flex:none}
 /* A divider before every visible section except the first one shown. */
-nav.tabs .group:not([hidden]) ~ .group:not([hidden]){border-left:1px solid var(--line);padding-left:18px}
 .modgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 .modsec{border:1px solid var(--line);border-radius:var(--r);padding:8px 14px 12px;margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
 .modsec legend{padding:0 6px}
@@ -110,6 +129,7 @@ th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mu
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono)}
 .empty{color:var(--muted);font-size:.92rem;padding:8px 0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:700;z-index:20}
+@media (max-width:700px){.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 
 /* Timer */
 .stage{border-radius:14px;padding:28px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;transition:background .3s,color .3s;background:var(--surface);border:1px solid var(--line)}
@@ -319,7 +339,6 @@ html[lang=ar] *{letter-spacing:0!important}
 html[lang=ar] body{line-height:1.7}
 [dir=rtl] .brand .tag{margin-left:0;margin-right:auto}
 @media (max-width:560px){[dir=rtl] #sync{margin-left:0;margin-right:auto}}
-[dir=rtl] nav.tabs .group:not([hidden]) ~ .group:not([hidden]){border-left:0;padding-left:0;border-right:1px solid var(--line);padding-right:18px}
 [dir=rtl] .modsec .check.sub{padding-left:0;padding-right:22px}
 [dir=rtl] .notice button{margin-left:0;margin-right:auto}
 [dir=rtl] th,[dir=rtl] td{text-align:right}
@@ -353,44 +372,15 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
       <span class="tag" data-i18n="tagline">Tools for Toastmasters club meetings</span>
       <span id="sync"></span>
       <span id="support-head"></span>
+      <button class="themebtn offbtn" id="offbtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg><span class="themelabel">Club officers</span></button>
       <button class="themebtn" id="helpbtn" data-act="help-guide" type="button"><span aria-hidden="true">?</span><span class="themelabel">Help</span></button>
       <button class="themebtn" id="themebtn" data-act="theme" type="button"><span aria-hidden="true" id="themeicon">◐</span><span class="themelabel" id="themelabel"></span></button>
       <div class="lang" role="group" data-i18n-aria="lang.label" aria-label="Language">
         <button data-lang="en" lang="en" aria-pressed="true" title="English">EN</button><button data-lang="fr" lang="fr" aria-pressed="false" title="Français">FR</button><button data-lang="nl" lang="nl" aria-pressed="false" title="Nederlands">NL</button><button data-lang="ar" lang="ar" aria-pressed="false" title="العربية">ع</button>
       </div>
     </div>
-    <nav class="tabs" data-i18n-aria="nav.tools" aria-label="Tools">
-      <div class="group"><span class="label" data-i18n="nav.club">Club</span><div class="row" role="tablist">
-        <button class="tab" data-tab="club" data-i18n="tab.club">About the club</button>
-        <button class="tab" data-tab="guestbook" data-i18n="tab.guestbook">Guest book</button>
-        <button class="tab" data-tab="office" data-i18n="tab.office">Club officers</button>
-        <button class="tab" data-tab="members" data-i18n="tab.members" hidden>Members</button>
-      </div></div>
-      <div class="group"><span class="label" data-i18n="nav.during">During the meeting</span><div class="row" role="tablist">
-        <button class="tab" data-tab="timer" data-i18n="tab.timer">Timer</button>
-        <button class="tab" data-tab="ah" data-i18n="tab.ah">Ah-Counter</button>
-        <button class="tab" data-tab="gram" data-i18n="tab.gram">Grammarian</button>
-        <button class="tab" data-tab="topics" data-i18n="tab.topics">Table Topics</button>
-        <button class="tab" data-tab="vote" data-i18n="tab.vote">Voting</button>
-      </div></div>
-      <div class="group"><span class="label" data-i18n="nav.before">Before the meeting</span><div class="row" role="tablist">
-        <button class="tab" data-tab="agenda" data-i18n="tab.agenda">Agenda</button>
-        <button class="tab" data-tab="roles" data-i18n="tab.roles">Roles</button>
-        <button class="tab" data-tab="draw" data-i18n="tab.draw">Draw order</button>
-        <button class="tab" data-tab="guides" data-i18n="tab.guides">Role guides</button>
-        <button class="tab" data-tab="eval" data-i18n="tab.eval">Evaluation form</button>
-      </div></div>
-      <div class="group"><span class="label" data-i18n="nav.contests">Contests</span><div class="row" role="tablist">
-        <button class="tab" data-tab="contest" data-i18n="tab.contest">Organise</button>
-        <button class="tab" data-tab="cofficials" data-i18n="tab.cofficials">Officials</button>
-        <button class="tab" data-tab="cdocs" data-i18n="tab.cdocs">Documents</button>
-        <button class="tab" data-tab="cvideos" data-i18n="tab.cvideos">Watch &amp; learn</button>
-      </div></div>
-      <div class="group"><span class="label" data-i18n="nav.after">After the meeting</span><div class="row" role="tablist">
-        <button class="tab" data-tab="feedback" data-i18n="tab.feedback">Feedback</button>
-      </div></div>
-
-    </nav>
+    <nav class="snav" id="snav" data-i18n-aria="nav.tools" aria-label="Tools"></nav>
+    <div id="subnav"></div>
   </div>
 </header>
 
@@ -413,6 +403,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <script src="templates.js"></script>
 <script src="draw.js"></script>
 <script src="contests.js"></script>
+<script src="nav.js"></script>
 <script src="deletion.js"></script>
 <script src="permissions.js"></script>
 <script src="members.js"></script>

@@ -260,11 +260,9 @@ function contestLive(){
 const ctType=()=>CONTEST_TYPES.find(x=>x.id===CON.type)||CONTEST_TYPES[0];
 const ctLink=(label,d)=>{const L=CTL();return d&&safeUrl(d.url)?`<li><a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>${d.n?` <span class="muted">· ${esc(L.item.replace('{n}',d.n))}</span>`:''}</li>`:''};
 const ctTypeChips=()=>{const L=CTL();return `<div class="speakers" role="group" aria-label="${esc(L.typeTitle)}">${CONTEST_TYPES.map(x=>chip('ct-type',x.id,x.id===CON.type,esc(L.types[x.id]))).join('')}</div>`};
-// Header shared by the four pages, with links to the sibling pages.
+// Header shared by the four pages (the tabs of the section are in the navigation).
 function ctHead(page,title,intro){
-  const L=CTL();
-  const sib=CONTEST_TABS.filter(x=>x!==page&&isOn(x)).map(x=>`<button class="small ghost" data-act="ct-go" data-v="${x}">${esc(L.pages[x])} →</button>`).join('');
-  return `<div class="phead"><div><h2>${esc(title)}</h2><p class="muted">${esc(intro)}</p></div>${sib?`<div class="btns">${sib}</div>`:''}</div>`;
+  return `<div class="phead"><div><h2>${esc(title)}</h2><p class="muted">${esc(intro)}</p></div></div>`;
 }
 
 function contestView(){

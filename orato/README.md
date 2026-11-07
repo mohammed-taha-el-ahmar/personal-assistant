@@ -22,6 +22,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `office.js` | The club officers' space: sign-in, archive, history, participation |
 | `evals.js` | Evaluation forms by type |
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
+| `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
 | `deletion.js` | Deleting a club space, with a 3-day delay any officer can cancel |
@@ -42,6 +43,10 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `firebase-config.js` | Your Firebase project settings (you fill this in) |
 | `firestore.rules` | Database security rules (you paste these into Firebase) |
 | `.nojekyll` | Tells GitHub Pages to serve the files as they are |
+
+## Navigation
+
+The tools are grouped in 5 sections: **Club**, **Meeting**, **Prepare**, **Contests** and **Follow-up**. On a phone they form a bar at the bottom of the screen; on a larger screen, a row under the header. The tabs of the open section appear in a second row. The **Club officers** pages (and **Members** for signed-in officers) open from the person button in the header. Sections hidden by the club officers disappear from the bar. Links such as `?club=my-club#timer` keep working.
 
 ## Help for new visitors
 
