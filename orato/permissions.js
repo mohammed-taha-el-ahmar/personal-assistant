@@ -1,4 +1,4 @@
-// Orato – who may do what in a club space.
+// Toastmasters Tools – who may do what in a club space.
 //
 // Three levels:
 //   Visitor  – anyone with the club link: reads everything shared, votes (unless the club says members only),
@@ -27,8 +27,7 @@ function newCode(){
 
 // ---------- levels ----------
 const accessOn=()=>SH.on&&!!(ACC.pub&&ACC.pub.on);
-// A device unlocked with the current code, or an active member profile (profiles.js).
-const deviceOk=()=>!!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v)||(typeof profileMember==='function'&&profileMember());
+const deviceOk=()=>!!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v);
 // Edit the agenda, nominees, draw, other people's roles.
 const canManage=()=>!SH.on||!accessOn()||SH.officer===true;
 // Take your own role, send reports.
@@ -94,7 +93,6 @@ function memberLink(){const u=new URL(shareLink());if(ACC.cfg)u.searchParams.set
 // Shown inside the "live" notice on shared pages (roles, agenda, voting, draw).
 function accessStrip(){
   if(!accessOn()||SH.officer===true)return '';
-  if(typeof profileMember==='function'&&profileMember()&&!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v))return `<div class="notice"><span>✓ ${t('me.memberText')}</span></div>`;
   if(deviceOk())return `<div class="notice"><span>${t('acc.isMember')}</span><button class="small ghost" data-act="acc-forget">${t('acc.forget')}</button></div>`;
   return unlockForm();
 }

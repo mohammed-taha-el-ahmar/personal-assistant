@@ -1,4 +1,4 @@
-// Orato – membership: the guest book (everyone) and the member list with renewals (officers only).
+// Toastmasters Tools – membership: the guest book (everyone) and the member list with renewals (officers only).
 //
 // Data (see firestore.rules):
 //   clubs/{club}/guestbook/{date_uid_x}  one entry per guest who signs in at a meeting; created by anyone with the link,
@@ -51,8 +51,7 @@ function guestbookView(){
   if(!SH.on)return `<section class="panel">${head}${liveBox()}<p class="muted">${t('gb.needLive')}</p></section>`;
   const officerNote=SH.officer===true&&isOn('members')?`<div class="notice"><span>${t('gb.officerNote',{n:MEM.guests.filter(g=>g.date===meetingDate()).length})}</span><button class="small" data-act="go-members">${t('gb.seeList')}</button></div>`:'';
   if(GB.done)return `<section class="panel">${head}${officerNote}<div class="box" style="text-align:center;align-items:center">
-    <h3>${t('gb.thanks')}</h3><p class="muted">${t('gb.thanksText')}</p><button class="primary" data-act="gb-next">${t('gb.next')}</button>
-    ${isMember()?'':`<p class="muted" style="margin:8px 0 0">${t('gb.profileHint')}</p><button class="ghost" data-act="go-me">${t('gb.profileBtn')}</button>`}</div></section>`;
+    <h3>${t('gb.thanks')}</h3><p class="muted">${t('gb.thanksText')}</p><button class="primary" data-act="gb-next">${t('gb.next')}</button></div></section>`;
   const g=GB.draft||(GB.draft=emptyGuest());
   return `<section class="panel">${head}${officerNote}
   <form class="box" data-form="guestbook" novalidate>
@@ -98,7 +97,7 @@ function membersView(){
   const shown=MEM.list.filter(m=>(MEM.show==='all'||(m.status||'active')===MEM.show)
     &&(!q||[m.name,m.email,m.phone,m.tmId].some(x=>fold(x).includes(q))));
   const periods=[-2,-1,0,1].map(n=>shiftPeriod(periodOf(new Date()),n));if(!periods.includes(p))periods.push(p);
-  return `<section class="panel">${head}${typeof peopleBox==='function'?peopleBox():''}
+  return `<section class="panel">${head}
   <div class="box">
     <div class="phead"><div class="field" style="min-width:240px"><label class="label" for="mem-period">${t('mem.period')}</label>
       <select id="mem-period" data-act="mem-period">${periods.map(x=>`<option value="${x}" ${x===p?'selected':''}>${esc(periodLabel(x))}</option>`).join('')}</select></div></div>
@@ -202,7 +201,7 @@ function guestListBox(){
 function monthsAgo(n){const d=new Date();d.setMonth(d.getMonth()-n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 
 // ---------- CSV ----------
-const csvSep=()=>['fr','nl'].includes(LANG)?';':','; // Excel in French and Dutch expects semicolons
+const csvSep=()=>LANG==='fr'?';':',';
 function csvCell(v){v=String(v==null?'':v);if(/^[=+\-@]/.test(v))v="'"+v;return /[";,\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function downloadCsv(name,rows){
   const sep=csvSep();const text='﻿'+rows.map(r=>r.map(csvCell).join(sep)).join('\r\n');
@@ -236,14 +235,14 @@ function columnsOf(header){
   const norm=h=>h.toLocaleLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const map={};
   header.forEach((h,i)=>{const x=norm(h);
-    if(/mail|courriel|بريد/.test(x))map.email??=i;
-    else if(/phone|tel|mobile|portable|هاتف|جوال/.test(x))map.phone??=i;
-    else if(/since|depuis|join|adhesion|inscri|lid sinds|منذ/.test(x))map.joined??=i;
-    else if(/member.?(id|number|no)|customer|numero|^id$|matricule|lidnummer|رقم/.test(x))map.tmId??=i;
-    else if(/first|prenom|given|voornaam|الاسم الأول/.test(x))map.first??=i;
-    else if(/last|surname|family|nom de famille|achternaam|العائلة|اللقب/.test(x))map.last??=i;
-    else if(/name|^nom|naam|الاسم/.test(x))map.name??=i;
-    else if(/note|comment|notitie|opmerking|ملاحظ/.test(x))map.notes??=i;
+    if(/mail|courriel/.test(x))map.email??=i;
+    else if(/phone|tel|mobile|portable/.test(x))map.phone??=i;
+    else if(/since|depuis|join|adhesion|inscri/.test(x))map.joined??=i;
+    else if(/member.?(id|number|no)|customer|numero|^id$|matricule/.test(x))map.tmId??=i;
+    else if(/first|prenom|given/.test(x))map.first??=i;
+    else if(/last|surname|family|nom de famille/.test(x))map.last??=i;
+    else if(/name|^nom/.test(x))map.name??=i;
+    else if(/note|comment/.test(x))map.notes??=i;
   });
   // "Prénom" + "Nom": with a first-name column, a plain name column holds the last name.
   if(map.first!=null&&map.last==null&&map.name!=null){map.last=map.name;delete map.name}

@@ -1,4 +1,4 @@
-// Orato – deleting a club space, with a 3-day delay during which any officer can cancel.
+// Toastmasters Tools – deleting a club space, with a 3-day delay during which any officer can cancel.
 // The request is stamped with the server's clock (see firestore.rules), so the delay cannot be shortened.
 // After the delay the database locks the club; the next officer who opens the site erases everything.
 // clubs/{club}/public/status repeats the deadline so every member sees the notice.
@@ -77,8 +77,8 @@ async function cancelDeletion(){
 }
 
 // Erase every document of the club. Runs once the delay has passed and an officer is signed in.
-const PURGE_DOCS=['meeting/roles','meeting/agenda','meeting/vote','meeting/reports','meeting/draw','public/info','public/modules','public/contest','public/plan','public/access','private/config'];
-const PURGE_COLLECTIONS=['ballots','history','feedback','interest','templates','devices','members','guestbook','media','people','directory','speeches','mentoring','dcp'];
+const PURGE_DOCS=['meeting/roles','meeting/agenda','meeting/vote','meeting/reports','meeting/draw','public/info','public/modules','public/access','private/config'];
+const PURGE_COLLECTIONS=['ballots','history','feedback','interest','templates','devices','members','guestbook'];
 async function maybePurge(){
   if(!SH.on||!SH.officer||DEL.busy||DEL.done||!SH.deletion||!deletionPassed())return;
   // Leave a minute of margin so the server's clock has passed the deadline too.
@@ -100,8 +100,6 @@ async function purgeClub(){
     step('club');
     await SH.fs.doc(`${base}/public/status`).delete();
     await SH.fs.doc(base).delete();
-    // Free the club code: the approved creation request is removed too, so the code can be requested again.
-    try{await SH.fs.doc('requests/'+SH.club).delete()}catch(e){}
     DEL.done=true;
   }catch(e){DEL.failed=true;toast(t('del.purgeFail'))}
   DEL.busy=false;render();
