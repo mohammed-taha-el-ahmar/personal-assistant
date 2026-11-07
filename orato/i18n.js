@@ -1099,7 +1099,7 @@ fr: {
   "tagline": "Outils pour les réunions de clubs Toastmasters",
   "nav.contests": "Concours",
   "tab.contest": "Organiser",
-  "tab.cofficials": "Officiels",
+  "tab.cofficials": "Officiés",
   "tab.cdocs": "Documents",
   "tab.cvideos": "Voir et apprendre",
   "preset.cIntl": "Concours : International, Humoristique, En ligne (5–7 min)",
