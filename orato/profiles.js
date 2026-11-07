@@ -39,7 +39,9 @@ function profilesAuthChanged(){
 function profilesDirSub(){
   if(directoryAccess()){
     if(!PROF.dirUnsub)PROF.dirUnsub=SH.fs.collection(`clubs/${SH.club}/directory`).onSnapshot(q=>{
-      PROF.dir=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name).localeCompare(String(b.name)));softRender()},()=>{PROF.dir=[]});
+      PROF.dir=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name).localeCompare(String(b.name)));softRender()},
+      // A refused listener is dropped so that the next call can open it again.
+      e=>{console.warn('directory',e&&e.code);PROF.dir=PROF.dir.filter(d=>d.id===SH.uid);if(PROF.dirUnsub){try{PROF.dirUnsub()}catch(x){}}PROF.dirUnsub=null});
   }else if(PROF.dirUnsub){PROF.dirUnsub();PROF.dirUnsub=null;PROF.dir=[]}
 }
 function profilesOfficerSubs(){
@@ -76,12 +78,14 @@ function readDirForm(){
 }
 // Reads the form before anything re-renders it.
 async function saveDirectory({c,show,listed}){
- const u=myProfile();
-  await SH.fs.doc(`users/${SH.uid}`).update({contact:c,updatedAt:nowIso()});
+  const u=myProfile();
   const ref=SH.fs.doc(`clubs/${SH.club}/directory/${SH.uid}`);
-  if(!listed){await ref.delete().catch(()=>{});return}
-  const card={name:u.name,updatedAt:nowIso()};DIR_FIELDS.forEach(k=>{card[k]=show[k]?c[k]:''});
-  await ref.set(card);
+  // The card first: it is what the directory shows. Then the details kept in the profile, for next time.
+  if(!listed){await ref.delete();PROF.dir=PROF.dir.filter(d=>d.id!==SH.uid)}
+  else{const card={name:u.name,updatedAt:nowIso()};DIR_FIELDS.forEach(k=>{card[k]=show[k]?c[k]:''});
+    await ref.set(card);PROF.dir=[...PROF.dir.filter(d=>d.id!==SH.uid),{id:SH.uid,...card}].sort((a,b)=>String(a.name).localeCompare(String(b.name)))}
+  try{await SH.fs.doc(`users/${SH.uid}`).update({contact:c,updatedAt:nowIso()})}catch(e){console.warn('profile contact',e&&e.code)}
+  profilesDirSub();
 }
 async function exportMyData(){
   const out={exportedAt:nowIso(),account:{uid:SH.uid,email:SH.user.email},profile:myProfile(),clubs:{}};
@@ -156,7 +160,7 @@ function clubBox(){
       :`<button class="small ghost" data-act="me-leave-ask">${t('me.leave')}</button>`}</div></div>`;
 }
 function directoryBox(){
-  const u=myProfile();const c=u.contact||{};const card=PROF.dir.find(d=>d.id===SH.uid);
+  const u=myProfile();const pend=PROF.dirPending;const c=pend?pend.c:(u.contact||{});const card=pend?(pend.listed?Object.fromEntries(DIR_FIELDS.map(k=>[k,pend.show[k]])):null):PROF.dir.find(d=>d.id===SH.uid);
   const def={email:c.email||SH.user.email};const val=k=>esc(c[k]||def[k]||'');
   const shown=k=>card?!!card[k]:k==='email';
   const row=(k,type,ph)=>`<div class="dirf"><label class="check" for="pds-${k}"><input type="checkbox" id="pds-${k}" ${shown(k)?'checked':''}><span>${t('me.show')}</span></label>
@@ -235,7 +239,7 @@ document.addEventListener('submit',ev=>{
     profRun(async()=>{await SH.fs.doc(`users/${SH.uid}`).update({name:n,updatedAt:nowIso()});
       if(myPerson())await SH.fs.doc(`clubs/${SH.club}/people/${SH.uid}`).update({name:n});
       if(PROF.dir.some(d=>d.id===SH.uid))await SH.fs.doc(`clubs/${SH.club}/directory/${SH.uid}`).update({name:n,updatedAt:nowIso()})},t('me.saved'));return}
-  if(f==='me-dir'){const v=readDirForm();profRun(()=>saveDirectory(v),t('me.saved'));return}
+  if(f==='me-dir'){const v=readDirForm();PROF.dirPending=v;profRun(()=>saveDirectory(v).finally(()=>{PROF.dirPending=null}),t('me.saved'));return}
 });
 document.addEventListener('input',ev=>{if(ev.target.dataset&&ev.target.dataset.act==='dir-q'){PROF.q=ev.target.value;const pos=ev.target.selectionStart;render();const i=document.getElementById('dir-q');if(i){i.focus();try{i.setSelectionRange(pos,pos)}catch(e){}}}});
 document.addEventListener('change',ev=>{const id=ev.target.dataset&&ev.target.dataset.ppm;if(id)PROF.approve[id]=ev.target.value});

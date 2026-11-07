@@ -581,7 +581,7 @@ VIEWS.roles=()=>{const open=officialKeys().filter(k=>!roleName(k)||(SH.on&&SH.ro
   ${contest?`<tr><th colspan="3">${t('roles.officials')}</th></tr>`:''}${officialKeys().map(roleRow).join('')}
   ${contest?`<tr><th colspan="3">${t('roles.contestants')} <span class="muted">· ${t('roles.contestantsN',{n:CONTESTANT_KEYS.filter(k=>roleName(k)).length})}</span></th></tr>${CONTESTANT_KEYS.map(roleRow).join('')}`:''}
   </tbody></table></div>
-  <div class="btns"><button class="primary" data-act="r-copy">${t('roles.copyOpen')}</button>
+  <div class="btns"><button class="primary" data-act="r-copy">${t('roles.copyOpen')}</button>${SH.on&&typeof MTG!=='undefined'&&MTG.plans.length?`<button data-act="mtg-copy">${esc(MGL2().copyMulti)}</button>`:''}
   ${!canManage()?'':confirmClear?`<span class="muted" style="align-self:center">${t(SH.on?'roles.askAll':'roles.askHere')}</span><button class="small primary" data-act="r-clear">${t('roles.yesClear')}</button><button class="small" data-act="r-cancel">${t('common.cancel')}</button>`:`<button class="ghost" data-act="r-ask">${t('roles.clearAll')}</button>`}</div></div></section>`};
 
 // ---------- GUIDES ----------

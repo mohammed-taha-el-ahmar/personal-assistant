@@ -125,6 +125,9 @@ The **next meeting** is the one all the tools work on (timer, votes, reports, cl
 - Other tabs always show the next meeting.
 - When the officers **close the next meeting** (Club officers page, with *start a new meeting*), the earliest planned meeting becomes the next meeting, with its roles, and leaves the planned list.
 - Officers can delete a planned meeting.
+- **A series at once:** in **+ Plan a meeting**, choose **A series**: from / until, the weekday, and the rhythm: every week, every two weeks, or some weeks of the month (1st, 2nd, 3rd, 4th, last; for example the 2nd and 4th Tuesday). The preview lists the dates; dates already planned or before the next meeting are skipped (up to 26 at a time).
+- **Club page:** **Upcoming meetings** lists the next meeting and the planned ones with their open roles, and a **Roles** button opens each one.
+- **Roles tab:** **Copy the open roles of the coming meetings** prepares one message for the next five meetings, for the club's group chat.
 
 Data: `clubs/{club}/plans/{date}`. **Republish `firestore.rules`.** Existing clubs need no migration: their current meeting stays the next meeting.
 

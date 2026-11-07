@@ -69,6 +69,7 @@ function clubView(){
       <div class="btns">${isOn('agenda')?`<button class="small" data-act="go-agenda">${t('cl.seeAgenda')}</button>`:''}${isOn('roles')?`<button class="small" data-act="go-roles">${t('cl.takeRole')}</button>`:''}</div>
     </div>
     ${a.date&&typeof rsvpBox==='function'?rsvpBox():''}
+    ${typeof upcomingBox==='function'?upcomingBox():''}
     ${practical.length?`<div class="box"><h3>${t('cl.practical')}</h3><dl class="dl">${practical.map(([k,v])=>`<dt>${t('cl.p.'+k)}</dt><dd>${k==='web'?linkOrText(v):paras(v)||esc(v)}</dd>`).join('')}</dl></div>`:''}
   </div>
   ${reviewsHtml(info)}
