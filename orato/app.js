@@ -335,6 +335,8 @@ function render(){
   if(SH.on&&(DEL.done||deletionPassed())){$('#main').innerHTML=deletedView();return}
   // A planned meeting is picked only in the Agenda and Roles tabs: elsewhere, back to the next meeting.
   if(typeof meetingLeave==='function')meetingLeave();
+  // The member directory opens as soon as this person may read it (member profile confirmed or officer known).
+  if(typeof profilesDirSub==='function'&&SH.on&&SH.fs&&!PROF.dirUnsub&&!PROF.dirErr&&directoryAccess())profilesDirSub();
   if(typeof rsvpRefresh==='function')rsvpRefresh();
   $('#main').innerHTML=deletionBanner()+(typeof swapAlerts==='function'?swapAlerts():'')+VIEWS[tab]();
   if(tab==='timer') paintTimer();

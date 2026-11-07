@@ -1007,6 +1007,7 @@ window.I18N.nl = {
   "roles.introShared": "Leden openen deze pagina en tikken op “Ik neem hem” om een rol te reserveren. Je kunt ook de naam typen van iemand die zich op een andere manier heeft aangemeld.",
   "roles.introLocal": "Vul in wie welke rol heeft. Vrije rollen worden gemarkeerd, en je kunt een kant-en-klaar bericht kopiëren voor de groepschat van je club.",
   "roles.openN": "{n} vrij",
+  "dir.readErr": "De ledengids kon niet geladen worden. Blijft dit zo, dan zijn de Firestore-regels misschien verouderd: publiceer firestore.rules opnieuw. Fout:",
   "preset.tr1": "Overgang (1 min)",
   "preset.tr2": "Overgang (2 min)",
   "preset.tr5": "Overgang (5 min)",

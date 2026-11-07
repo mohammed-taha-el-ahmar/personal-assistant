@@ -39,9 +39,11 @@ function profilesAuthChanged(){
 function profilesDirSub(){
   if(directoryAccess()){
     if(!PROF.dirUnsub)PROF.dirUnsub=SH.fs.collection(`clubs/${SH.club}/directory`).onSnapshot(q=>{
-      PROF.dir=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name).localeCompare(String(b.name)));softRender()},
+      PROF.dirErr='';PROF.dir=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name).localeCompare(String(b.name)));softRender()},
       // A refused listener is dropped so that the next call can open it again.
-      e=>{console.warn('directory',e&&e.code);PROF.dir=PROF.dir.filter(d=>d.id===SH.uid);if(PROF.dirUnsub){try{PROF.dirUnsub()}catch(x){}}PROF.dirUnsub=null});
+      e=>{console.warn('directory',e&&e.code,e&&e.message);PROF.dirErr=e&&e.code||'error';PROF.dir=PROF.dir.filter(d=>d.id===SH.uid);if(PROF.dirUnsub){try{PROF.dirUnsub()}catch(x){}}PROF.dirUnsub=null;
+        // Try again a little later (the officer status or the profile may just be arriving).
+        PROF.dirRetry=(PROF.dirRetry||0)+1;if(PROF.dirRetry<=5)setTimeout(profilesDirSub,1500*PROF.dirRetry);softRender()});
   }else if(PROF.dirUnsub){PROF.dirUnsub();PROF.dirUnsub=null;PROF.dir=[]}
 }
 function profilesOfficerSubs(){
@@ -188,6 +190,7 @@ function directoryView(){
   const mine=PROF.dir.some(d=>d.id===SH.uid);
   const a=(href,label,ext)=>`<a class="btn small" href="${esc(href)}" ${ext?'target="_blank" rel="noopener noreferrer"':''}>${esc(label)}</a>`;
   return `<section class="panel">${head}
+    ${PROF.dirErr?`<div class="notice" style="border-color:var(--bad,#c0392b)"><span>${t('dir.readErr')} <code>${esc(PROF.dirErr)}</code></span></div>`:''}
     ${mine?'':`<div class="notice"><span>${t('dir.notListed')}</span><button class="small" data-act="go-me">${t('dir.addMe')}</button></div>`}
     <div class="box"><div class="field"><label class="label" for="dir-q">${t('mem.search')}</label><input id="dir-q" data-act="dir-q" value="${esc(PROF.q)}" autocomplete="off"></div>
     ${list.length?`<div class="dircards">${list.map(d=>{const li=d.linkedin&&safeUrl(d.linkedin);const wa=waLink(d.whatsapp);
