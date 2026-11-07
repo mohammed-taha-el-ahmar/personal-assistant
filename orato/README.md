@@ -31,6 +31,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `kit.js` | Officer toolkit (premium): training, action plan, events, announcements |
 | `cpro.js` | Contests pro (premium): judge codes, phone ballots, secret counting, results, certificates |
 | `attendance.js` | Attendance answers, replacement alerts, attendance kept when a meeting is closed |
+| `flow.js` | Running order for the Timer, quick speakers and renaming for the Ah-Counter and Grammarian |
 | `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
@@ -125,6 +126,12 @@ When a role holder taps **Find a replacement**, everyone who said they are comin
 Closing a meeting keeps who said they came in the history. The **Statistics** tab (premium) then shows the average attendance (and online share), and a **Roles by member** table: how many times each member was Toastmaster, speaker, evaluator, General Evaluator, Table Topics Master or evaluator, Timer, Ah-Counter, Grammarian, Sergeant at Arms or President, their attendance, and how often each role was filled.
 
 Data: `clubs/{club}/rsvp/{date}_{uid}`. **Republish `firestore.rules`.**
+
+## Timer, Ah-Counter and Grammarian in a hurry
+
+- **Timer, running order:** **Load from the agenda** lists the speakers of the meeting with the right timing for each (the speech's own timing for an approved speech request, 5–7 min otherwise; four Table Topics slots; evaluators 2–3 min; General Evaluator). The first one is ready: press **Start**, then **Stop and record**, and the next speaker is ready. Names can be typed in the list at any time (Table Topics speakers, for example), and any line can be picked by hand.
+- **Timer, report:** the speaker and the type of each recorded time can be changed afterwards; the result (qualified or not) is recalculated.
+- **Ah-Counter and Grammarian:** **+ Next speaker** adds an unnamed speaker in one tap while someone is already speaking; **Add the agenda's speakers** adds everyone holding a role; any name can be corrected later in the report.
 
 ## Help for new visitors
 

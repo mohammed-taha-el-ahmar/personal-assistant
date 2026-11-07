@@ -373,9 +373,10 @@ VIEWS.timer=()=>{const p=preset();const tm=S.timer;
     <div class="marks">${marksHtml(p)}</div>
     <div class="btns"><button class="primary" id="tbtn" data-act="t-toggle">${t('timer.start')}</button><button data-act="t-log">${esc(t('timer.stop'))}</button><button data-act="t-reset">${t('timer.reset')}</button><button data-act="t-full">${t('timer.full')}</button><button id="t-dispbtn" data-act="t-disp-toggle">${t(timerDisplay()==='colors'?'timer.showTime':'timer.hideTime')}</button></div>
   </div>
+  ${typeof flowBox==='function'?flowBox():''}
   <div class="box"><div class="phead"><h3>${t('timer.report')}</h3><div class="btns"><button class="small" data-act="t-copy">${t('common.copyReport')}</button>${sendBtn('timer')}<button class="small ghost" data-act="t-clear">${t('timer.clearLog')}</button></div></div>
     ${tm.log.length?`<div class="tablewrap"><table><thead><tr><th>${t('common.speaker')}</th><th>${t('timer.colType')}</th><th class="num">${t('timer.colTime')}</th><th>${t('timer.colResult')}</th><th></th></tr></thead><tbody>
-    ${tm.log.map((l,i)=>`<tr><td>${esc(l.name)}</td><td>${esc(logType(l))}</td><td class="num">${mmss(l.secs)}</td><td>${l.q===false?`<span class="chip bad">${t('timer.outside')}</span>`:`<span class="chip ok">${t('timer.qualified')}</span>`}</td><td><button class="ghost small" data-act="t-del" data-i="${i}" aria-label="${t('common.remove')}">×</button></td></tr>`).join('')}
+    ${tm.log.map((l,i)=>`<tr><td><input class="cellin" data-tlogname="${i}" value="${esc(l.name)}" aria-label="${t('common.speaker')}"></td><td>${l.pid&&l.pid!=='custom'?`<select class="cellin" data-tlogtype="${i}" aria-label="${t('timer.colType')}">${PRESETS.filter(x=>x.id!=='custom').map(x=>`<option value="${x.id}" ${x.id===l.pid?'selected':''}>${t('preset.'+x.id)}</option>`).join('')}</select>`:esc(logType(l))}</td><td class="num">${mmss(l.secs)}</td><td>${l.q===false?`<span class="chip bad">${t('timer.outside')}</span>`:`<span class="chip ok">${t('timer.qualified')}</span>`}</td><td><button class="ghost small" data-act="t-del" data-i="${i}" aria-label="${t('common.remove')}">×</button></td></tr>`).join('')}
     </tbody></table></div>`:`<p class="empty">${t('timer.empty')}</p>`}
   </div></section>`};
 
@@ -392,6 +393,7 @@ VIEWS.ah=()=>{const a=S.ah;const sp=a.speakers[a.cur];const W=ahWords();
   <div class="box">
     <div class="speakers">${a.speakers.map((s,i)=>`<button class="spk" aria-pressed="${i===a.cur}" data-act="ah-pick" data-i="${i}">${esc(s.name)}</button>`).join('')}</div>
     <form class="btns" data-form="ah-add" style="flex-wrap:nowrap"><input id="ah-new" placeholder="${t('common.addSpeaker')}" autocomplete="off"><button type="submit">${t('common.add')}</button></form>
+    <div class="btns"><button class="small" data-act="ah-next">${t('flow.next')}</button><button class="small ghost" data-act="ah-agenda">${t('flow.fromAgenda')}</button></div>
   </div>
   ${editWords?`<div class="box"><div class="phead"><div><h3>${t('ah.wordsTitle')}</h3><p class="muted">${t('ah.wordsIntro')}</p></div><button class="small primary" data-act="ah-edit">${t('ah.done')}</button></div>
     <div class="wchips">${W.map(([id,lab])=>`<span class="wchip">${esc(lab)}<button class="ghost small" data-act="ah-rmword" data-w="${id}" aria-label="${esc(t('ah.removeWord',{w:lab}))}">×</button></span>`).join('')||`<span class="muted">${t('ah.noWords')}</span>`}</div>
@@ -403,7 +405,7 @@ VIEWS.ah=()=>{const a=S.ah;const sp=a.speakers[a.cur];const W=ahWords();
     :`<div class="box"><p class="empty">${t('ah.addFirst')}</p>${editWords?'':`<div><button class="small ghost" data-act="ah-edit">${t('ah.edit')}</button></div>`}</div>`}
   <div class="box"><div class="phead"><h3>${t('ah.report')}</h3><div class="btns"><button class="small" data-act="ah-copy">${t('common.copyReport')}</button>${sendBtn('ah')}<button class="small ghost" data-act="ah-zero">${t('ah.reset')}</button></div></div>
   ${a.speakers.length?`<div class="tablewrap"><table><thead><tr><th>${t('common.speaker')}</th>${cols.map(([,lab])=>`<th class="num">${esc(lab)}</th>`).join('')}<th class="num">${t('ah.total')}</th><th></th></tr></thead><tbody>
-  ${a.speakers.map((s,i)=>`<tr><td>${esc(s.name)}</td>${cols.map(([id])=>`<td class="num">${s.c[id]||''}</td>`).join('')}<td class="num"><b>${ahTotal(s)}</b></td><td><button class="ghost small" data-act="ah-del" data-i="${i}" aria-label="${t('common.remove')} ${esc(s.name)}">×</button></td></tr>`).join('')}
+  ${a.speakers.map((s,i)=>`<tr><td><input class="cellin" data-ahname="${i}" value="${esc(s.name)}" aria-label="${t('common.speaker')}"></td>${cols.map(([id])=>`<td class="num">${s.c[id]||''}</td>`).join('')}<td class="num"><b>${ahTotal(s)}</b></td><td><button class="ghost small" data-act="ah-del" data-i="${i}" aria-label="${t('common.remove')} ${esc(s.name)}">×</button></td></tr>`).join('')}
   </tbody></table></div>`:`<p class="empty">${t('ah.none')}</p>`}</div></section>`};
 
 // ---------- GRAMMARIAN ----------
@@ -419,8 +421,9 @@ VIEWS.gram=()=>{const g=S.gram;
       <div class="field"><label class="label" for="g-ex">${t('gram.ex')}</label><input id="g-ex" data-bind="gram.ex" value="${esc(g.ex)}"></div>
     </div>
     <div class="box"><h3>${t('gram.who',{w:esc(g.word||t('gram.theWord'))})}</h3>
-      ${g.speakers.length?g.speakers.map((s,i)=>`<div class="rate"><span>${esc(s.name)}</span><div class="btns"><button class="small" data-act="g-dec" data-i="${i}" aria-label="${t('gram.less')}">−</button><b style="font-family:var(--mono);min-width:2ch;text-align:center;align-self:center">${s.n}</b><button class="small" data-act="g-inc" data-i="${i}" aria-label="${t('gram.more')}">+</button></div></div>`).join(''):`<p class="empty">${t('gram.addSpeakers')}</p>`}
+      ${g.speakers.length?g.speakers.map((s,i)=>`<div class="rate"><input class="cellin" data-gname="${i}" value="${esc(s.name)}" aria-label="${t('common.speaker')}"><div class="btns"><button class="small" data-act="g-dec" data-i="${i}" aria-label="${t('gram.less')}">−</button><b style="font-family:var(--mono);min-width:2ch;text-align:center;align-self:center">${s.n}</b><button class="small" data-act="g-inc" data-i="${i}" aria-label="${t('gram.more')}">+</button></div></div>`).join(''):`<p class="empty">${t('gram.addSpeakers')}</p>`}
       <form class="btns" data-form="g-add" style="flex-wrap:nowrap"><input id="g-new" placeholder="${t('common.addSpeaker')}" autocomplete="off"><button type="submit">${t('common.add')}</button></form>
+      <div class="btns"><button class="small" data-act="g-next">${t('flow.next')}</button><button class="small ghost" data-act="g-agenda">${t('flow.fromAgenda')}</button></div>
     </div>
   </div>
   <div class="grid2">
@@ -627,7 +630,10 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 't-log':{const s=elapsed();if(s<1){toast(t('timer.startFirst'));break}const p=preset();
     const entry={name:S.timer.name||t('timer.speakerN',{n:S.timer.log.length+1}),pid:p.id,secs:Math.round(s),q:qualified(s,p)};
     if(p.id==='custom'){entry.cg=S.timer.cg;entry.cr=S.timer.cr}
-    S.timer.log.push(entry);resetTimer();S.timer.name='';save();render();toast(t('timer.recorded',{t:mmss(s)}));break}
+    S.timer.log.push(entry);resetTimer();S.timer.name='';
+    // Running order loaded from the agenda: mark this one done and get the next speaker ready.
+    const q=S.timer.queue||[];if(q.length&&S.timer.qi!=null&&q[S.timer.qi]){q[S.timer.qi].done=true;const nx=q.findIndex((x,j)=>j>S.timer.qi&&!x.done);if(nx>=0)flowApply(nx);else S.timer.qi=null}
+    save();render();toast(t('timer.recorded',{t:mmss(s)}));break}
   case 't-del':S.timer.log.splice(i,1);save();render();break;
   case 't-clear':S.timer.log=[];save();render();break;
   case 't-disp-toggle':{const _nd=(timerDisplay()==='colors'?'both':'colors');setTimerDisplay(_nd);const sel=$('#t-display');if(sel)sel.value=_nd;paintTimer();break}
