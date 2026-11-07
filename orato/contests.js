@@ -117,7 +117,7 @@ en:{
   linksTitle:'Our club and district links',linksIntro:'Contest calendar, registration forms, district instructions…',linksNone:'No links yet.',linksNoneOfficer:'No links yet. Add your district’s contest page or your own documents.',
   linkTitle:'Title',linkUrl:'Link (https://…)',linkAdd:'Add the link',linkSaved:'Link added',linkRemoved:'Link removed',linkBad:'Enter a title and a link starting with https://',linkMax:'Up to 20 links'},
 fr:{
-  pages:{contest:'Organiser',cofficials:'Officiés',cdocs:'Documents',cvideos:'Voir et apprendre'},
+  pages:{contest:'Organiser',cofficials:'Officiels',cdocs:'Documents',cvideos:'Voir et apprendre'},
   officialsIntro:'Qui fait quoi le jour du concours, et les documents dont chaque officiel a besoin. Choisissez le type de concours pour obtenir les bons bulletins.',
   docsByType:'Bulletins et kits par type de concours',colType:'Concours',colBallot:'Bulletin du juge',colTie:'Bulletin de départage',colKit:'Kit',inKit:'dans le kit',
   vTitle:'Voir et apprendre',vIntro:'Les discours gagnants du championnat du monde de prise de parole en public (World Championship of Public Speaking), la finale du concours International. Regardez-les en club, puis discutez de ce qui les rend efficaces.',
@@ -127,7 +127,7 @@ fr:{
   vPlaylist:'Playlist officielle des discours gagnants',vAll:'Tous les champions du monde depuis 1938',vNote:'Les vidéos sont lues depuis YouTube (mode confidentialité renforcée). Certaines ne peuvent être vues que sur YouTube.',
   vClubTitle:'La sélection du club',vClubIntro:'Des discours de votre club, des concours de votre district ou d’autres orateurs à voir.',vNone:'Aucune vidéo pour l’instant.',vNoneOfficer:'Aucune vidéo pour l’instant. Ajoutez un lien YouTube ou Vimeo : la finale de votre district, le discours de concours d’un membre…',
   vFTitle:'Titre',vFUrl:'Lien YouTube ou Vimeo',vFNote:'À quoi faire attention (facultatif)',vAdd:'Ajouter la vidéo',vSaved:'Vidéo ajoutée',vRemoved:'Vidéo supprimée',vBad:'Saisissez un titre et un lien YouTube ou Vimeo',vMax:'30 vidéos maximum',
-  title:'Concours de discours',intro:'Tout pour organiser un concours de club : types de concours et chronométrage, rôles et missions des officiés, documents officiels et outils pour le jour J.',
+  title:'Concours de discours',intro:'Tout pour organiser un concours de club : types de concours et chronométrage, rôles et missions des officiels, documents officiels et outils pour le jour J.',
   rulesNote:'Cette page résume les règles. La référence reste toujours le règlement des concours en vigueur (Speech Contest Rulebook, édition 2026–2027 au moment de la rédaction) : lisez-le, et vérifiez les documents sur toastmasters.org avant de les imprimer.',
   typeTitle:'Type de concours',timing:'Chronométrage',length:'Temps de parole',green:'Vert',yellow:'Jaune',red:'Rouge',window:'Plage de qualification',windowText:'De {lo} à {hi}. En dehors de cette plage, le candidat est disqualifié.',
   ballot:'Guide et bulletin du juge',tie:'Guide et bulletin du juge de départage',kit:'Kit du concours (tous les formulaires)',tieInKit:'Bulletin de départage : dans le kit du concours',noBallot:'Bulletins : dans le kit du concours',
@@ -141,8 +141,8 @@ fr:{
     online:['Se déroule sur une plateforme vidéo ; les candidats parlent en direct, caméra allumée.','Un chronométreur de secours est obligatoire en plus des deux chronométreurs.']},
   toolsTitle:'Outils pour le jour J',toolDraw:'Tirer l’ordre de passage',toolTimer:'Chrono du concours',toolAgenda:'Ordre du jour du concours',toolEval:'Fiches d’évaluation',
   checkTitle:'Check-list du président du concours',checkIntro:'Enregistrée sur cet appareil.',checkDone:'{n} sur {total} fait(s)',checkReset:'Vider la check-list',
-  check:['Date, salle (ou lien en ligne) et type(s) de concours fixés avec le bureau et le directeur de l’Area','Candidats inscrits et éligibilité vérifiée (membre à jour d’un club en règle ; niveaux 1 et 2 de Pathways pour le concours International)','Chaque candidat a signé la certification d’éligibilité et d’originalité (1183)','Juge en chef désigné','Au moins cinq juges votants et un juge de départage recrutés ; chacun signe la certification des juges (1170)','Deux compteurs et deux chronométreurs recrutés (plus un chronométreur de secours en ligne)','Sergent d’armes recruté, et un orateur test pour le concours d’évaluation','Dernières versions des bulletins, feuilles de dépouillement et de chronométrage imprimées (ou versions en ligne prêtes)','Feux de chronométrage (ou ce chrono) testés, ordre du jour du concours prêt','Certificats et récompenses prêts','Ordre de passage tiré au sort devant les candidats','Briefings faits : les candidats par le président du concours ; juges, compteurs et chronométreurs par le juge en chef','Résultats transmis au niveau suivant (Notification of Contest Winner, dans le kit du concours)','Officiés et bénévoles remerciés'],
-  rolesTitle:'Les officiés du concours',rolesIntro:'Au niveau du club, le règlement demande, sauf impossibilité, un président du concours, un juge en chef, au moins cinq juges votants, un juge de départage, deux compteurs et deux chronométreurs.',
+  check:['Date, salle (ou lien en ligne) et type(s) de concours fixés avec le bureau et le directeur de l’Area','Candidats inscrits et éligibilité vérifiée (membre à jour d’un club en règle ; niveaux 1 et 2 de Pathways pour le concours International)','Chaque candidat a signé la certification d’éligibilité et d’originalité (1183)','Juge en chef désigné','Au moins cinq juges votants et un juge de départage recrutés ; chacun signe la certification des juges (1170)','Deux compteurs et deux chronométreurs recrutés (plus un chronométreur de secours en ligne)','Sergent d’armes recruté, et un orateur test pour le concours d’évaluation','Dernières versions des bulletins, feuilles de dépouillement et de chronométrage imprimées (ou versions en ligne prêtes)','Feux de chronométrage (ou ce chrono) testés, ordre du jour du concours prêt','Certificats et récompenses prêts','Ordre de passage tiré au sort devant les candidats','Briefings faits : les candidats par le président du concours ; juges, compteurs et chronométreurs par le juge en chef','Résultats transmis au niveau suivant (Notification of Contest Winner, dans le kit du concours)','Officiels et bénévoles remerciés'],
+  rolesTitle:'Les officiels du concours',rolesIntro:'Au niveau du club, le règlement demande, sauf impossibilité, un président du concours, un juge en chef, au moins cinq juges votants, un juge de départage, deux compteurs et deux chronométreurs.',
   needs:'Documents',
   roles:{chair:['Président du concours','Organise le concours et l’anime le jour J.',['Planifie la date, la salle et les officiels avec le bureau','Vérifie les formulaires d’éligibilité et briefe les candidats','Présente chaque candidat, mène les interviews et annonce les gagnants']],
     chief:['Juge en chef','Veille à un jugement équitable et conforme au règlement. Ne vote pas.',['Recrute et briefe les juges, compteurs et chronométreurs','Désigne le juge de départage, dont l’identité reste secrète','Recueille les bulletins et les relevés de temps et remet les résultats au président du concours']],
@@ -319,7 +319,7 @@ function contestOfficialsView(){
   const resolve=k=>k==='ballot'?ct.ballot:k==='tie'?ct.tie:k==='kit'?{url:ct.kit}:DOCS[k];
   return `<section class="panel">
   ${ctHead('cofficials',L.rolesTitle,L.officialsIntro)}
-  <div class="box"><h3>${esc(L.typeTitle)}</h3>${ctTypeChips()}<p class="muted" style="margin:8px 0 0">${esc(L.rolesIntro)}</p></div>
+  <div class="box"><h3>${esc(L.typeTitle)}</h3>${ctTypeChips()}<p class="muted" style="margin:8px 0 0">${esc(L.rolesIntro)}</p>${isOn('roles')?`<div class="btns" style="margin-top:10px"><button class="small primary" data-act="ct-signup">${esc(t('ct.signup'))} →</button></div>`:''}</div>
   ${CONTEST_ROLES.map(([k,docs])=>{const [name,sum,tasks]=L.roles[k];const ds=docs.map(d=>{const v=resolve(d);return v&&v.url?ctLink(L.docs[d],v):''}).join('');
     return `<details class="guide"><summary><h3>${esc(name)}</h3><span class="muted">${esc(sum)}</span></summary>
       <div class="gbody"><div><ul>${tasks.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>${ds?`<div><span class="label">${esc(L.needs)}</span><ul class="ctdocs">${ds}</ul></div>`:''}</div></details>`}).join('')}
@@ -427,6 +427,7 @@ document.addEventListener('click',async ev=>{
   switch(b.dataset.act){
   case 'ct-type':CON.type=b.dataset.v;try{localStorage.setItem('gt-contest-type',CON.type)}catch(e){}render();return;
   case 'ct-timer':contestTimer();return;
+  case 'ct-signup':if(!(SH.on&&!canManage())&&rolesMode()!=='contest'){S.agenda.rolesMode='contest';save();pushAgenda()}setTab('roles');return;
   case 'ct-go':setTab(b.dataset.v);return;
   case 'ct-agenda':if(typeof TPL!=='undefined'){TPL.sel='b:contest';TPL.confirm=false}setTab('agenda');setTimeout(()=>{const s=document.getElementById('tpl-pick');if(s)s.scrollIntoView({block:'center'})},50);return;
   case 'ct-check-reset':CON.checks=[];saveChecks();render();return;

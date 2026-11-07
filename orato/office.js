@@ -233,7 +233,7 @@ async function sendReport(kind){
 // ---------- closing a meeting ----------
 const todayISO=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 function currentSnapshot(){
-  const a=S.agenda;const roles={};ROLE_KEYS.forEach(k=>{const n=roleName(k);if(n)roles[k]=n});
+  const a=S.agenda;const roles={};publicRoleKeys().forEach(k=>{const n=roleName(k);if(n)roles[k]=n});
   const votes=S.vote.cats.map((c,i)=>{const {votes,total}=tally(i);return {key:c.key||null,name:c.name||null,cands:c.cands||[],results:votes,total}});
   return {date:a.date||todayISO(),club:a.club||'',theme:a.theme||'',venue:a.venue||'',start:a.start||'19:00',online:online(a),
     items:(a.items||[]).map(it=>({k:it.k||null,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0})),
@@ -324,13 +324,13 @@ function currentFeedbackBox(){
   return `<div class="box"><div><h3>${t('fb.currentTitle')}</h3><p class="muted">${t('fb.meetingOf',{date:esc(fmtDate(d))})}</p></div>${feedbackHtml(fbFor(d))}</div>`;
 }
 function closeBox(){
-  const a=S.agenda;const filled=ROLE_KEYS.filter(k=>roleName(k)).length;
+  const a=S.agenda;const ks=officialKeys();const filled=ks.filter(k=>roleName(k)).length;
   const ballots=S.vote.cats.reduce((n,c,i)=>n+tally(i).total,0);
   const rep=k=>SH.reports&&SH.reports[k]?`<span class="chip ok">${t('tab.'+k)} ✓</span>`:`<span class="chip warn">${t('tab.'+k)}: ${t('hist.noReport')}</span>`;
   return `<div class="box"><div><h3>${t('close.title')}</h3><p class="muted">${t('close.intro')}</p></div>
     <div class="kv">
       <div><span class="label">${t('close.date')}</span><b>${esc(a.date?fmtDate(a.date):'–')}</b></div>
-      <div><span class="label">${t('close.rolesFilled')}</span><b>${filled} / ${ROLE_KEYS.length}</b></div>
+      <div><span class="label">${t('close.rolesFilled')}</span><b>${filled} / ${ks.length}</b></div>
       <div><span class="label">${t('close.votes')}</span><b>${ballots}</b></div>
     </div>
     <div><span class="label">${t('close.reports')}</span><div class="btns" style="margin-top:6px">${rep('timer')}${rep('ah')}${rep('gram')}</div></div>

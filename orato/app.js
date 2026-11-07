@@ -28,6 +28,15 @@ const PRESETS=[
   {id:'custom'}
 ];
 const ROLE_KEYS=['toastmaster','ge','timer','ah','gram','ttm','tte','s1','s2','s3','e1','e2','e3','saa','pres'];
+// Speech contest roles (Roles tab, "Contest" list). Judges' and the tiebreaking judge's names stay confidential
+// (rulebook): only officers and the person themselves see them, and they never go on the agenda or in the history.
+const CONTEST_OFFICIAL_KEYS=['cchair','cchief','cj1','cj2','cj3','cj4','cj5','ctie','ccount1','ccount2','ctime1','ctime2','csaa','ctest'];
+const CONTESTANT_KEYS=['cc1','cc2','cc3','cc4','cc5','cc6'];
+const SECRET_ROLES=['cj1','cj2','cj3','cj4','cj5','ctie'];
+const rolesMode=()=>S.agenda&&S.agenda.rolesMode==='contest'?'contest':'meeting';
+const officialKeys=()=>rolesMode()==='contest'?CONTEST_OFFICIAL_KEYS:ROLE_KEYS;
+const activeRoleKeys=()=>rolesMode()==='contest'?[...CONTEST_OFFICIAL_KEYS,...CONTESTANT_KEYS]:ROLE_KEYS;
+const publicRoleKeys=()=>activeRoleKeys().filter(k=>!SECRET_ROLES.includes(k));
 const CRIT=['open','struct','voice','body','eye','obj'];
 const AGENDA_KEYS=[['doors','saa',10],['welcome','pres',3],['intro','toastmaster',4],['roles','ge',5],['speech1','s1',7],['speech2','s2',7],['speech3','s3',7],
   ['tt','ttm',20],['break','',10],['evals','ge',12],['ttEval','tte',4],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]];
@@ -505,7 +514,7 @@ VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=onlin
   <div class="box"><h3>${t('ag.order')}</h3>
     ${a.items.map((it,i)=>`<div class="arow"><span class="t">${times[i]}</span>
       <input id="ai-t${i}" aria-label="${t('ag.item')}" data-item="${i}" data-k="title" value="${esc(itemTitle(it))}">
-      <select class="rolesel" id="ai-r${i}" aria-label="${t('ag.role')}" data-item="${i}" data-k="role"><option value="">${t('ag.noRole')}</option>${ROLE_KEYS.map(k=>`<option value="${k}" ${k===it.role?'selected':''}>${roleLabel(k)}</option>`).join('')}</select>
+      <select class="rolesel" id="ai-r${i}" aria-label="${t('ag.role')}" data-item="${i}" data-k="role"><option value="">${t('ag.noRole')}</option>${[...new Set([...publicRoleKeys(),...(rolesMode()==='contest'?['toastmaster','pres']:[]),...(it.role&&!SECRET_ROLES.includes(it.role)?[it.role]:[])])].map(k=>`<option value="${k}" ${k===it.role?'selected':''}>${roleLabel(k)}</option>`).join('')}</select>
       <input id="ai-d${i}" aria-label="${t('ag.minutes')}" type="number" min="0" data-item="${i}" data-k="dur" value="${it.dur}">
       <div class="ctrls"><button class="ghost small" data-act="a-up" data-i="${i}" aria-label="${t('ag.up')}">↑</button><button class="ghost small" data-act="a-down" data-i="${i}" aria-label="${t('ag.down')}">↓</button><button class="ghost small" data-act="a-del" data-i="${i}" aria-label="${t('common.remove')}">×</button></div></div>`).join('')}
     <div class="btns"><button data-act="a-add">${t('ag.add')}</button><span class="muted" style="align-self:center">${t('ag.endsAt',{t:times[times.length-1]})}</span></div>
@@ -517,6 +526,9 @@ let confirmClear=false;
 function roleCell(k){
   if(!SH.on) return `<input id="r-${k}" data-role="${k}" value="${esc(S.roles[k])}" placeholder="${t('roles.unassigned')}">`;
   const e=SH.roles[k];
+  // Judges' names: only signed-in officers and the judge see them.
+  if(e&&e.n&&SECRET_ROLES.includes(k)&&SH.officer!==true&&!(e.u&&e.u===SH.uid))
+    return `<div class="btns" style="align-items:center"><span class="muted">${t('roles.secretTaken')}</span>${canManage()?`<button class="small ghost" data-act="r-unassign" data-k="${k}">${t('roles.clear')}</button>`:''}</div>`;
   if(!canManage()){
     // Members take a free role or give up their own; visitors only see who holds what.
     const mine=e&&e.u&&e.u===SH.uid;
@@ -526,13 +538,21 @@ function roleCell(k){
   if(e&&e.u){const mine=e.u===SH.uid;return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span><button class="small ghost" data-act="${mine?'r-release':'r-unassign'}" data-k="${k}">${t(mine?'roles.giveUp':'roles.clear')}</button></div>`}
   return `<div class="btns" style="flex-wrap:nowrap"><input id="r-${k}" data-srole="${k}" value="${esc(e&&e.n||'')}" placeholder="${t('roles.typeName')}">${!(e&&e.n)?`<button class="small" data-act="r-take" data-k="${k}">${t('roles.take')}</button>`:''}</div>`;
 }
-VIEWS.roles=()=>{const open=ROLE_KEYS.filter(k=>!roleName(k));
+function rolesModeSwitch(){
+  const m=rolesMode();
+  if(SH.on&&!canManage())return m==='contest'?`<div class="notice"><span>${t('roles.contestNote')}</span></div>`:'';
+  return `<div class="box"><span class="label">${t('roles.modeLabel')}</span><div class="speakers" role="group" aria-label="${esc(t('roles.modeLabel'))}">${chip('r-mode','meeting',m==='meeting',esc(t('roles.modeMeeting')))}${chip('r-mode','contest',m==='contest',esc(t('roles.modeContest')))}</div>
+    ${m==='contest'?`<p class="muted" style="margin:8px 0 0">${t('roles.contestIntro')}</p>`:''}</div>`;
+}
+const roleRow=k=>`<tr><td>${roleLabel(k)}${SECRET_ROLES.includes(k)?` <span class="muted" title="${esc(t('roles.secretHint'))}">🔒</span>`:''}</td><td>${roleCell(k)}</td><td id="rs-${k}">${filledChip(roleName(k))}</td></tr>`;
+VIEWS.roles=()=>{const open=officialKeys().filter(k=>!roleName(k));const contest=rolesMode()==='contest';
   return `<section class="panel">
   <div class="phead"><div><h2>${t('roles.title')}</h2><p class="muted">${t(SH.on?'roles.introShared':'roles.introLocal')}</p></div>
   <span class="chip ${open.length?'warn':'ok'}">${open.length?t('roles.openN',{n:open.length}):t('roles.allFilled')}</span></div>
-  ${liveBox()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}
+  ${liveBox()}${rolesModeSwitch()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}
   <div class="box"><div class="tablewrap"><table><thead><tr><th>${t('roles.colRole')}</th><th>${t('roles.colMember')}</th><th>${t('roles.colStatus')}</th></tr></thead><tbody>
-  ${ROLE_KEYS.map(k=>`<tr><td>${roleLabel(k)}</td><td>${roleCell(k)}</td><td id="rs-${k}">${filledChip(roleName(k))}</td></tr>`).join('')}
+  ${contest?`<tr><th colspan="3">${t('roles.officials')}</th></tr>`:''}${officialKeys().map(roleRow).join('')}
+  ${contest?`<tr><th colspan="3">${t('roles.contestants')} <span class="muted">· ${t('roles.contestantsN',{n:CONTESTANT_KEYS.filter(k=>roleName(k)).length})}</span></th></tr>${CONTESTANT_KEYS.map(roleRow).join('')}`:''}
   </tbody></table></div>
   <div class="btns"><button class="primary" data-act="r-copy">${t('roles.copyOpen')}</button>
   ${!canManage()?'':confirmClear?`<span class="muted" style="align-self:center">${t(SH.on?'roles.askAll':'roles.askHere')}</span><button class="small primary" data-act="r-clear">${t('roles.yesClear')}</button><button class="small" data-act="r-cancel">${t('common.cancel')}</button>`:`<button class="ghost" data-act="r-ask">${t('roles.clearAll')}</button>`}</div></div></section>`};
@@ -634,8 +654,9 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'a-down':{const x=S.agenda.items;if(i<x.length-1){[x[i+1],x[i]]=[x[i],x[i+1]];save();pushAgenda();render()}break}
   case 'a-copy':{const ag=S.agenda,tm=agendaTimes();const ol=onlineLines(ag);copyText(`${ag.club}\n${fmtDate(ag.date)}${ag.venue&&online(ag).format!=='online'?' · '+ag.venue:''}${ag.theme?'\n'+t('ag.themeIs')+' '+ag.theme:''}${ol.length?'\n'+ol.join('\n'):''}\n\n`+ag.items.map((it,k)=>`${tm[k]}  ${itemTitle(it)}${it.role?' – '+roleLabel(it.role)+': '+itemPerson(it):''}`).join('\n')+`\n${tm[tm.length-1]}  ${t('ag.ends')}`);break}
   // roles
-  case 'r-copy':{const open=ROLE_KEYS.filter(k=>!roleName(k)).map(k=>'• '+roleLabel(k));const ag=S.agenda;
+  case 'r-copy':{const open=officialKeys().filter(k=>!roleName(k)).map(k=>'• '+roleLabel(k));const ag=S.agenda;
     copyText(open.length?t('roles.msgOpen',{date:ag.date?t('roles.msgDate',{d:fmtDate(ag.date)}):'',theme:ag.theme?t('roles.msgTheme',{t:ag.theme}):'',list:open.join('\n')}):t('roles.msgFull'));break}
+  case 'r-mode':if(SH.on&&!canManage())break;S.agenda.rolesMode=b.dataset.v;save();pushAgenda();render();break;
   case 'r-ask':confirmClear=true;render();break;
   case 'r-cancel':confirmClear=false;render();break;
   case 'r-clear':confirmClear=false;
