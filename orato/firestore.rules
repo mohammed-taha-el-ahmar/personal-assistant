@@ -16,6 +16,7 @@ rules_version = '2';
 //   clubs/{club}/kit/{year}       officer toolkit (premium): training, action plan, events, templates; officers only
 //   clubs/{club}/contests/{id}    contests pro (premium): contest, judge codes, judges, secret ballots
 //   clubs/{club}/rsvp/{date_uid}  who comes to a meeting (on site, online, not sure, not coming); members and officers read
+//   clubs/{club}/plans/{date}     meetings planned ahead (agenda and roles); read by everyone with the link
 //   clubs/{club}/public/plan      premium features of the club; everyone reads, the administrator writes
 //   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
@@ -605,6 +606,18 @@ service cloud.firestore {
           || (docId == 'reports' && memberLevel(club))
           || (docId == 'roles' && memberLevel(club) && memberRoleEdit()));
       allow delete: if purging(club);
+    }
+
+    // Meetings planned ahead (meetings.js), one per date: the same agenda and roles as the next meeting.
+    match /clubs/{club}/plans/{date} {
+      allow read: if open(club) || purging(club);
+      allow create: if open(club) && canManage(club) && date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.keys().hasOnly(['date', 'agenda', 'roles', 'edit', 'createdBy', 'at'])
+        && request.resource.data.date == date;
+      allow update: if request.auth != null && open(club)
+        && ((canManage(club) && request.resource.data.date == resource.data.date)
+          || (memberLevel(club) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['roles', 'edit']) && memberRoleEdit()));
+      allow delete: if (open(club) && canManage(club)) || purging(club);
     }
 
     match /clubs/{club}/ballots/{voterId} {

@@ -69,7 +69,7 @@ function rsvpBox(noName){
   const fmt=rsvpFormat();const opts=RSVP_ST.filter(s=>s!=='online'||fmt!=='inperson').filter(s=>s!=='onsite'||fmt!=='online');
   const mine=RS.mine&&RS.mine.status;const n=s=>RS.list.filter(r=>r.status===s).length;
   const known=typeof myDisplayName==='function'?myDisplayName():myName();
-  const canSee=RS.list.length>1||!!(RS.list.length&&!RS.mine);
+  const canSee=RS.list.length>0;
   const group=s=>{const ppl=RS.list.filter(r=>r.status===s);return ppl.length?`<div><span class="label">${esc(L.st[s])} (${ppl.length})</span><p style="margin:2px 0">${ppl.map(r=>`<bdi>${esc(r.name)}</bdi>${r.kind==='guest'?` <span class="chip">${esc(L.kind.guest)}</span>`:''}${['onsite','online'].includes(s)&&!holdsRoleName(r.name)?` <span class="muted">(${esc(L.noRole)})</span>`:''}`).join(', ')}</p></div>`:''};
   const guests=RS.list.filter(r=>r.kind==='guest'&&['onsite','online'].includes(r.status)).length;
   return `<div class="box rsvp"><div class="phead"><div><h3>${esc(L.title)}</h3><p class="muted" style="margin:0">${esc(L.forDate.replace('{d}',fmtDate(d)))}</p></div>

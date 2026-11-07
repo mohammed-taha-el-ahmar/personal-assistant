@@ -202,8 +202,10 @@ async function initShared(){
     reports:SH.fs.doc(base+'/meeting/reports'),ballots:SH.fs.collection(base+'/ballots')};
   SH.on=true;S.vote.cats=defaultCats();S.vote.reveal=false;S.vote.cat=0;S.agenda=defaultAgenda();
   const onErr=e=>{SH.error='stopped:'+(e&&e.code||'error');updateStatus()};
-  SH.ref.roles.onSnapshot(s=>{SH.roles=s.exists?clone(s.data().roles||{}):{};softRender();if(typeof claimMySlots==='function')claimMySlots()},onErr);
-  SH.ref.agenda.onSnapshot(s=>{if(SH.agendaDirty)return;S.agenda=s.exists?clone(s.data()):defaultAgenda();if(!Array.isArray(S.agenda.items))S.agenda.items=[];softRender()},onErr);
+  // The next meeting. While a planned meeting is picked (meetings.js), keep a copy without showing it.
+  SH.ref.roles.onSnapshot(s=>{const v=s.exists?clone(s.data().roles||{}):{};if(typeof meetingCurrent!=='function'||meetingCurrent('roles',v))SH.roles=v;softRender();if(typeof claimMySlots==='function')claimMySlots()},onErr);
+  SH.ref.agenda.onSnapshot(s=>{const v=s.exists?clone(s.data()):defaultAgenda();if(!Array.isArray(v.items))v.items=[];
+    const show=typeof meetingCurrent!=='function'||meetingCurrent('agenda',clone(v));if(!show||SH.agendaDirty)return;S.agenda=v;softRender()},onErr);
   SH.ref.vote.onSnapshot(s=>{const d=s.exists?s.data():null;S.vote.cats=d&&Array.isArray(d.cats)?clone(d.cats):defaultCats();S.vote.reveal=!!(d&&d.reveal);
     S.vote.by=d&&d.by||'';S.vote.byName=d&&d.byName||'';
     if(S.vote.cat>=S.vote.cats.length)S.vote.cat=0;softRender()},onErr);
@@ -219,6 +221,7 @@ async function initShared(){
   if(typeof planLive==='function')planLive();
   if(typeof speechesLive==='function')speechesLive();
   if(typeof cproLive==='function')cproLive();
+  if(typeof meetingsLive==='function')meetingsLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
@@ -236,13 +239,13 @@ function roleName(k){if(!SH.on)return S.roles[k]||'';const e=SH.roles[k];return 
 async function writeRole(k,val){const before=SH.roles[k];SH.roles[k]=val;
   // A merge keeps fields of the previous holder: remove the replacement request explicitly.
   const out=val&&before&&before.swap&&!val.swap?{...val,swap:firebase.firestore.FieldValue.delete()}:val;
-  try{await SH.ref.roles.set({roles:{[k]:out},edit:k},{merge:true})}catch(e){SH.roles[k]=before;writeFail(e);softRender()}}
+  try{await (typeof rolesTarget==='function'?rolesTarget():SH.ref.roles).set({roles:{[k]:out},edit:k},{merge:true})}catch(e){SH.roles[k]=before;writeFail(e);softRender()}}
 const roleTimers={};
 function queueRoleText(k,v){clearTimeout(roleTimers[k]);roleTimers[k]=setTimeout(()=>writeRole(k,v.trim()?{n:v.trim().slice(0,60)}:null),600)}
 function pushAgenda(){
   if(!SH.on||!canManage())return;
   SH.agendaDirty=true;clearTimeout(SH.agendaTimer);
-  SH.agendaTimer=setTimeout(async()=>{try{await SH.ref.agenda.set(clone(S.agenda))}catch(e){writeFail(e)}SH.agendaDirty=false},700);
+  SH.agendaTimer=setTimeout(async()=>{try{if(typeof writeAgendaTarget==='function')await writeAgendaTarget(clone(S.agenda));else await SH.ref.agenda.set(clone(S.agenda))}catch(e){writeFail(e)}SH.agendaDirty=false},700);
 }
 // A vote belongs to whoever launched it (S.vote.by) until its results are shown: only that person and the officers
 // can then change the nominees, show the results or start a new vote. Once the results are shown, anyone allowed
@@ -330,6 +333,8 @@ function render(){
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===tab));
   // A club whose deletion delay has passed shows only the deletion notice.
   if(SH.on&&(DEL.done||deletionPassed())){$('#main').innerHTML=deletedView();return}
+  // A planned meeting is picked only in the Agenda and Roles tabs: elsewhere, back to the next meeting.
+  if(typeof meetingLeave==='function')meetingLeave();
   if(typeof rsvpRefresh==='function')rsvpRefresh();
   $('#main').innerHTML=deletionBanner()+(typeof swapAlerts==='function'?swapAlerts():'')+VIEWS[tab]();
   if(tab==='timer') paintTimer();
@@ -501,7 +506,7 @@ function itemPerson(it){return it.role?(roleName(it.role)||t('ag.open')):''}
 const fmtDate=d=>d?new Date(d+'T12:00').toLocaleDateString(locale(),{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
 VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=online(a);const times=agendaTimes();const dateStr=fmtDate(a.date);const link=safeUrl(o.url);
   const head=`<div class="phead"><div><h2>${t('ag.title')}</h2><p class="muted">${t('ag.intro')}${SH.on?' '+t('ag.introShared'):''}</p></div></div>
-  ${liveBox()}${SH.on?'':sampleNotice()}${typeof rsvpBox==='function'?rsvpBox():''}`;
+  ${liveBox()}${typeof meetingBar==='function'?meetingBar():''}${SH.on?'':sampleNotice()}${typeof rsvpBox==='function'?rsvpBox():''}`;
   const doc=`<div class="box agenda-doc">
     <div class="ah"><span class="label">${t('ag.doc')}</span><h3>${esc(a.club||t('ag.yourClub'))}</h3><p class="muted">${esc(dateStr)}${a.venue&&o.format!=='online'?' · '+esc(a.venue):''}</p>${a.theme?`<p>${t('ag.themeIs')} <b>${esc(a.theme)}</b></p>`:''}
       ${o.format!=='inperson'?`<div class="join"><span class="chip ok">${t('fmt.'+o.format)}</span>${link?`<a class="btn primary" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${t('on.join')}</a>`:`<span class="muted">${t('on.noLink')}</span>`}
@@ -571,7 +576,7 @@ VIEWS.roles=()=>{const open=officialKeys().filter(k=>!roleName(k)||(SH.on&&SH.ro
   return `<section class="panel">
   <div class="phead"><div><h2>${t('roles.title')}</h2><p class="muted">${t(SH.on?'roles.introShared':'roles.introLocal')}</p></div>
   <span class="chip ${open.length?'warn':'ok'}">${open.length?t('roles.openN',{n:open.length}):t('roles.allFilled')}</span></div>
-  ${liveBox()}${rolesModeSwitch()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}${typeof rsvpBox==='function'?rsvpBox(SH.on&&canAct()):''}
+  ${liveBox()}${typeof meetingBar==='function'?meetingBar():''}${rolesModeSwitch()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}${typeof rsvpBox==='function'?rsvpBox(SH.on&&canAct()):''}
   <div class="box"><div class="tablewrap"><table><thead><tr><th>${t('roles.colRole')}</th><th>${t('roles.colMember')}</th><th>${t('roles.colStatus')}</th></tr></thead><tbody>
   ${contest?`<tr><th colspan="3">${t('roles.officials')}</th></tr>`:''}${officialKeys().map(roleRow).join('')}
   ${contest?`<tr><th colspan="3">${t('roles.contestants')} <span class="muted">· ${t('roles.contestantsN',{n:CONTESTANT_KEYS.filter(k=>roleName(k)).length})}</span></th></tr>${CONTESTANT_KEYS.map(roleRow).join('')}`:''}
@@ -687,7 +692,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'r-ask':confirmClear=true;render();break;
   case 'r-cancel':confirmClear=false;render();break;
   case 'r-clear':confirmClear=false;
-    if(SH.on){if(!canManage())break;SH.roles={};render();SH.ref.roles.set({roles:{}}).catch(writeFail);break}
+    if(SH.on){if(!canManage())break;SH.roles={};render();(typeof MTG!=='undefined'&&MTG.sel?planRef(MTG.sel).update({roles:{},edit:''}):SH.ref.roles.set({roles:{}})).catch(writeFail);break}
     Object.keys(S.roles).forEach(k=>S.roles[k]='');save();render();break;
   case 'r-take':{if(!canAct())break;const n=myName().trim();if(!n){toast(t('roles.nameFirst'));const f=$('#my-name');if(f)f.focus();break}writeRole(b.dataset.k,{n:n.slice(0,60),u:SH.uid});render();break}
   case 'r-release':case 'r-unassign':writeRole(b.dataset.k,null);render();break;

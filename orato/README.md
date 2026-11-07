@@ -32,6 +32,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `cpro.js` | Contests pro (premium): judge codes, phone ballots, secret counting, results, certificates |
 | `attendance.js` | Attendance answers, replacement alerts, attendance kept when a meeting is closed |
 | `flow.js` | Running order for the Timer, quick speakers and renaming for the Ah-Counter and Grammarian |
+| `meetings.js` | Meetings planned ahead: picker, roles and agenda per date, promotion when the next meeting is closed |
 | `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
@@ -116,6 +117,16 @@ When the administrator switches on **Contests pro**, the Contests section gets a
 **Role swap requests** (free, Roles tab): the holder of a role taps **Find a replacement**; the role shows *Replacement wanted* and appears in the open-roles message, and any member can tap **I'll replace** to take it over. The holder can cancel the request.
 
 Data: `clubs/{club}/contests/{id}` with `keys/codes`, `judges/{uid}`, `ballots/{uid}`. **Republish `firestore.rules`.**
+
+## Meetings planned ahead
+
+The **next meeting** is the one all the tools work on (timer, votes, reports, club page). Officers can also **plan later meetings**: in the **Agenda** or **Roles** tab, **+ Plan a meeting**, pick a date after the next meeting. Its agenda starts as a copy of the next meeting's (apply a template if needed).
+- A bar at the top of the Agenda and Roles tabs lists the next meeting and the planned ones. Picking one shows its agenda and roles: officers edit its agenda, members **take roles weeks ahead**, everyone answers **Are you coming?** for that date, and approved speech requests for that date go into its roles.
+- Other tabs always show the next meeting.
+- When the officers **close the next meeting** (Club officers page, with *start a new meeting*), the earliest planned meeting becomes the next meeting, with its roles, and leaves the planned list.
+- Officers can delete a planned meeting.
+
+Data: `clubs/{club}/plans/{date}`. **Republish `firestore.rules`.** Existing clubs need no migration: their current meeting stays the next meeting.
 
 ## Attendance and replacements
 

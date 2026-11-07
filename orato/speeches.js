@@ -147,7 +147,7 @@ async function approveSpeech(s,slot){
   const now=new Date().toISOString();
   await spRef(s.id).update({status:'approved',slot,decidedBy:SH.user&&SH.user.email||SH.uid,decidedAt:now,updatedAt:now});
   // Officers (and everyone while member access is off) write the role directly; otherwise the speaker's device takes it.
-  if(canManage()&&!roleName(slot))await writeRole(slot,{n:s.name.slice(0,60),u:s.uid});
+  if(canManage()&&!(s.date===S.agenda.date&&roleName(slot)))await (typeof writeRoleOn==='function'?writeRoleOn(s.date,slot,{n:s.name.slice(0,60),u:s.uid}):writeRole(slot,{n:s.name.slice(0,60),u:s.uid}));
 }
 function myDisplayName(){const u=typeof myProfile==='function'&&myProfile();return u&&u.name||myName()||SH.user&&SH.user.email||''}
 

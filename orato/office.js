@@ -246,17 +246,21 @@ function currentSnapshot(){
     roles,votes,reports:clone(SH.reports||{}),attendance:typeof attendanceSnapshot==='function'?attendanceSnapshot():null,closedAt:new Date().toISOString(),closedBy:SH.user.email};
 }
 async function closeMeeting(){
-  if(OFF.busy)return;OFF.busy=true;
+  if(OFF.busy)return;OFF.busy=true;if(typeof meetingLeave==='function')meetingLeave();
   const snap=currentSnapshot();
   const id=snap.date+'-'+Date.now().toString(36);
   try{
     await SH.fs.doc('clubs/'+SH.club+'/history/'+id).set(snap);
     if(OFF.reset){
-      SH.roles={};await SH.ref.roles.set({roles:{}});
       await SH.ref.reports.set({});
       S.vote.cats.forEach(c=>{c.round=(c.round||0)+1;c.cands=[]});S.vote.reveal=false;await pushVote('none');
-      S.agenda.date='';S.agenda.theme='';S.agenda.items.forEach(it=>{if(it.k)it.title=null});
-      clearTimeout(SH.agendaTimer);SH.agendaDirty=false;await SH.ref.agenda.set(clone(S.agenda));
+      clearTimeout(SH.agendaTimer);SH.agendaDirty=false;
+      // The earliest planned meeting (meetings.js) becomes the next one; otherwise start an empty one.
+      if(!(typeof promoteNextPlan==='function'&&await promoteNextPlan(snap.date))){
+        SH.roles={};await SH.ref.roles.set({roles:{}});
+        S.agenda.date='';S.agenda.theme='';S.agenda.items.forEach(it=>{if(it.k)it.title=null});
+        await SH.ref.agenda.set(clone(S.agenda));
+      }
     }
     toast(t('close.done'));
   }catch(e){writeFail(e)}
