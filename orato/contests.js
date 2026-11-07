@@ -46,7 +46,7 @@ const CONTEST_ROLES=[
   ['contestant',['speakerCert','rulebook']]
 ];
 const CHECK_COUNT=14;
-const CONTEST_TABS=['contest','cofficials','cdocs','cvideos'];
+const CONTEST_TABS=['contest','cofficials','cdocs','cvideos','cpro'];
 
 // World Champions of Public Speaking (International Speech Contest final). yt = YouTube video checked against the
 // official Toastmasters pages; without one, the card links to the official page or to a YouTube search.

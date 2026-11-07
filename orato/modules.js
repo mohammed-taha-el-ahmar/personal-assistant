@@ -1,15 +1,17 @@
-// Toastmasters Tools – club-level choice of which sections, tabs and features members see.
+// Orato – club-level choice of which sections, tabs and features members see.
 // Useful when a club already uses another tool (easy-Speak, for example) for some of these jobs.
 // Stored in clubs/{club}/public/modules as {disabled:[keys]}; everyone reads it, officers change it.
 // Without a club link every tool stays visible. The Club officers tab is always visible so officers can undo a choice.
 
 const MODULE_SECTIONS=[
-  {id:'club',    label:'nav.club',   tabs:['club','guestbook','members'],                                    subs:[['office.roles','mod.sub.officeRoles']]},
+  {id:'club',    label:'nav.club',   tabs:['club','guestbook','directory','members'],                                    subs:[['office.roles','mod.sub.officeRoles']]},
   {id:'during',  label:'nav.during', tabs:['timer','ah','gram','topics','vote'],        subs:[['reports','mod.sub.reports']]},
   {id:'before',  label:'nav.before', tabs:['agenda','roles','draw','guides','eval'],    subs:[['agenda.templates','mod.sub.templates']]},
+  {id:'learn',   label:'nav.learn',  tabs:['speeches','pathways','mentoring'],                                              subs:[]},
+  {id:'contests',label:'nav.contests',tabs:['contest','cofficials','cdocs','cvideos','cpro'],                              subs:[]},
   {id:'after',   label:'nav.after',  tabs:['feedback'],                                 subs:[]}
 ];
-const ALWAYS_ON=['office'];
+const ALWAYS_ON=['office','me'];
 const MODS={disabled:[],unsub:null,saving:false};
 
 function modulesLive(){
@@ -20,10 +22,12 @@ function modulesLive(){
   },()=>{});
 }
 // Is this tab or feature shown? Everything is shown without a club link.
-function isOn(key){return !SH.on||ALWAYS_ON.includes(key)||!MODS.disabled.includes(key)}
+// Premium tabs and options (plan.js) are hidden while the club does not have the feature that unlocks them.
+function isOn(key){if(typeof premiumLocked==='function'&&premiumLocked(key))return false;return !SH.on||ALWAYS_ON.includes(key)||!MODS.disabled.includes(key)}
 const firstOnTab=()=>TABS.find(x=>isOn(x)&&x!=='members')||'office';
 // The Members tab is listed only for signed-in officers.
-const officerOnlyTab=x=>x==='members'&&!(SH.on&&SH.officer===true);
+// The Directory, for active members and officers (profiles.js).
+const officerOnlyTab=x=>(['members','stats','kit'].includes(x)&&!(SH.on&&SH.officer===true))||(x==='directory'&&!(typeof directoryAccess==='function'&&directoryAccess()))||(x==='mentoring'&&!(typeof mentoringAccess==='function'&&mentoringAccess()));
 
 // Hide disabled tabs, and whole sections when none of their tabs is left. Called on every render.
 function applyModules(){

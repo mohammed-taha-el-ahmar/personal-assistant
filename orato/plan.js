@@ -8,12 +8,12 @@
 // then hides it in clubs without that feature.
 
 const FEATURES=[
-  {id:'contestsPro',status:'soon'},  // judges' ballots on phones, secret counting, tiebreak, certificates, area/division/district contests
-  {id:'officerKit',status:'soon'},   // officer training, events, participation, action plan, announcements to members
+  {id:'contestsPro',status:''},      // judges' ballots on phones, secret counting, tiebreak, certificates (cpro.js)
+  {id:'officerKit',status:''},       // officer training, action plan, events, announcements to members (kit.js)
   {id:'stats',status:''}             // club statistics and DCP progress (stats.js)
 ];
 const FEATURE_IDS=FEATURES.map(f=>f.id);
-const PREMIUM_KEYS={stats:'stats'}; // tab or option key -> feature id
+const PREMIUM_KEYS={stats:'stats',kit:'officerKit',cpro:'contestsPro'}; // tab or option key -> feature id
 const PLAN={features:{},loaded:false,unsub:null};
 
 const endOfDayMs=d=>{const [y,m,dd]=d.split('-').map(Number);return new Date(y,m-1,dd,23,59,59,999).getTime()};
@@ -22,12 +22,15 @@ function featureState(id,plan=PLAN.features){
   return f.untilMs&&f.untilMs<Date.now()?'expired':'on';
 }
 const hasFeature=id=>featureState(id)==='on';
-const premiumLocked=key=>PREMIUM_KEYS[key]&&!hasFeature(PREMIUM_KEYS[key]);
+// While a club's plan is still loading, premium tabs are not locked yet, so a link to one (a judge's QR code) is not
+// redirected away before the plan arrives.
+const premiumLocked=key=>!!PREMIUM_KEYS[key]&&(!(SH.club||(typeof clubFromUrl==='function'&&clubFromUrl()))||PLAN.loaded)&&!hasFeature(PREMIUM_KEYS[key]);
 
 function planLive(){
   if(PLAN.unsub)PLAN.unsub();
   PLAN.unsub=SH.fs.doc(`clubs/${SH.club}/public/plan`).onSnapshot(s=>{
     const d=s.exists?s.data():{};PLAN.features=d.features&&typeof d.features==='object'?d.features:{};PLAN.loaded=true;render();
+    if(SH.officer===true&&hasFeature('officerKit')&&typeof KIT!=='undefined'&&!KIT.unsub)kitOfficerSubs();
   },()=>{PLAN.loaded=true});
 }
 

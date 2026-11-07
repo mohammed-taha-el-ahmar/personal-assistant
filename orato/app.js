@@ -1,10 +1,11 @@
-// Toastmasters Tools – app logic. Text and language content live in i18n.js.
+// Orato – app logic. Text and language content live in i18n.js.
 
 // ---------- language ----------
 function detectLang(){
   try{const q=new URLSearchParams(location.search).get('lang');if(LANGS.includes(q))return q;
     const s=localStorage.getItem('gt-lang');if(LANGS.includes(s))return s}catch(e){}
-  return (navigator.language||'').toLowerCase().startsWith('fr')?'fr':'en';
+  const nav=(navigator.language||'').toLowerCase().slice(0,2);
+  return LANGS.includes(nav)?nav:'en';
 }
 let LANG=detectLang();
 function t(k,v){
@@ -12,15 +13,30 @@ function t(k,v){
   return v?s.replace(/\{(\w+)\}/g,(_,x)=>v[x]??''):s;
 }
 const tn=(k,n,v)=>t(k+(n===1?'.one':'.many'),{n,...v});
-const locale=()=>LANG==='fr'?'fr-FR':'en-GB';
+// Arabic dates keep Western digits, as the times and timers do.
+const locale=()=>({fr:'fr-FR',nl:'nl-NL',ar:'ar-u-nu-latn'})[LANG]||'en-GB';
+const isRtl=()=>LANG==='ar';
 
 // ---------- constants ----------
 const KEY='gavel-timer-v2';
 const PRESETS=[
   {id:'tt',g:60,a:90,r:120},{id:'eval',g:120,a:150,r:180},{id:'ice',g:240,a:300,r:360},
-  {id:'std',g:300,a:360,r:420},{id:'long',g:480,a:540,r:600},{id:'ge',g:300,a:360,r:420},{id:'custom'}
+  {id:'std',g:300,a:360,r:420},{id:'long',g:480,a:540,r:600},{id:'ge',g:300,a:360,r:420},
+  // Speech contests (rulebook timing): lo–hi is the qualifying window; outside it the contestant is disqualified.
+  {id:'cIntl',g:300,a:360,r:420,lo:270,hi:450},{id:'cEval',g:120,a:150,r:180,lo:90,hi:210},
+  {id:'cTT',g:60,a:90,r:120,lo:60,hi:150},{id:'cTall',g:180,a:240,r:300,lo:150,hi:330},
+  {id:'custom'}
 ];
 const ROLE_KEYS=['toastmaster','ge','timer','ah','gram','ttm','tte','s1','s2','s3','e1','e2','e3','saa','pres'];
+// Speech contest roles (Roles tab, "Contest" list). Judges' and the tiebreaking judge's names stay confidential
+// (rulebook): only officers and the person themselves see them, and they never go on the agenda or in the history.
+const CONTEST_OFFICIAL_KEYS=['cchair','cchief','cj1','cj2','cj3','cj4','cj5','ctie','ccount1','ccount2','ctime1','ctime2','csaa','ctest'];
+const CONTESTANT_KEYS=['cc1','cc2','cc3','cc4','cc5','cc6'];
+const SECRET_ROLES=['cj1','cj2','cj3','cj4','cj5','ctie'];
+const rolesMode=()=>S.agenda&&S.agenda.rolesMode==='contest'?'contest':'meeting';
+const officialKeys=()=>rolesMode()==='contest'?CONTEST_OFFICIAL_KEYS:ROLE_KEYS;
+const activeRoleKeys=()=>rolesMode()==='contest'?[...CONTEST_OFFICIAL_KEYS,...CONTESTANT_KEYS]:ROLE_KEYS;
+const publicRoleKeys=()=>activeRoleKeys().filter(k=>!SECRET_ROLES.includes(k));
 const CRIT=['open','struct','voice','body','eye','obj'];
 const AGENDA_KEYS=[['doors','saa',10],['welcome','pres',3],['intro','toastmaster',4],['roles','ge',5],['speech1','s1',7],['speech2','s2',7],['speech3','s3',7],
   ['tt','ttm',20],['break','',10],['evals','ge',12],['ttEval','tte',4],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]];
@@ -49,7 +65,10 @@ function removeWord(id){
 }
 let editWords=false;
 const catName=c=>c.key?t('cat.'+c.key):c.name;
-const itemTitle=it=>it.title!=null&&it.title!==''?it.title:(it.k?t('agi.'+it.k):'');
+// A speech slot with an approved speech request (speeches.js) shows the speech title after the item name.
+const itemTitle=it=>{if(it.title!=null&&it.title!=='')return it.title;const base=it.k?t('agi.'+it.k):'';
+  const sp=typeof speechForSlot==='function'&&['s1','s2','s3'].includes(it.role)?speechForSlot(it.role):null;
+  return sp?`${base} – “${sp.title}”`:base};
 
 // ---------- state ----------
 function defaultAgenda(){return {club:'',date:'',theme:'',start:'19:00',venue:'',online:{format:'inperson',url:'',id:'',pass:''},items:AGENDA_KEYS.map(([k,role,dur])=>({k,role,dur}))}}
@@ -94,7 +113,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mmss=s=>{s=Math.max(0,Math.floor(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 const clone=o=>JSON.parse(JSON.stringify(o));
-function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1800)}
+function toast(msg){if(!msg)return;document.querySelectorAll('.toast').forEach(x=>x.remove());const el=document.createElement('div');el.setAttribute('role','status');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1800)}
 function copyText(text){
   const fallback=()=>{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
     let ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();toast(ok?t('common.copied'):t('common.copyFail'))};
@@ -122,7 +141,9 @@ function setQuery(params){
 function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.searchParams.set('club',SH.club);if(LANG!=='en')u.searchParams.set('lang',LANG);return u.toString()}
 let pendingRender=false;
 function softRender(){
-  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members'].includes(tab))return;
+  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members','contest','cofficials','cdocs','cvideos','me','directory','speeches','mentoring','stats','kit','cpro'].includes(tab))return;
+  // Don't restart a video someone is watching on the club page.
+  if((tab==='club'||tab==='cvideos')&&document.querySelector('#main .vid iframe,#main .vid video'))return;
   const a=document.activeElement;
   if(a&&a.matches&&a.matches('input,textarea,select')){pendingRender=true;return}
   render();
@@ -135,32 +156,52 @@ function writeFail(e){
   else toast(t('live.saveFail'));
 }
 async function initShared(){
-  SH.club=clubFromUrl();SH.error='';
-  if(!SH.club||!configured()){updateStatus();return}
+  SH.club=clubFromUrl();SH.error='';SH.adminMode=typeof adminMode==='function'&&adminMode();
+  if(SH.adminMode)SH.club='';
+  if((!SH.club&&!SH.adminMode)||!configured()){updateStatus();if(SH.adminMode)render();return}
+  if(SH.adminMode)updateStatus();
   try{
     if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);
     SH.fs=firebase.firestore();
-    if(typeof completeEmailLink==='function')completeEmailLink();
-    // Members are signed in anonymously; club officers sign in with Google (see office.js).
+    // Finish an emailed sign-in link first, so the anonymous sign-in below cannot replace the officer's session.
+    if(typeof completeEmailLink==='function')await completeEmailLink();
+    // Members are signed in anonymously; club officers sign in with Google, a password or an email link (see office.js).
     await new Promise((resolve,reject)=>{let first=true;
       firebase.auth().onAuthStateChanged(async u=>{
-        if(!u){try{await firebase.auth().signInAnonymously()}catch(e){if(first){first=false;reject(e)}}return}
+        if(!u){if(LINK.busy)return;try{await firebase.auth().signInAnonymously()}catch(e){if(first){first=false;reject(e)}}return}
+        // An address confirmed in another tab or from the emailed link: refresh so the database sees it.
+        if(!u.isAnonymous&&u.email&&!u.emailVerified){try{await u.reload();const cu=firebase.auth().currentUser;if(cu&&cu.emailVerified){await cu.getIdToken(true);u=cu}}catch(e){}}
         SH.uid=u.uid;SH.user={email:(u.email||'').toLowerCase(),anon:u.isAnonymous,verified:!!u.emailVerified};
         if(first){first=false;resolve()}
         if(typeof officeAuthChanged==='function')officeAuthChanged();
         if(typeof accessAuthChanged==='function')accessAuthChanged();
-        if(SH.on)render();
+        if(typeof adminAuthChanged==='function')adminAuthChanged();
+        if(typeof profilesAuthChanged==='function')profilesAuthChanged();
+        if(typeof cproAuthChanged==='function')cproAuthChanged();
+        if(SH.closed){REQ.mine=undefined}
+        if(SH.on||SH.closed||SH.adminMode)render();
       });
     });
   }catch(e){SH.error='connect';updateStatus();render();return}
+  if(SH.adminMode){if(typeof loadContact==='function')loadContact();updateStatus();render();return}
   const base='clubs/'+SH.club;
+  // A club code opens only once the Orato administrator has approved it. The database refuses to read a club
+  // that is not open; a club whose deletion delay has passed is refused too, but keeps its deletion notice.
+  try{await SH.fs.doc(base+'/meeting/agenda').get({source:'server'})}
+  catch(e){
+    if(e&&e.code==='permission-denied'){
+      let deleting=false;try{const st=await SH.fs.doc(base+'/public/status').get();deleting=st.exists&&!!st.data().deleteAt}catch(_){}
+      if(!deleting){SH.closed=true;if(typeof loadContact==='function')loadContact();updateStatus();render();return}
+    }
+  }
   SH.ref={roles:SH.fs.doc(base+'/meeting/roles'),agenda:SH.fs.doc(base+'/meeting/agenda'),vote:SH.fs.doc(base+'/meeting/vote'),
     reports:SH.fs.doc(base+'/meeting/reports'),ballots:SH.fs.collection(base+'/ballots')};
   SH.on=true;S.vote.cats=defaultCats();S.vote.reveal=false;S.vote.cat=0;S.agenda=defaultAgenda();
   const onErr=e=>{SH.error='stopped:'+(e&&e.code||'error');updateStatus()};
-  SH.ref.roles.onSnapshot(s=>{SH.roles=s.exists?clone(s.data().roles||{}):{};softRender()},onErr);
+  SH.ref.roles.onSnapshot(s=>{SH.roles=s.exists?clone(s.data().roles||{}):{};softRender();if(typeof claimMySlots==='function')claimMySlots()},onErr);
   SH.ref.agenda.onSnapshot(s=>{if(SH.agendaDirty)return;S.agenda=s.exists?clone(s.data()):defaultAgenda();if(!Array.isArray(S.agenda.items))S.agenda.items=[];softRender()},onErr);
   SH.ref.vote.onSnapshot(s=>{const d=s.exists?s.data():null;S.vote.cats=d&&Array.isArray(d.cats)?clone(d.cats):defaultCats();S.vote.reveal=!!(d&&d.reveal);
+    S.vote.by=d&&d.by||'';S.vote.byName=d&&d.byName||'';
     if(S.vote.cat>=S.vote.cats.length)S.vote.cat=0;softRender()},onErr);
   SH.ref.reports.onSnapshot(s=>{SH.reports=s.exists?clone(s.data()):{};softRender()},onErr);
   SH.ref.ballots.onSnapshot(q=>{SH.ballots=q.docs.map(d=>({id:d.id,...d.data()}));softRender()},onErr);
@@ -170,12 +211,17 @@ async function initShared(){
   if(typeof deletionLive==='function')deletionLive();
   if(typeof modulesLive==='function')modulesLive();
   if(typeof accessLive==='function')accessLive();
+  if(typeof contestLive==='function')contestLive();
+  if(typeof planLive==='function')planLive();
+  if(typeof speechesLive==='function')speechesLive();
+  if(typeof cproLive==='function')cproLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
 function updateStatus(){const el=$('#sync');if(!el)return;
-  el.innerHTML=SH.error?`<span class="chip bad">${t('status.error')}</span>`:SH.on?`<span class="chip ok">${t('status.live',{club:esc(SH.club)})}</span>`:`<span class="chip warn">${t('status.local')}</span>`;}
+  el.innerHTML=SH.error?`<span class="chip bad">${t('status.error')}</span>`:SH.closed?`<span class="chip warn">${t('req.statusChip',{club:esc(SH.club)})}</span>`:SH.adminMode?`<span class="chip">${t('adm.chip')}</span>`:SH.on?`<span class="chip ok">${t('status.live',{club:esc(SH.club)})}</span>`:`<span class="chip warn">${t('status.local')}</span>`;}
 function liveBox(){
+  if(SH.closed)return closedNotice();
   if(SH.error)return `<div class="notice"><span>${esc(errorText())}</span></div>`;
   if(SH.on)return `<div class="notice"><span>${t('live.on',{club:esc(SH.club)})}</span><div class="btns"><button class="small" data-act="qr-club">${t('qr.show')}</button><button class="small" data-act="copy-link">${t('live.copyLink')}</button></div></div>${accessStrip()}`;
   if(!configured())return `<div class="notice"><span>${t('live.notConfigured')}</span></div>`;
@@ -183,7 +229,10 @@ function liveBox(){
 }
 function roleName(k){if(!SH.on)return S.roles[k]||'';const e=SH.roles[k];return e&&e.n?e.n:''}
 // "edit" names the one role being changed, so the rules can check that a member only takes a free role or gives up their own.
-async function writeRole(k,val){const before=SH.roles[k];SH.roles[k]=val;try{await SH.ref.roles.set({roles:{[k]:val},edit:k},{merge:true})}catch(e){SH.roles[k]=before;writeFail(e);softRender()}}
+async function writeRole(k,val){const before=SH.roles[k];SH.roles[k]=val;
+  // A merge keeps fields of the previous holder: remove the replacement request explicitly.
+  const out=val&&before&&before.swap&&!val.swap?{...val,swap:firebase.firestore.FieldValue.delete()}:val;
+  try{await SH.ref.roles.set({roles:{[k]:out},edit:k},{merge:true})}catch(e){SH.roles[k]=before;writeFail(e);softRender()}}
 const roleTimers={};
 function queueRoleText(k,v){clearTimeout(roleTimers[k]);roleTimers[k]=setTimeout(()=>writeRole(k,v.trim()?{n:v.trim().slice(0,60)}:null),600)}
 function pushAgenda(){
@@ -191,10 +240,30 @@ function pushAgenda(){
   SH.agendaDirty=true;clearTimeout(SH.agendaTimer);
   SH.agendaTimer=setTimeout(async()=>{try{await SH.ref.agenda.set(clone(S.agenda))}catch(e){writeFail(e)}SH.agendaDirty=false},700);
 }
-async function pushVote(){
-  if(!SH.on||!canManage())return;
+// A vote belongs to whoever launched it (S.vote.by) until its results are shown: only that person and the officers
+// can then change the nominees, show the results or start a new vote. Once the results are shown, anyone allowed
+// to run a vote can start the next one and becomes its owner.
+const voteBusy=()=>!!S.vote.by&&!S.vote.reveal;
+const voteMine=()=>S.vote.by===SH.uid;
+function canControlVote(){
+  if(!SH.on)return true;
+  if(!SH.writable)return false;
+  if(SH.officer===true)return true;
+  return canAct()&&(!voteBusy()||voteMine());
+}
+async function pushVote(claim){
+  // Callers check canControlVote() before changing anything (afterwards the vote may already look "running").
+  if(!SH.on||!SH.writable)return;
+  // Officers keep the current owner unless they start a new vote; anyone else becomes the owner.
+  if(SH.officer!==true||claim===true||!S.vote.by){S.vote.by=SH.uid;S.vote.byName=(myName()||(SH.user&&SH.user.email)||'').slice(0,60)}
+  if(claim==='none'){S.vote.by='';S.vote.byName=''}
   const cats=S.vote.cats.map(c=>{const o={cands:c.cands,round:c.round||0};if(c.key)o.key=c.key;else o.name=c.name||'';return o});
-  try{await SH.ref.vote.set({cats,reveal:!!S.vote.reveal})}catch(e){writeFail(e)}
+  try{await SH.ref.vote.set({cats,reveal:!!S.vote.reveal,by:S.vote.by,byName:S.vote.byName})}
+  catch(e){
+    // Someone else launched a vote a moment earlier: the database refused this change. Show theirs.
+    if(e&&e.code==='permission-denied'&&SH.officer!==true){toast(t('vote.taken'));try{const d=(await SH.ref.vote.get()).data()||{};S.vote.cats=Array.isArray(d.cats)?clone(d.cats):defaultCats();S.vote.reveal=!!d.reveal;S.vote.by=d.by||'';S.vote.byName=d.byName||''}catch(_){}render();return}
+    writeFail(e);
+  }
 }
 function tally(i){
   const c=S.vote.cats[i];
@@ -212,9 +281,9 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['club','guestbook','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','feedback','office','members'];
+const TABS=['club','guestbook','directory','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','speeches','pathways','mentoring','contest','cofficials','cdocs','cvideos','cpro','feedback','me','office','members','stats','kit'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
-function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
+function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();if(typeof MEDIA!=='undefined')MEDIA.playing={};if(typeof CON!=='undefined')CON.playing={};tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 function setLang(l){
   if(!LANGS.includes(l)||l===LANG)return;
@@ -241,19 +310,25 @@ document.addEventListener('click',e=>{if(!e.target.closest('#themebtn'))return;
 function applyChrome(){
   applyTheme();
   document.documentElement.lang=LANG;
+  document.documentElement.dir=isRtl()?'rtl':'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
   document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===LANG));
   const d=document.querySelector('meta[name=description]');if(d)d.content=t('tagline');
   if(typeof applyModules==='function')applyModules();
+  if(typeof paintSupport==='function')paintSupport();
 }
 function render(){
   applyChrome();
+  // The administrator's page (?admin) replaces the tools.
+  if(typeof paintNav==='function')paintNav();
+  if(SH.adminMode){$('#main').innerHTML=adminView();return}
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===tab));
   // A club whose deletion delay has passed shows only the deletion notice.
   if(SH.on&&(DEL.done||deletionPassed())){$('#main').innerHTML=deletedView();return}
   $('#main').innerHTML=deletionBanner()+VIEWS[tab]();
   if(tab==='timer') paintTimer();
+  if(typeof decorateHelp==='function')decorateHelp();
 }
 
 // ---------- TIMER ----------
@@ -266,8 +341,8 @@ const logType=l=>l.pid?(l.pid==='custom'?t('preset.customN',{a:l.cg,b:l.cr}):t('
 const timerDisplay=()=>{try{return localStorage.getItem('gt-timer-display')||'both'}catch(e){return 'both'}};
 const setTimerDisplay=v=>{try{localStorage.setItem('gt-timer-display',v)}catch(e){}};
 const elapsed=()=>T.elapsed+(T.running?(performance.now()-T.start)/1000:0);
-function signal(s,p){if(s>=p.r+30)return 'over';if(s>=p.r)return 'red';if(s>=p.a)return 'amber';if(s>=p.g)return 'green';return ''}
-const qualified=(s,p)=>s>=p.g-30&&s<=p.r+30;
+function signal(s,p){if(s>(p.hi??p.r+30))return 'over';if(s>=p.r)return 'red';if(s>=p.a)return 'amber';if(s>=p.g)return 'green';return ''}
+const qualified=(s,p)=>s>=(p.lo??p.g-30)&&s<=(p.hi??p.r+30);
 function paintTimer(){
   const st=$('#stage');if(!st)return;const p=preset(),s=elapsed(),sig=signal(s,p);
   const colorsOnly=timerDisplay()==='colors';
@@ -278,7 +353,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView()};
+const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView(),contest:()=>contestView(),cofficials:()=>contestOfficialsView(),cdocs:()=>contestDocsView(),cvideos:()=>contestVideosView(),me:()=>meView(),directory:()=>directoryView(),speeches:()=>speechesView(),pathways:()=>pathwaysView(),mentoring:()=>mentoringView(),stats:()=>statsView(),kit:()=>kitView(),cpro:()=>cproView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>
@@ -376,12 +451,16 @@ const catTabs=v=>`<div class="speakers">${v.cats.map((x,i)=>`<button class="spk"
 const candField=(c,ro)=>`<div class="field"><label class="label" for="v-cands">${t('vote.nominees',{cat:esc(catName(c))})}</label><input id="v-cands" data-act="v-cands" value="${esc(c.cands.join(', '))}" placeholder="Camille, Thomas, Inès" ${ro?'disabled':''}></div>`;
 VIEWS.vote=()=>SH.on?voteShared():voteLocal();
 function voteShared(){const v=S.vote;const c=v.cats[v.cat];const {votes,total}=tally(v.cat);const pick=myPick(v.cat);
-  // ro: cannot set nominees or reveal (officers only once the club has a code); noBallot: cannot vote (members only, if the club chose so).
-  const ro=!SH.writable||!canManage();const noBallot=!SH.writable||!canBallot();
+  // ro: cannot set nominees, show results or start a new vote (someone else's vote is running, or a visitor in a club
+  // with a member code); noBallot: cannot vote (members only, if the club chose so).
+  const ro=!canControlVote();const noBallot=!SH.writable||!canBallot();
+  const owner=voteBusy()&&!voteMine()?`<div class="notice"><span>${t(SH.officer===true?'vote.ownedOfficer':'vote.owned',{name:esc(S.vote.byName||t('vote.someone'))})}</span></div>`
+    :voteBusy()&&voteMine()?`<div class="notice"><span>${t('vote.yours')}</span></div>`
+    :ro&&SH.writable&&!canAct()?`<div class="notice"><span>${t('vote.needMember')}</span></div>`:'';
   return `<section class="panel">
   <div class="phead"><div><h2>${t('vote.title')}</h2><p class="muted">${t('vote.introShared')}</p></div></div>
   ${liveBox()}
-  <div class="box">${catTabs(v)}${candField(c,ro)}${SH.writable?officersOnlyNote('acc.what.vote'):''}</div>
+  <div class="box">${catTabs(v)}${candField(c,ro)}${owner}</div>
   <div class="box" aria-live="polite">
     ${c.cands.length?`<h3>${t('vote.yourBallot',{cat:esc(catName(c))})}</h3><div class="ballot">${c.cands.map(n=>`<button aria-pressed="${pick===n}" data-act="v-cast" data-n="${esc(n)}" ${v.reveal||noBallot?'disabled':''}>${esc(n)}</button>`).join('')}</div>
     <p class="muted">${noBallot&&SH.writable?t('acc.membersVote'):pick?t('vote.youVoted',{name:esc(pick)})+(v.reveal?'':' '+t('vote.change')):t('vote.notYet')}</p>`:`<p class="empty">${t('vote.noNomineesShared')}</p>`}
@@ -446,7 +525,7 @@ VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=onlin
   <div class="box"><h3>${t('ag.order')}</h3>
     ${a.items.map((it,i)=>`<div class="arow"><span class="t">${times[i]}</span>
       <input id="ai-t${i}" aria-label="${t('ag.item')}" data-item="${i}" data-k="title" value="${esc(itemTitle(it))}">
-      <select class="rolesel" id="ai-r${i}" aria-label="${t('ag.role')}" data-item="${i}" data-k="role"><option value="">${t('ag.noRole')}</option>${ROLE_KEYS.map(k=>`<option value="${k}" ${k===it.role?'selected':''}>${roleLabel(k)}</option>`).join('')}</select>
+      <select class="rolesel" id="ai-r${i}" aria-label="${t('ag.role')}" data-item="${i}" data-k="role"><option value="">${t('ag.noRole')}</option>${[...new Set([...publicRoleKeys(),...(rolesMode()==='contest'?['toastmaster','pres']:[]),...(it.role&&!SECRET_ROLES.includes(it.role)?[it.role]:[])])].map(k=>`<option value="${k}" ${k===it.role?'selected':''}>${roleLabel(k)}</option>`).join('')}</select>
       <input id="ai-d${i}" aria-label="${t('ag.minutes')}" type="number" min="0" data-item="${i}" data-k="dur" value="${it.dur}">
       <div class="ctrls"><button class="ghost small" data-act="a-up" data-i="${i}" aria-label="${t('ag.up')}">↑</button><button class="ghost small" data-act="a-down" data-i="${i}" aria-label="${t('ag.down')}">↓</button><button class="ghost small" data-act="a-del" data-i="${i}" aria-label="${t('common.remove')}">×</button></div></div>`).join('')}
     <div class="btns"><button data-act="a-add">${t('ag.add')}</button><span class="muted" style="align-self:center">${t('ag.endsAt',{t:times[times.length-1]})}</span></div>
@@ -458,22 +537,36 @@ let confirmClear=false;
 function roleCell(k){
   if(!SH.on) return `<input id="r-${k}" data-role="${k}" value="${esc(S.roles[k])}" placeholder="${t('roles.unassigned')}">`;
   const e=SH.roles[k];
+  // Judges' names: only signed-in officers and the judge see them.
+  if(e&&e.n&&SECRET_ROLES.includes(k)&&SH.officer!==true&&!(e.u&&e.u===SH.uid))
+    return `<div class="btns" style="align-items:center"><span class="muted">${t('roles.secretTaken')}</span>${canManage()?`<button class="small ghost" data-act="r-unassign" data-k="${k}">${t('roles.clear')}</button>`:''}</div>`;
   if(!canManage()){
     // Members take a free role or give up their own; visitors only see who holds what.
     const mine=e&&e.u&&e.u===SH.uid;
-    if(e&&e.n)return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span>${mine?`<button class="small ghost" data-act="r-release" data-k="${k}">${t('roles.giveUp')}</button>`:''}</div>`;
+    // Role swap: the holder asks for a replacement; any member can then take the role over.
+    if(e&&e.n)return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span>${e.swap?` <span class="chip warn">${t('swap.wanted')}</span>`:''}
+      ${mine?(e.swap?`<button class="small ghost" data-act="r-swap-off" data-k="${k}">${t('swap.cancel')}</button>`:`<button class="small" data-act="r-swap" data-k="${k}">${t('swap.ask')}</button>`)+`<button class="small ghost" data-act="r-release" data-k="${k}">${t('roles.giveUp')}</button>`
+        :e.swap&&canAct()?`<button class="small primary" data-act="r-take" data-k="${k}">${t('swap.take')}</button>`:''}</div>`;
     return canAct()?`<button class="small" data-act="r-take" data-k="${k}">${t('roles.take')}</button>`:`<span class="muted">–</span>`;
   }
-  if(e&&e.u){const mine=e.u===SH.uid;return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span><button class="small ghost" data-act="${mine?'r-release':'r-unassign'}" data-k="${k}">${t(mine?'roles.giveUp':'roles.clear')}</button></div>`}
+  if(e&&e.u){const mine=e.u===SH.uid;return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span>${e.swap?`<span class="chip warn">${t('swap.wanted')}</span>`:''}${mine&&!e.swap?`<button class="small" data-act="r-swap" data-k="${k}">${t('swap.ask')}</button>`:''}${!mine&&e.swap?`<button class="small primary" data-act="r-take" data-k="${k}">${t('swap.take')}</button>`:''}<button class="small ghost" data-act="${mine?'r-release':'r-unassign'}" data-k="${k}">${t(mine?'roles.giveUp':'roles.clear')}</button></div>`}
   return `<div class="btns" style="flex-wrap:nowrap"><input id="r-${k}" data-srole="${k}" value="${esc(e&&e.n||'')}" placeholder="${t('roles.typeName')}">${!(e&&e.n)?`<button class="small" data-act="r-take" data-k="${k}">${t('roles.take')}</button>`:''}</div>`;
 }
-VIEWS.roles=()=>{const open=ROLE_KEYS.filter(k=>!roleName(k));
+function rolesModeSwitch(){
+  const m=rolesMode();
+  if(SH.on&&!canManage())return m==='contest'?`<div class="notice"><span>${t('roles.contestNote')}</span></div>`:'';
+  return `<div class="box"><span class="label">${t('roles.modeLabel')}</span><div class="speakers" role="group" aria-label="${esc(t('roles.modeLabel'))}">${chip('r-mode','meeting',m==='meeting',esc(t('roles.modeMeeting')))}${chip('r-mode','contest',m==='contest',esc(t('roles.modeContest')))}</div>
+    ${m==='contest'?`<p class="muted" style="margin:8px 0 0">${t('roles.contestIntro')}</p>`:''}</div>`;
+}
+const roleRow=k=>`<tr><td>${roleLabel(k)}${SECRET_ROLES.includes(k)?` <span class="muted" title="${esc(t('roles.secretHint'))}">🔒</span>`:''}</td><td>${roleCell(k)}</td><td id="rs-${k}">${filledChip(roleName(k))}</td></tr>`;
+VIEWS.roles=()=>{const open=officialKeys().filter(k=>!roleName(k)||(SH.on&&SH.roles[k]&&SH.roles[k].swap));const contest=rolesMode()==='contest';
   return `<section class="panel">
   <div class="phead"><div><h2>${t('roles.title')}</h2><p class="muted">${t(SH.on?'roles.introShared':'roles.introLocal')}</p></div>
   <span class="chip ${open.length?'warn':'ok'}">${open.length?t('roles.openN',{n:open.length}):t('roles.allFilled')}</span></div>
-  ${liveBox()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}
+  ${liveBox()}${rolesModeSwitch()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}
   <div class="box"><div class="tablewrap"><table><thead><tr><th>${t('roles.colRole')}</th><th>${t('roles.colMember')}</th><th>${t('roles.colStatus')}</th></tr></thead><tbody>
-  ${ROLE_KEYS.map(k=>`<tr><td>${roleLabel(k)}</td><td>${roleCell(k)}</td><td id="rs-${k}">${filledChip(roleName(k))}</td></tr>`).join('')}
+  ${contest?`<tr><th colspan="3">${t('roles.officials')}</th></tr>`:''}${officialKeys().map(roleRow).join('')}
+  ${contest?`<tr><th colspan="3">${t('roles.contestants')} <span class="muted">· ${t('roles.contestantsN',{n:CONTESTANT_KEYS.filter(k=>roleName(k)).length})}</span></th></tr>${CONTESTANT_KEYS.map(roleRow).join('')}`:''}
   </tbody></table></div>
   <div class="btns"><button class="primary" data-act="r-copy">${t('roles.copyOpen')}</button>
   ${!canManage()?'':confirmClear?`<span class="muted" style="align-self:center">${t(SH.on?'roles.askAll':'roles.askHere')}</span><button class="small primary" data-act="r-clear">${t('roles.yesClear')}</button><button class="small" data-act="r-cancel">${t('common.cancel')}</button>`:`<button class="ghost" data-act="r-ask">${t('roles.clearAll')}</button>`}</div></div></section>`};
@@ -505,7 +598,7 @@ document.addEventListener('change',ev=>{const el=ev.target;const a=el.dataset.ac
   if(a==='preset'){S.timer.preset=el.value;save();render()}
   if(a==='t-display'){setTimerDisplay(el.value);paintTimer()}
   if(a==='tt-theme'){S.topics.theme=el.value;S.topics.cur=null;save();render()}
-  if(a==='v-cands'){const c=S.vote.cats[S.vote.cat];c.cands=[...new Set(el.value.split(',').map(s=>s.trim()).filter(Boolean))].slice(0,20);save();pushVote();render()}
+  if(a==='v-cands'){if(SH.on&&!canControlVote()){render();return}const c=S.vote.cats[S.vote.cat];c.cands=[...new Set(el.value.split(',').map(s=>s.trim()).filter(Boolean))].slice(0,20);save();pushVote();render()}
   if(el.dataset.item!==undefined&&el.dataset.k==='role'){render()}
   if(el.dataset.role){render()}
 });
@@ -564,9 +657,9 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'v-next':ballotDone=false;render();break;
   case 'v-ask':confirmReveal=true;render();break;
   case 'v-cancel':confirmReveal=false;render();break;
-  case 'v-reveal':S.vote.reveal=true;confirmReveal=false;save();pushVote();render();break;
-  case 'v-hide':S.vote.reveal=false;save();pushVote();render();break;
-  case 'v-resetc':{const c=S.vote.cats[S.vote.cat];if(SH.on){c.round=(c.round||0)+1;S.vote.reveal=false;pushVote();render();toast(t('vote.started',{cat:catName(c)}));break}
+  case 'v-reveal':if(SH.on&&!canControlVote())break;S.vote.reveal=true;confirmReveal=false;save();pushVote();render();break;
+  case 'v-hide':if(SH.on&&!canControlVote())break;S.vote.reveal=false;save();pushVote();render();break;
+  case 'v-resetc':{const c=S.vote.cats[S.vote.cat];if(SH.on){if(!canControlVote())break;c.round=(c.round||0)+1;S.vote.reveal=false;pushVote(true);render();toast(t('vote.started',{cat:catName(c)}));break}
     c.votes={};ballotDone=false;save();render();toast(t('vote.cleared'));break}
   // agenda
   case 'a-add':S.agenda.items.push({title:t('ag.newItem'),role:'',dur:5});save();pushAgenda();render();break;
@@ -575,8 +668,11 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'a-down':{const x=S.agenda.items;if(i<x.length-1){[x[i+1],x[i]]=[x[i],x[i+1]];save();pushAgenda();render()}break}
   case 'a-copy':{const ag=S.agenda,tm=agendaTimes();const ol=onlineLines(ag);copyText(`${ag.club}\n${fmtDate(ag.date)}${ag.venue&&online(ag).format!=='online'?' · '+ag.venue:''}${ag.theme?'\n'+t('ag.themeIs')+' '+ag.theme:''}${ol.length?'\n'+ol.join('\n'):''}\n\n`+ag.items.map((it,k)=>`${tm[k]}  ${itemTitle(it)}${it.role?' – '+roleLabel(it.role)+': '+itemPerson(it):''}`).join('\n')+`\n${tm[tm.length-1]}  ${t('ag.ends')}`);break}
   // roles
-  case 'r-copy':{const open=ROLE_KEYS.filter(k=>!roleName(k)).map(k=>'• '+roleLabel(k));const ag=S.agenda;
+  case 'r-swap':case 'r-swap-off':{const e=SH.roles[b.dataset.k];if(!e||e.u!==SH.uid)break;writeRole(b.dataset.k,{n:e.n,u:e.u,...(b.dataset.act==='r-swap'?{swap:true}:{})});render();
+    if(b.dataset.act==='r-swap')toast(t('swap.asked'));break}
+  case 'r-copy':{const open=officialKeys().filter(k=>!roleName(k)||(SH.on&&SH.roles[k]&&SH.roles[k].swap)).map(k=>'• '+roleLabel(k)+(roleName(k)?' ('+t('swap.wanted')+')':''));const ag=S.agenda;
     copyText(open.length?t('roles.msgOpen',{date:ag.date?t('roles.msgDate',{d:fmtDate(ag.date)}):'',theme:ag.theme?t('roles.msgTheme',{t:ag.theme}):'',list:open.join('\n')}):t('roles.msgFull'));break}
+  case 'r-mode':if(SH.on&&!canManage())break;S.agenda.rolesMode=b.dataset.v;save();pushAgenda();render();break;
   case 'r-ask':confirmClear=true;render();break;
   case 'r-cancel':confirmClear=false;render();break;
   case 'r-clear':confirmClear=false;
@@ -601,3 +697,4 @@ if(S.sample&&S.lang!==LANG){const custom=S.topics.custom;S=sample();S.topics.cus
 render();
 updateStatus();
 initShared();
+if(typeof loadSupport==='function')loadSupport();

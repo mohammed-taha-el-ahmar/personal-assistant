@@ -1,4 +1,4 @@
-// Toastmasters Tools – deleting a club space, with a 3-day delay during which any officer can cancel.
+// Orato – deleting a club space, with a 3-day delay during which any officer can cancel.
 // The request is stamped with the server's clock (see firestore.rules), so the delay cannot be shortened.
 // After the delay the database locks the club; the next officer who opens the site erases everything.
 // clubs/{club}/public/status repeats the deadline so every member sees the notice.
@@ -77,8 +77,8 @@ async function cancelDeletion(){
 }
 
 // Erase every document of the club. Runs once the delay has passed and an officer is signed in.
-const PURGE_DOCS=['meeting/roles','meeting/agenda','meeting/vote','meeting/reports','meeting/draw','public/info','public/modules','public/access','private/config'];
-const PURGE_COLLECTIONS=['ballots','history','feedback','interest','templates','devices','members','guestbook'];
+const PURGE_DOCS=['meeting/roles','meeting/agenda','meeting/vote','meeting/reports','meeting/draw','public/info','public/modules','public/contest','public/plan','public/access','private/config'];
+const PURGE_COLLECTIONS=['ballots','history','feedback','interest','templates','devices','members','guestbook','media','people','directory','speeches','mentoring','dcp','kit','contests'];
 async function maybePurge(){
   if(!SH.on||!SH.officer||DEL.busy||DEL.done||!SH.deletion||!deletionPassed())return;
   // Leave a minute of margin so the server's clock has passed the deadline too.
@@ -90,6 +90,11 @@ async function purgeClub(){
   const base='clubs/'+SH.club;
   const step=k=>{DEL.progress=t('del.progress',{what:k});render()};
   try{
+    // Contests keep their codes, judges and ballots in sub-collections: erase them first.
+    step('contests');
+    const cq=await SH.fs.collection(`${base}/contests`).get();
+    for(const cd of cq.docs){for(const sub of ['ballots','judges']){const s=await SH.fs.collection(`${base}/contests/${cd.id}/${sub}`).get();for(const d of s.docs)await d.ref.delete()}
+      await SH.fs.doc(`${base}/contests/${cd.id}/keys/codes`).delete().catch(()=>{})}
     for(const c of PURGE_COLLECTIONS){
       step(c);
       const q=await SH.fs.collection(`${base}/${c}`).get();
@@ -100,6 +105,8 @@ async function purgeClub(){
     step('club');
     await SH.fs.doc(`${base}/public/status`).delete();
     await SH.fs.doc(base).delete();
+    // Free the club code: the approved creation request is removed too, so the code can be requested again.
+    try{await SH.fs.doc('requests/'+SH.club).delete()}catch(e){}
     DEL.done=true;
   }catch(e){DEL.failed=true;toast(t('del.purgeFail'))}
   DEL.busy=false;render();

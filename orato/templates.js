@@ -1,4 +1,4 @@
-// Toastmasters Tools – meeting templates for the agenda.
+// Orato – meeting templates for the agenda.
 // Built-in templates ship with the site. Club templates are shared through Firestore (clubs/{club}/templates/{id}):
 // everyone with the club link can use them, signed-in club officers create, update, rename and delete them.
 // Anyone else can keep their own templates on this device.
@@ -14,8 +14,8 @@ const BUILTIN_TEMPLATES={
        ['tt','ttm',20],['break','',10],['evals','ge',9],['ttEval','tte',4],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]],
   '3':[['doors','saa',10],['welcome','pres',3],['intro','toastmaster',4],['roles','ge',5],['speech1','s1',7],['speech2','s2',7],['speech3','s3',7],
        ['tt','ttm',20],['break','',10],['evals','ge',12],['ttEval','tte',4],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]],
-  'contest':[['doors','saa',15],['welcome','pres',3],['cOpen','toastmaster',5],['cRules','',5],
-       ['c1','',8],['c2','',8],['c3','',8],['c4','',8],['cTally','',15],['cResults','',5],['close','pres',3]]
+  'contest':[['doors','csaa',15],['welcome','pres',3],['cOpen','cchair',5],['cRules','cchair',5],
+       ['c1','cc1',8],['c2','cc2',8],['c3','cc3',8],['c4','cc4',8],['cTally','cchief',15],['cResults','cchair',5],['close','pres',3]]
 };
 const builtinItems=id=>BUILTIN_TEMPLATES[id].map(([k,role,dur])=>({k,role,dur}));
 
@@ -82,6 +82,8 @@ function applyTemplate(tp){
   S.agenda.items=clone(tp.items).map(it=>({k:it.k||undefined,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0}))
     .map(it=>{if(!it.k)delete it.k;return it});
   if(tp.start)S.agenda.start=tp.start;
+  // A template that uses contest roles switches the Roles tab to the contest list, any other one back to the meeting list.
+  S.agenda.rolesMode=S.agenda.items.some(it=>CONTEST_OFFICIAL_KEYS.includes(it.role)||CONTESTANT_KEYS.includes(it.role))?'contest':'meeting';
   save();pushAgenda();TPL.confirm=false;render();toast(t('tpl.applied',{name:tp.name}));
 }
 async function saveTemplate(name){

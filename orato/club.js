@@ -1,4 +1,5 @@
-// Toastmasters Tools Data (see firestore.rules):
+// Orato – club page, officer roles and the "interested in joining the officers" form.
+// Data (see firestore.rules):
 //   clubs/{club}/public/info       the introduction page; everyone reads, officers write
 //   clubs/{club}/interest/{uid}    one interest form per device; the sender and officers read it
 
@@ -31,8 +32,10 @@ function stopInterestSub(){if(CL.unsubInt){CL.unsubInt();CL.unsubInt=null}CL.int
 const linkOrText=v=>{const u=safeUrl(v);return u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(u.replace(/^https:\/\//,''))}</a>`:esc(v)};
 const paras=txt=>String(txt||'').split(/\n{2,}/).map(p=>p.trim()).filter(Boolean).map(p=>`<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('');
 const cid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-function emptyInfo(){return {name:'',about:'',practical:{where:'',when:'',contact:'',fees:'',web:''},officers:OFFICER_KEYS.map(k=>({role:k,name:''})),announcements:[],events:[]}}
+function emptyInfo(){return {name:'',about:'',gallery:[],social:{},reviews:{show:false},testimonials:[],practical:{where:'',when:'',contact:'',fees:'',web:''},officers:OFFICER_KEYS.map(k=>({role:k,name:''})),announcements:[],events:[]}}
 function normInfo(i){const e=emptyInfo();i=i||{};return {name:i.name||'',about:i.about||'',practical:{...e.practical,...(i.practical||{})},
+  social:{...(i.social||{})},reviews:{show:false,...(i.reviews||{})},testimonials:Array.isArray(i.testimonials)?clone(i.testimonials):[],
+  gallery:Array.isArray(i.gallery)?i.gallery.filter(x=>x&&x.id&&(x.type==='photo'||x.type==='video')):[],
   officers:Array.isArray(i.officers)&&i.officers.length?i.officers:e.officers,announcements:Array.isArray(i.announcements)?i.announcements:[],events:Array.isArray(i.events)?i.events:[]}}
 const shortDate=d=>d?new Date(d+'T12:00').toLocaleDateString(locale(),{weekday:'short',day:'numeric',month:'long',year:'numeric'}):'';
 
@@ -55,6 +58,8 @@ function clubView(){
   ${head(esc(name)||t('cl.title'))}
   ${empty?`<div class="notice"><span>${SH.officer?t('cl.emptyOfficer'):t('cl.empty')}</span>${SH.officer?'':`<button class="small" data-act="go-office">${t('cl.officerLink')}</button>`}</div>`:''}
   ${info.about?`<div class="box about">${paras(info.about)}</div>`:''}
+  ${galleryHtml(info.gallery)}
+  ${socialHtml(info.social)}
   <div class="grid2">
     <div class="box"><h3>${t('cl.next')}</h3>
       ${a.date?`<p><b>${esc(fmtDate(a.date))}</b>${a.start?' · '+esc(a.start):''}</p>${a.theme?`<p>${t('ag.themeIs')} ${esc(a.theme)}</p>`:''}
@@ -65,6 +70,7 @@ function clubView(){
     </div>
     ${practical.length?`<div class="box"><h3>${t('cl.practical')}</h3><dl class="dl">${practical.map(([k,v])=>`<dt>${t('cl.p.'+k)}</dt><dd>${k==='web'?linkOrText(v):paras(v)||esc(v)}</dd>`).join('')}</dl></div>`:''}
   </div>
+  ${reviewsHtml(info)}
   ${anns.length?`<div class="box"><h3>${t('cl.announcements')}</h3>${anns.map(n=>`<article class="ann"><div class="label">${esc(shortDate(n.date))}</div><h4>${esc(n.title)}</h4>${paras(n.text)}</article>`).join('')}</div>`:''}
   ${upcoming.length||past.length?`<div class="box"><h3>${t('cl.events')}</h3>
     ${upcoming.length?upcoming.map(eventHtml).join(''):`<p class="muted">${t('cl.noUpcoming')}</p>`}
@@ -89,9 +95,12 @@ function clubEditView(){
     ${fld('cl-name',t('cl.name'),d.name,'data-cl="name" maxlength="120"')}
     <div class="field"><label class="label" for="cl-about">${t('cl.about')}</label><textarea id="cl-about" data-cl="about" rows="6" maxlength="4000" placeholder="${t('cl.aboutPh')}">${esc(d.about)}</textarea></div>
   </div>
+  ${galleryEditBox()}
+  ${socialEditBox()}
   <div class="box"><h3>${t('cl.practical')}</h3><div class="fields">
     ${['where','when','contact','fees','web'].map(k=>fld('cl-p-'+k,t('cl.p.'+k),p[k],`data-cl="practical.${k}" maxlength="300" placeholder="${esc(t('cl.ph.'+k))}"`)).join('')}
   </div></div>
+  ${reviewsEditBox()}
   <div class="box"><h3>${t('cl.board')}</h3><p class="muted">${t('cl.boardIntro')}</p><div class="fields">
     ${d.officers.map((x,i)=>fld('cl-o'+i,t('or.'+x.role+'.title'),x.name,`data-clo="${i}" maxlength="80"`)).join('')}
   </div></div>
@@ -115,9 +124,12 @@ async function saveClubInfo(){
   const d=clone(CL.draft);
   d.announcements=d.announcements.filter(n=>n.title||n.text).slice(0,50);
   d.events=d.events.filter(e=>e.title||e.date).slice(0,100);
+  d.gallery=d.gallery.map(x=>x.type==='photo'?{id:x.id,type:'photo',caption:(x.caption||'').trim().slice(0,140)}:{id:x.id,type:'video',url:x.url,caption:(x.caption||'').trim().slice(0,140)});
+  const before=normInfo(CL.info).gallery;
+  prepareReviewsForSave(d);
   d.updatedAt=new Date().toISOString();d.updatedBy=SH.user&&SH.user.email||'';
   CL.saving=true;render();
-  try{await SH.fs.doc(`clubs/${SH.club}/public/info`).set(d);CL.edit=false;CL.draft=null;toast(t('cl.saved'))}
+  try{await SH.fs.doc(`clubs/${SH.club}/public/info`).set(d);CL.info=d;mediaAfterSave(before,d.gallery);CL.edit=false;CL.draft=null;toast(t('cl.saved'))}
   catch(e){writeFail(e)}
   CL.saving=false;render();
 }
@@ -182,7 +194,7 @@ document.addEventListener('click',ev=>{
   case 'go-roles':setTab('roles');return;
   case 'go-office':setTab('office');return;
   case 'cl-edit':CL.draft=normInfo(CL.info);if(!CL.draft.name)CL.draft.name=(S.agenda&&S.agenda.club)||'';CL.edit=true;break;
-  case 'cl-cancel':CL.edit=false;CL.draft=null;break;
+  case 'cl-cancel':mediaAfterCancel();CL.edit=false;CL.draft=null;break;
   case 'cl-save':saveClubInfo();return;
   case 'cl-add-ann':CL.draft.announcements.unshift({id:cid(),title:'',date:todayISO(),text:''});break;
   case 'cl-del-ann':CL.draft.announcements.splice(i,1);break;

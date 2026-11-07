@@ -148,6 +148,7 @@ function paintDcp(){const el=document.getElementById('dcp-sum');if(el)el.innerHT
 function dcpBox(s){
   const L=STL();const d=dcpValues();
   const sug={newMembers:s.newM.length,members:s.active.length};
+  if(typeof KIT!=='undefined'&&KIT.doc&&hasFeature('officerKit')){sug.trained1=trainedCount('p1');sug.trained2=trainedCount('p2')}
   const num=k=>`<div class="field dcpf"><label class="label" for="dcp-${k}">${esc(L.f[k])}</label><div class="btns" style="flex-wrap:nowrap"><input id="dcp-${k}" type="number" min="0" max="999" inputmode="numeric" data-dcp="${k}" value="${d[k]||0}">
     ${sug[k]!=null&&sug[k]!==d[k]?`<button type="button" class="small ghost" data-act="dcp-use" data-k="${k}" data-v="${sug[k]}" title="${esc(L.suggest.replace('{n}',sug[k]))}">${esc(L.use)} ${sug[k]}</button>`:''}</div></div>`;
   const chk=k=>`<label class="check" for="dcp-${k}"><input type="checkbox" id="dcp-${k}" data-dcp="${k}" ${d[k]?'checked':''}><span>${esc(L.f[k])}</span></label>`;

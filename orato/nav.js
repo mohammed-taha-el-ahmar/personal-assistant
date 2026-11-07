@@ -6,10 +6,10 @@ const NAV_SECTIONS=[
   {id:'during',label:'nav.during',short:'navs.during',tabs:['timer','ah','gram','topics','vote'],icon:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>'},
   {id:'before',label:'nav.before',short:'navs.before',tabs:['agenda','roles','draw','guides','eval'],icon:'<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/>'},
   {id:'learn',label:'nav.learn',short:'navs.learn',tabs:['speeches','pathways','mentoring'],icon:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>'},
-  {id:'contests',label:'nav.contests',short:'navs.contests',tabs:['contest','cofficials','cdocs','cvideos'],icon:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4"/>'},
+  {id:'contests',label:'nav.contests',short:'navs.contests',tabs:['contest','cofficials','cdocs','cvideos','cpro'],icon:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4"/>'},
   {id:'after',label:'nav.after',short:'navs.after',tabs:['feedback'],icon:'<path d="M4 5h16v11H8l-4 4z"/>'}
 ];
-const NAV_OFFICE=['me','office','members','stats'];
+const NAV_OFFICE=['me','office','members','stats','kit'];
 const navVisible=x=>isOn(x)&&!officerOnlyTab(x);
 const navSectionOf=x=>NAV_SECTIONS.find(s=>s.tabs.includes(x));
 const navIcon=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
