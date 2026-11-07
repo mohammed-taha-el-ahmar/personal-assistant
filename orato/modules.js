@@ -7,6 +7,7 @@ const MODULE_SECTIONS=[
   {id:'club',    label:'nav.club',   tabs:['club','guestbook','members'],                                    subs:[['office.roles','mod.sub.officeRoles']]},
   {id:'during',  label:'nav.during', tabs:['timer','ah','gram','topics','vote'],        subs:[['reports','mod.sub.reports']]},
   {id:'before',  label:'nav.before', tabs:['agenda','roles','draw','guides','eval'],    subs:[['agenda.templates','mod.sub.templates']]},
+  {id:'contests',label:'nav.contests',tabs:['contest','cofficials','cdocs','cvideos'],                              subs:[]},
   {id:'after',   label:'nav.after',  tabs:['feedback'],                                 subs:[]}
 ];
 const ALWAYS_ON=['office'];

@@ -22,6 +22,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `office.js` | The club officers' space: sign-in, archive, history, participation |
 | `evals.js` | Evaluation forms by type |
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
+| `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
 | `deletion.js` | Deleting a club space, with a 3-day delay any officer can cancel |
 | `permissions.js` | Who may do what: visitors, members (device unlocked with the member code) and officers |
@@ -173,6 +174,18 @@ In **Edit the club page**:
   - Tick **Show the average rating** to display the average of the feedback form answers of the last 12 months (stars, score out of 5 and number of answers). It appears from 3 answers, and the figure is refreshed each time an officer saves the page.
   - **Testimonials** (up to 12): pick comments from the feedback form, or type one in. Only comments whose authors ticked "I agree that my comment may be shown on the club page" can be picked; they appear with the first name and the initial of the last name, which you can change.
 - The feedback answers themselves stay visible to officers only.
+
+### Speech contests
+
+The **Contests** section has four tabs:
+- **Organise**: the contest type (International, Evaluation, Humorous, Table Topics, Tall Tales, Online) with its speaking time, green/yellow/red signals, qualifying window (outside it the contestant is disqualified), its specific rules in short and its judge's ballot, tiebreaking ballot and contest kit. **Time with these settings** opens the timer with the contest timing: its report marks contestants outside the window. Below: the tools for the day (speaking-order draw, contest timer, contest agenda template, evaluation forms) and the **contest chair's checklist** (14 steps, saved on the device).
+- **Officials**: contest chair, chief judge, voting judges, tiebreaking judge, counters, timers, Sergeant at Arms, test speaker and contestants, each with their tasks and the documents they need for the chosen contest type.
+- **Documents**: the official documents on toastmasters.org (rulebook, judge's and speaker's certifications, time record sheet, counter's tally sheet, certificates, kits, FAQ, tutorials), a table of the ballots and kit of each contest type, and the **club and district links** that officers add (district contest page, registration forms…).
+- **Watch & learn**: the winning speeches of the World Championship of Public Speaking since 2014 (with 2nd and 3rd places for the latest years), six questions to study a speech together, links to the official playlist and to the list of all champions, and **our club's picks**: officers add YouTube or Vimeo links (up to 30) with a note on what to watch for.
+
+Club links and videos are stored in `clubs/{club}/public/contest` (fields `links` and `videos`); the existing rules already cover it. Videos are played click-to-play from youtube-nocookie.com; when a champion's video is not verified, the card links to the official page or to a YouTube search instead.
+
+The page summarises the rules; the reference is always the current Speech Contest Rulebook. The links were checked for the 2026–2027 rulebook: when Toastmasters International publishes new documents, update `DOCS` and `CONTEST_TYPES` at the top of `contests.js`. After each convention (August), add the new champion at the top of `CHAMPS`.
 
 ## 6. After the meeting: feedback
 

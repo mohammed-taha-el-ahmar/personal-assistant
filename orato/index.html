@@ -247,6 +247,11 @@ button.danger:disabled,button:disabled{opacity:.5;cursor:not-allowed}
 .gallery .ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
 .gallery .ph:hover img{transform:scale(1.03)}
 .gallery figcaption,.videos figcaption{font-size:.85rem;color:var(--muted)}
+.champs figcaption{line-height:1.45}
+.champs figcaption a{white-space:nowrap}
+.vid a.play{text-decoration:none}
+.podium{margin:4px 0 0;padding-inline-start:18px;font-size:.82rem}
+.cttable td,.cttable th{white-space:nowrap}
 .videos{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:4px}
 .vid{aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#111}
 .vid iframe,.vid video{width:100%;height:100%;border:0;display:block}
@@ -292,6 +297,15 @@ html[lang=fr] .testi blockquote{quotes:"« " " »"}
 .testi figcaption{font-size:.9rem}
 .picklist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
 .picklist li{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;border-top:1px solid var(--line);padding-top:8px}
+.ctime{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:6px}
+.ctime>div{background:var(--bg);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.ctime b{font-family:var(--mono);font-size:1.1rem;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.ctime .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-inline-end:6px;vertical-align:middle}
+.dot.g{background:var(--go)}.dot.a{background:var(--warn)}.dot.r{background:var(--stop)}
+.ctnotes,.ctdocs{margin:0;padding-inline-start:1.2em;display:flex;flex-direction:column;gap:6px}
+.ctdocs{margin-top:10px}
+.ctcheck{display:flex;flex-direction:column;gap:8px}
+.ctcheck .check{align-items:flex-start}
 .supportline:empty,#support-head:empty{display:none}
 .supportline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
 .supportbtn{background:#ffdd00;color:#1b1b1b;border-color:#e6c700}
@@ -366,6 +380,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
         <button class="tab" data-tab="guides" data-i18n="tab.guides">Role guides</button>
         <button class="tab" data-tab="eval" data-i18n="tab.eval">Evaluation form</button>
       </div></div>
+      <div class="group"><span class="label" data-i18n="nav.contests">Contests</span><div class="row" role="tablist">
+        <button class="tab" data-tab="contest" data-i18n="tab.contest">Organise</button>
+        <button class="tab" data-tab="cofficials" data-i18n="tab.cofficials">Officials</button>
+        <button class="tab" data-tab="cdocs" data-i18n="tab.cdocs">Documents</button>
+        <button class="tab" data-tab="cvideos" data-i18n="tab.cvideos">Watch &amp; learn</button>
+      </div></div>
       <div class="group"><span class="label" data-i18n="nav.after">After the meeting</span><div class="row" role="tablist">
         <button class="tab" data-tab="feedback" data-i18n="tab.feedback">Feedback</button>
       </div></div>
@@ -392,6 +412,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <script src="reviews.js"></script>
 <script src="templates.js"></script>
 <script src="draw.js"></script>
+<script src="contests.js"></script>
 <script src="deletion.js"></script>
 <script src="permissions.js"></script>
 <script src="members.js"></script>

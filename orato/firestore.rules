@@ -265,7 +265,7 @@ service cloud.firestore {
     // The status stays readable after the delay so members see that the club space was deleted.
     match /clubs/{club}/public/{docId} {
       allow read: if validClub(club) && (docId == 'status' || !deletionDue(club));
-      allow write: if open(club) && docId in ['info', 'status', 'modules', 'access'] && isOfficer(club);
+      allow write: if open(club) && docId in ['info', 'status', 'modules', 'access', 'contest'] && isOfficer(club);
       allow delete: if purging(club);
     }
 

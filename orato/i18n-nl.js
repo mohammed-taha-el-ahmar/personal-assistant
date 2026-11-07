@@ -2,6 +2,15 @@
 if(!window.LANGS.includes('nl'))window.LANGS.push('nl');
 
 window.I18N.nl = {
+  "nav.contests": "Wedstrijden",
+  "tab.contest": "Organiseren",
+  "tab.cofficials": "Officials",
+  "tab.cdocs": "Documenten",
+  "tab.cvideos": "Kijken en leren",
+  "preset.cIntl": "Wedstrijd: International, Humoristisch, Online (5–7 min)",
+  "preset.cEval": "Wedstrijd: Evaluatie (2–3 min)",
+  "preset.cTT": "Wedstrijd: Table Topics (1–2 min)",
+  "preset.cTall": "Wedstrijd: Tall Tales (3–5 min)",
   "office.signInText": "Alleen bestuursleden van de club moeten inloggen. Gmail-adressen gaan via Google; elk ander adres (hotmail, ziggo, kpnmail, werk…) gebruikt een wachtwoord dat je één keer kiest.",
   "link.title": "Geen Google-account?",
   "link.intro": "Vul het adres in dat op de bestuurslijst van de club staat. Je ontvangt een eenmalige inloglink, zonder wachtwoord. Daarna blijf je ingelogd op dit apparaat.",
@@ -1136,6 +1145,10 @@ window.HELP_EXTRA.nl={
     draw:['Loot een eerlijke, willekeurige sprekersvolgorde, voor wedstrijden of sprekers.',['Typ of plak de namen (één per regel), of neem ze over uit het tabblad Rollen.','Druk op “Volgorde loten”: met een clublink ziet iedereen dezelfde uitslag.','Toon hem op volledig scherm, of zet hem in de wedstrijdagenda.'],['Elke nieuwe loting krijgt een nummer, zodat de zaal weet welke telt.']],
     guides:['Een korte gids voor elke rol in de bijeenkomst: wat je doet vóór, tijdens en na de bijeenkomst.',['Open de rol die je gaat vervullen.','Lees de drie stappen.'],['Ideaal voor een eerste keer in een rol, of om een gast te briefen.']],
     eval:['Evaluatieformulieren per soort: speech, Table Topics, evaluator, Toastmaster van de avond…',['Voeg een formulier toe en kies de soort: de criteria zijn al ingevuld.','Hernoem, verplaats, verwijder of voeg criteria toe.','Download het ingevuld of leeg als PDF, om af te drukken of naar de spreker te sturen.'],['Formulieren blijven op je apparaat.']],
+    contest:['Een clubwedstrijd voorbereiden: soorten wedstrijden en tijden, de checklist van de wedstrijdvoorzitter en de tools voor de dag zelf.',['Kies de soort wedstrijd om de tijden, de eigen regels en het stembiljet voor de jury te zien.','“Met deze instellingen timen” opent de timer met de wedstrijdtijd en het kwalificatievenster.','Vink de checklist gaandeweg af; de tools openen de loting van de sprekersvolgorde, de timer en de wedstrijdagenda.'],['Het rulebook is de referentie: controleer altijd de geldende documenten op toastmasters.org.']],
+    cofficials:['De wedstrijdofficials en hun taken: wedstrijdvoorzitter, hoofdjurylid, juryleden, tiebreak-jurylid, tellers, tijdwaarnemers, Sergeant at Arms…',['Kies de soort wedstrijd, zodat de stembiljetten kloppen.','Open de kaart van een official om zijn taken en benodigde documenten te zien.','Deel deze pagina vóór de wedstrijd met je vrijwilligers.'],['Op clubniveau vraagt het rulebook minstens vijf stemmende juryleden, één tiebreak-jurylid, twee tellers en twee tijdwaarnemers.']],
+    cdocs:['De officiële Toastmasters-documenten voor wedstrijden, en de eigen links van je club of district.',['Vind het rulebook, de certificeringen, het tijdregistratie- en telformulier.','De tabel geeft per soort wedstrijd het stembiljet, het tiebreak-stembiljet en het pakket.','Het bestuur voegt onderaan de links van de club of het district toe.'],['Controleer de documenten op toastmasters.org voor je afdrukt: ze worden elk jaar bijgewerkt.']],
+    cvideos:['De winnende speeches van het World Championship of Public Speaking, om met je club te bekijken en van te leren.',['Druk op ▶ om een speech hier af te spelen, of open hem op YouTube.','Gebruik de zes vragen bovenaan om samen een speech te bestuderen.','Het bestuur voegt een eigen selectie toe: de districtsfinale, de wedstrijdspeech van een lid…'],['De officiële playlist en de lijst van alle kampioenen sinds 1938 zijn één klik verwijderd.']],
     feedback:['Een feedbackformulier van één minuut over de bijeenkomst, voor leden en gasten.',['Toon aan het einde van de bijeenkomst de QR-code voor feedback.','Iedereen antwoordt één keer vanaf zijn telefoon.','Het bestuur leest de resultaten in de bestuursruimte.'],['Gasten kunnen een e-mailadres achterlaten als ze willen dat de club contact opneemt.']]},
   tips:{
     live:'Deze link is de ruimte van je club. Iedereen die hem opent, deelt live dezelfde rollen, agenda en stemmingen. Deel hem in de groepschat van je club of toon de QR-code.',

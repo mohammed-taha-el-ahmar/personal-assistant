@@ -21,7 +21,11 @@ const isRtl=()=>LANG==='ar';
 const KEY='gavel-timer-v2';
 const PRESETS=[
   {id:'tt',g:60,a:90,r:120},{id:'eval',g:120,a:150,r:180},{id:'ice',g:240,a:300,r:360},
-  {id:'std',g:300,a:360,r:420},{id:'long',g:480,a:540,r:600},{id:'ge',g:300,a:360,r:420},{id:'custom'}
+  {id:'std',g:300,a:360,r:420},{id:'long',g:480,a:540,r:600},{id:'ge',g:300,a:360,r:420},
+  // Speech contests (rulebook timing): lo–hi is the qualifying window; outside it the contestant is disqualified.
+  {id:'cIntl',g:300,a:360,r:420,lo:270,hi:450},{id:'cEval',g:120,a:150,r:180,lo:90,hi:210},
+  {id:'cTT',g:60,a:90,r:120,lo:60,hi:150},{id:'cTall',g:180,a:240,r:300,lo:150,hi:330},
+  {id:'custom'}
 ];
 const ROLE_KEYS=['toastmaster','ge','timer','ah','gram','ttm','tte','s1','s2','s3','e1','e2','e3','saa','pres'];
 const CRIT=['open','struct','voice','body','eye','obj'];
@@ -125,9 +129,9 @@ function setQuery(params){
 function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.searchParams.set('club',SH.club);if(LANG!=='en')u.searchParams.set('lang',LANG);return u.toString()}
 let pendingRender=false;
 function softRender(){
-  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members'].includes(tab))return;
+  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members','contest','cofficials','cdocs','cvideos'].includes(tab))return;
   // Don't restart a video someone is watching on the club page.
-  if(tab==='club'&&document.querySelector('#main .vid iframe,#main .vid video'))return;
+  if((tab==='club'||tab==='cvideos')&&document.querySelector('#main .vid iframe,#main .vid video'))return;
   const a=document.activeElement;
   if(a&&a.matches&&a.matches('input,textarea,select')){pendingRender=true;return}
   render();
@@ -193,6 +197,7 @@ async function initShared(){
   if(typeof deletionLive==='function')deletionLive();
   if(typeof modulesLive==='function')modulesLive();
   if(typeof accessLive==='function')accessLive();
+  if(typeof contestLive==='function')contestLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
@@ -256,9 +261,9 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['club','guestbook','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','feedback','office','members'];
+const TABS=['club','guestbook','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','contest','cofficials','cdocs','cvideos','feedback','office','members'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
-function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();if(typeof MEDIA!=='undefined')MEDIA.playing={};tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
+function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();if(typeof MEDIA!=='undefined')MEDIA.playing={};if(typeof CON!=='undefined')CON.playing={};tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 function setLang(l){
   if(!LANGS.includes(l)||l===LANG)return;
@@ -315,8 +320,8 @@ const logType=l=>l.pid?(l.pid==='custom'?t('preset.customN',{a:l.cg,b:l.cr}):t('
 const timerDisplay=()=>{try{return localStorage.getItem('gt-timer-display')||'both'}catch(e){return 'both'}};
 const setTimerDisplay=v=>{try{localStorage.setItem('gt-timer-display',v)}catch(e){}};
 const elapsed=()=>T.elapsed+(T.running?(performance.now()-T.start)/1000:0);
-function signal(s,p){if(s>=p.r+30)return 'over';if(s>=p.r)return 'red';if(s>=p.a)return 'amber';if(s>=p.g)return 'green';return ''}
-const qualified=(s,p)=>s>=p.g-30&&s<=p.r+30;
+function signal(s,p){if(s>(p.hi??p.r+30))return 'over';if(s>=p.r)return 'red';if(s>=p.a)return 'amber';if(s>=p.g)return 'green';return ''}
+const qualified=(s,p)=>s>=(p.lo??p.g-30)&&s<=(p.hi??p.r+30);
 function paintTimer(){
   const st=$('#stage');if(!st)return;const p=preset(),s=elapsed(),sig=signal(s,p);
   const colorsOnly=timerDisplay()==='colors';
@@ -327,7 +332,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView()};
+const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView(),contest:()=>contestView(),cofficials:()=>contestOfficialsView(),cdocs:()=>contestDocsView(),cvideos:()=>contestVideosView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>
