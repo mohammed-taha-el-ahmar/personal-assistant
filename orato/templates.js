@@ -1,4 +1,4 @@
-// Orato – meeting templates for the agenda.
+// Oratia – meeting templates for the agenda.
 // Built-in templates ship with the site. Club templates are shared through Firestore (clubs/{club}/templates/{id}):
 // everyone with the club link can use them, signed-in club officers create, update, rename and delete them.
 // Anyone else can keep their own templates on this device.

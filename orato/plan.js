@@ -1,4 +1,4 @@
-// Orato – premium features, switched on per club by the Orato administrator.
+// Oratia – premium features, switched on per club by the Oratia administrator.
 // Stored in clubs/{club}/public/plan as {features:{<id>:{until:'YYYY-MM-DD'|null,untilMs:number|null,since:'YYYY-MM-DD'}},
 // updatedAt,updatedBy}: everyone reads it (so members see the premium tools), only the administrator writes it.
 // A feature without an end date stays active until it is switched off; with one, it stops at the end of that day.

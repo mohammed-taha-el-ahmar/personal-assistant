@@ -1,4 +1,4 @@
-// Orato – on the club page: links to the club's social networks, the average rating from meeting feedback,
+// Oratia – on the club page: links to the club's social networks, the average rating from meeting feedback,
 // and testimonials chosen by the officers.
 // Stored in clubs/{club}/public/info with the rest of the page:
 //   social:       {facebook, instagram, linkedin, tiktok, youtube, x, whatsapp, meetup}  (https links)

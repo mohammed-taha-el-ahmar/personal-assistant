@@ -1,4 +1,4 @@
-# Orato
+# Oratia
 
 Free meeting tools for Toastmasters clubs, built as a single static page for GitHub Pages.
 
@@ -30,6 +30,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `stats.js` | Club statistics and DCP progress (premium) |
 | `kit.js` | Officer toolkit (premium): training, action plan, events, announcements |
 | `cpro.js` | Contests pro (premium): judge codes, phone ballots, secret counting, results, certificates |
+| `attendance.js` | Attendance answers, replacement alerts, attendance kept when a meeting is closed |
 | `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
@@ -58,7 +59,7 @@ The tools are grouped in 5 sections: **Club**, **Meeting**, **Prepare**, **Conte
 
 ## Personal profiles and member directory
 
-Anyone can create an Orato profile from **My profile** (the person button in the header): sign in with Google, or with an email and a password, enter a name and agree to the privacy notice. Then, in a club space:
+Anyone can create an Oratia profile from **My profile** (the person button in the header): sign in with Google, or with an email and a password, enter a name and agree to the privacy notice. Then, in a club space:
 - **I am a member of this club** sends a membership request; **I am a guest** joins as a guest right away.
 - Officers see the requests at the top of the **Members** tab (**Profiles and requests**). **Confirm as member** links the person to a record of the member list (an existing one, a new one, or none). Officers can later mark someone as a former member, or remove the profile.
 - An **active member profile works like the member code**: the member takes roles and sends reports from any device without typing the code.
@@ -87,7 +88,7 @@ Data: `clubs/{club}/mentoring/{id}`; only officers, the mentor and the mentee re
 ## Club statistics and DCP (premium)
 
 When the administrator switches on **Club statistics and DCP** for a club, officers get a **Statistics** tab (next to My profile, Club officers and Members):
-- **Key figures for the program year** (1 July – 30 June), computed from what the club keeps in Orato: meetings closed, roles filled per meeting, speeches given (speech requests marked as given), active and new members, dues paid this period, guests and guests who joined, members mentored.
+- **Key figures for the program year** (1 July – 30 June), computed from what the club keeps in Oratia: meetings closed, roles filled per meeting, speeches given (speech requests marked as given), active and new members, dues paid this period, guests and guests who joined, members mentored.
 - **Speeches by path and level**, the **most active members**, and **meetings and guests by month**.
 - **Distinguished Club Program**: the ten goals (Toastmasters item 1111, rev. 06/2024), a ten-square bar, the level reached (Distinguished 5 goals, Select 7, President's 9) and the membership requirement (20 members or net growth of 5). Officers enter the numbers from Club Central or dashboards.toastmasters.org; **Use** takes the new-member count and the membership computed from the member list. The official status is always the one on the Toastmasters dashboards.
 
@@ -99,14 +100,14 @@ When the administrator switches on **Officer toolkit** for a club, officers get 
 - **Officer training**: the seven officer roles, ticked for each training period (June–August, November–February). In the Statistics tab, **Use** fills the DCP training figures with these counts.
 - **Action plan**: actions with an owner, a due date and the DCP goal they serve, on a month-by-month timeline; late actions are flagged.
 - **Events**: special meetings, open houses, socials, demos, contests, trainings, with attendance and guests, and totals by type.
-- **Announcements**: six ready messages (meeting reminder, open roles, dues renewal, welcome a new member, thank a guest, speech contest) in the reader's language, filled in with the club's name, the next meeting date and theme, the open roles, the club link and the dues period. Recipients: active members, members who have not paid this period, or guests to follow up (from the member list and the guest book). **Open in my mail app** (addresses in Bcc), or copy the message and the addresses. Officers can save their own templates. Orato itself sends no email.
+- **Announcements**: six ready messages (meeting reminder, open roles, dues renewal, welcome a new member, thank a guest, speech contest) in the reader's language, filled in with the club's name, the next meeting date and theme, the open roles, the club link and the dues period. Recipients: active members, members who have not paid this period, or guests to follow up (from the member list and the guest book). **Open in my mail app** (addresses in Bcc), or copy the message and the addresses. Officers can save their own templates. Oratia itself sends no email.
 
 Data: `clubs/{club}/kit/{year}`; the rules require the officerKit feature. **Republish `firestore.rules`.**
 
 ## Contests pro: judges vote on their phones (premium)
 
 When the administrator switches on **Contests pro**, the Contests section gets a **Judging** tab:
-- The **chief judge** (an officer of the club space) creates the contest: name, type, level (club, area, division or district, with contestants from any club), date, contestants in speaking order. Orato gives two codes: **voting judges** and **tiebreaking judge**, with a QR code to the judging page.
+- The **chief judge** (an officer of the club space) creates the contest: name, type, level (club, area, division or district, with contestants from any club), date, contestants in speaking order. Oratia gives two codes: **voting judges** and **tiebreaking judge**, with a QR code to the judging page.
 - **Judges** open the page on their phone, type their code (or use a link ending in `&judge=CODE#cpro`), and once the voting is open rank their 1st, 2nd and 3rd place; the tiebreaking judge ranks every contestant. A judge can change their ballot until the voting closes. Nobody sees who the other judges are.
 - **Counting**: 3 points for a first place, 2 for a second, 1 for a third; equal totals are separated by the tiebreaking judge's ranking. Only officers read the ballots. The chief judge closes the voting, checks the count, ticks **Disqualified** if needed, then **publishes** the top three, which everyone sees, and downloads **certificates** (PDF, one page per contestant: places for the winners, participation for the others, with no Toastmasters logo).
 - The **Speech Contest Rulebook** remains the reference; check the counting method there each year.
@@ -114,6 +115,16 @@ When the administrator switches on **Contests pro**, the Contests section gets a
 **Role swap requests** (free, Roles tab): the holder of a role taps **Find a replacement**; the role shows *Replacement wanted* and appears in the open-roles message, and any member can tap **I'll replace** to take it over. The holder can cancel the request.
 
 Data: `clubs/{club}/contests/{id}` with `keys/codes`, `judges/{uid}`, `ballots/{uid}`. **Republish `firestore.rules`.**
+
+## Attendance and replacements
+
+On the **club page**, the **Roles** tab and the **Agenda**, everyone answers **Are you coming?** for the next meeting: on site, online (only when the meeting is online or hybrid), not sure yet, or not coming. Guests answer with their name too and tick *guest*. Members and officers see who is coming, with *no role* next to those who could still take one, and the expected guests; in a club with member access, visitors only see their own answer.
+
+When a role holder taps **Find a replacement**, everyone who said they are coming and holds no role sees an alert at the top of every page, with **I'll replace**. The holder can also **copy a message for those coming** that names them, to paste in the club's group chat. (Without a server, Oratia cannot push a notification to a phone that does not have the site open: the alert appears when they open it.)
+
+Closing a meeting keeps who said they came in the history. The **Statistics** tab (premium) then shows the average attendance (and online share), and a **Roles by member** table: how many times each member was Toastmaster, speaker, evaluator, General Evaluator, Table Topics Master or evaluator, Timer, Ah-Counter, Grammarian, Sergeant at Arms or President, their attendance, and how often each role was filled.
+
+Data: `clubs/{club}/rsvp/{date}_{uid}`. **Republish `firestore.rules`.**
 
 ## Help for new visitors
 
@@ -130,7 +141,7 @@ The **◐ / ☀ / ☾** button in the header switches between **Auto** (follows 
 
 The site is in **English, French, Dutch and Arabic**. It opens in the language of the visitor's browser when it is one of these, and in English otherwise. The **EN / FR / NL / ع** switch in the header changes language and remembers the choice on that device.
 
-- Add `?lang=fr`, `?lang=nl` or `?lang=ar` to a link to open it in that language, for example `…/orato/?club=paris-orators&lang=ar`. The **Copy club link** button adds it automatically.
+- Add `?lang=fr`, `?lang=nl` or `?lang=ar` to a link to open it in that language, for example `https://oratia.org/?club=paris-orators&lang=ar`. The **Copy club link** button adds it automatically.
 - In a shared club space, members can each use their own language. Default agenda items, role names and voting categories appear in each person's language; anything someone types (names, custom agenda titles, nominees) stays as typed.
 - **Arabic** is displayed right to left, with an Arabic font (Noto Sans Arabic, from Google Fonts). Arabic PDFs (agenda, evaluation forms) embed the **Amiri** font: the files `Amiri-Regular.ttf` and `Amiri-Bold.ttf` must be uploaded with the site (if they are missing, they are loaded from jsDelivr). Amiri is under the SIL Open Font License (`Amiri-OFL.txt`).
 - Each language has its own filler words for the Ah-Counter, Table Topics questions, role guides, example meeting and help texts.
@@ -138,12 +149,26 @@ The site is in **English, French, Dutch and Arabic**. It opens in the language o
 
 ## 1. Publish on GitHub Pages
 
-1. Create a new public repository on GitHub, for example `gavel-and-timer`.
+1. Create a new public repository on GitHub, for example `oratia`.
 2. Upload all the files in this folder to the repository's `main` branch.
 3. In the repository, open **Settings → Pages**. Under **Build and deployment**, choose **Deploy from a branch**, branch `main`, folder `/ (root)`, then **Save**.
-4. After a minute the site is live at `https://<your-username>.github.io/gavel-and-timer/`.
+4. After a minute the site is live at `https://<your-username>.github.io/oratia/`.
 
 The site already works at this point, with data kept on each device. Steps 2 and 3 turn on live sharing.
+
+### Custom domain (oratia.org)
+
+The `CNAME` file in this folder already contains `oratia.org`, so GitHub Pages serves the site on that domain.
+1. In the repository, **Settings → Pages → Custom domain**: type `oratia.org`, then **Save**.
+2. At the domain registrar, in the DNS zone of `oratia.org`, add:
+   - four **A** records for `@` (the bare domain): `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`;
+   - optionally four **AAAA** records for `@`: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`;
+   - one **CNAME** record for `www` pointing to `<your-username>.github.io.`
+   Remove any other A or CNAME record the registrar added for `@` or `www` (parking page).
+3. Wait for the DNS to update (minutes to a few hours), then tick **Enforce HTTPS** in Settings → Pages (it becomes available once GitHub has issued the certificate).
+4. For **oratia.net**, set a permanent (301) web redirect to `https://oratia.org` in the registrar's redirection or forwarding settings.
+5. In Firebase, add `oratia.org` and `www.oratia.org` to the authorized domains (step 2.5 below), or sign-in will fail on the new address.
+6. Old links (`…github.io/…`) redirect to the custom domain automatically.
 
 ## 2. Create the Firebase project (free Spark plan)
 
@@ -152,7 +177,7 @@ The site already works at this point, with data kept on each device. Steps 2 and
 3. **Turn on anonymous sign-in:** **Build → Authentication → Get started → Sign-in method → Anonymous → Enable**. Members never create accounts; each phone gets an anonymous ID so it can cast one ballot per category.
 4. **Turn on Google sign-in (for club officers):** in the same **Sign-in method** tab, choose **Google → Enable**, pick a support email, and **Save**.
    **Officers without Gmail (wanadoo.fr, orange.fr, free.fr, work addresses…):** in the same tab, open **Email/Password**, turn on the first switch **Email/Password** (this is the important one), optionally also **Email link (passwordless sign-in)**, and **Save**.
-5. **Allow your GitHub domain:** **Authentication → Settings → Authorized domains → Add domain** → `<your-username>.github.io`.
+5. **Allow your domains:** **Authentication → Settings → Authorized domains → Add domain** → `oratia.org`, `www.oratia.org` and `<your-username>.github.io`.
 6. **Create the database:** **Build → Firestore Database → Create database**. Pick a location close to your club (for example `eur3` for Europe) and start in **production mode**.
 7. **Set the rules:** open the **Rules** tab, replace everything with the contents of `firestore.rules`, and click **Publish**.
 8. Commit the updated `firebase-config.js` to GitHub.
@@ -161,16 +186,16 @@ If you set up Firebase with an earlier version of this site, publish the new `fi
 
 The values in `firebase-config.js` are meant to be public. What protects the data is the rules file.
 
-## 3. Approval of new club spaces (Orato administrator)
+## 3. Approval of new club spaces (Oratia administrator)
 
-Every new club space must be approved by the Orato administrator before anyone can use it.
+Every new club space must be approved by the Oratia administrator before anyone can use it.
 
 **Set up the administrators once** (Firebase console → **Firestore Database → Data**):
 1. Click **Start collection**, name it `app`.
 2. Document ID: `config`. Add a field `admins`, type **array**, and put each administrator's email address as a string value, in lower case (for example `you@gmail.com`).
 3. Save. The rules read this document; it is never published on GitHub, and only administrators can read it.
 
-**The administrator's page** is the site address followed by `?admin`, for example `https://<your-username>.github.io/orato/?admin`. Sign in there (Google or password), then:
+**The administrator's page** is the site address followed by `?admin`, for example `https://oratia.org/?admin`. Sign in there (Google or password), then:
 - **Requests waiting**: each request shows the club code, club name, city, Toastmasters club number, the requester's email and role, and their message. **Approve** creates the club space with the requester as its first officer and opens your email app with a ready-made message to send them. **Decline** asks for an optional reason, shown to the requester, who can correct and resend.
 - **Club spaces**: every club, its officers and status. **Suspend** closes a club (data kept, nobody can read or change it, officers included); **Reactivate** reopens it.
 - **Support button**: tick **Show the support button** and paste the link of your Buy Me a Coffee, Ko-fi, Liberapay or PayPal page (the button text can be changed). It appears at the bottom of every page for all visitors, with or without a club link, and optionally in the header too (on wide screens). Untick to hide it.
@@ -188,7 +213,7 @@ The choice is stored in `clubs/{club}/public/plan` (everyone reads it, only the 
 
 ## 4. Use it with your club
 
-1. Open your approved club link (for example `…/orato/?club=paris-orators`). You can also go to **Roles**, **Agenda** or **Voting**, enter your club code and click **Go live**.
+1. Open your approved club link (for example `https://oratia.org/?club=paris-orators`). You can also go to **Roles**, **Agenda** or **Voting**, enter your club code and click **Go live**.
 2. Click **Copy club link** and share it in your club chat. The link looks like `https://<your-username>.github.io/gavel-and-timer/?club=paris-orators`.
 3. Members who open the link can:
    - enter their name once and tap **Take it** to claim a role,
@@ -261,7 +286,7 @@ The **Contests** section has four tabs:
 - **Documents**: the official documents on toastmasters.org (rulebook, judge's and speaker's certifications, time record sheet, counter's tally sheet, certificates, kits, FAQ, tutorials), a table of the ballots and kit of each contest type, and the **club and district links** that officers add (district contest page, registration forms…).
 - **Watch & learn**: the winning speeches of the World Championship of Public Speaking since 2014 (with 2nd and 3rd places for the latest years), six questions to study a speech together, links to the official playlist and to the list of all champions, and **our club's picks**: officers add YouTube or Vimeo links (up to 30) with a note on what to watch for.
 
-**Contest role list.** In the **Roles** tab, officers switch the list from *Club meeting* to *Speech contest*: contest chair, chief judge, judges 1–5, tiebreaking judge, counters, timers, Sergeant at Arms, test speaker, and up to 6 contestants. Applying the *Speech contest* agenda template switches it automatically, and **Sign up officials** on the Officials page opens it. Judges' names (🔒) are shown only to signed-in officers and to the judge, and are left out of the agenda and the meeting history. They are still stored in the club's roles document, readable by anyone who has the club link, so for a strictly confidential panel the chief judge can recruit judges outside Orato.
+**Contest role list.** In the **Roles** tab, officers switch the list from *Club meeting* to *Speech contest*: contest chair, chief judge, judges 1–5, tiebreaking judge, counters, timers, Sergeant at Arms, test speaker, and up to 6 contestants. Applying the *Speech contest* agenda template switches it automatically, and **Sign up officials** on the Officials page opens it. Judges' names (🔒) are shown only to signed-in officers and to the judge, and are left out of the agenda and the meeting history. They are still stored in the club's roles document, readable by anyone who has the club link, so for a strictly confidential panel the chief judge can recruit judges outside Oratia.
 
 Club links and videos are stored in `clubs/{club}/public/contest` (fields `links` and `videos`); the existing rules already cover it. Videos are played click-to-play from youtube-nocookie.com; when a champion's video is not verified, the card links to the official page or to a YouTube search instead.
 

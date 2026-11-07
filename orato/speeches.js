@@ -1,4 +1,4 @@
-// Orato – speech requests.
+// Oratia – speech requests.
 // A member with an active profile asks for a speaking slot: path, level, project, title, timing, preferred meeting date.
 // Officers (the VPE in practice) or the Toastmaster of the day approve it and choose the slot (Speaker 1–3), or decline it.
 // Approved speeches show their title in the agenda and can be timed in one tap. Each request has a short comment thread

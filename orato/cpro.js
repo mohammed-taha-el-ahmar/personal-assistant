@@ -1,4 +1,4 @@
-// Orato – Contests pro: judges vote on their phones, with secret counting. Premium feature "contestsPro" (plan.js).
+// Oratia – Contests pro: judges vote on their phones, with secret counting. Premium feature "contestsPro" (plan.js).
 // Works for a club contest or for an area, division or district contest hosted in a club space (contestants from any club).
 //
 // The chief judge (an officer of the hosting club space) creates the contest and gets two codes: one for the voting
@@ -47,7 +47,7 @@ function cproAuthChanged(){Object.keys(CP.subs).forEach(k=>{CP.subs[k]();delete 
 
 const CPT={
 en:{title:'Judging',intro:'Judges vote on their phones and the counting stays secret. For a club contest, or an area, division or district contest hosted in this club space.',
-  rule:'Orato counts 3 points for each first place, 2 for a second and 1 for a third; equal totals are separated by the tiebreaking judge. The Speech Contest Rulebook is the reference.',
+  rule:'Oratia counts 3 points for each first place, 2 for a second and 1 for a third; equal totals are separated by the tiebreaking judge. The Speech Contest Rulebook is the reference.',
   newTitle:'New contest',ctitle:'Contest name',type:'Contest',date:'Date',level:'Level',lv:{club:'Club',area:'Area',division:'Division',district:'District'},
   contestants:'Contestants, in speaking order (one per line; add “ – club” for other clubs)',create:'Create the contest',needC:'Enter a name and at least two contestants',
   st:{setup:'Preparing',voting:'Voting open',closed:'Voting closed',published:'Results published'},
@@ -61,7 +61,7 @@ en:{title:'Judging',intro:'Judges vote on their phones and the counting stays se
   waiting:'The voting is not open yet.',closedJ:'The voting is closed. Thank you!',yourBallot:'Your ballot is saved.',
   places:['1st place','2nd place','3rd place'],certTitle:'Certificate',certPart:'Certificate of participation',awarded:'awarded to',forPart:'for taking part in',none:'No contest yet.'},
 fr:{title:'Vote des juges',intro:'Les juges votent sur leur téléphone et le dépouillement reste secret. Pour un concours de club, ou un concours de secteur, de division ou de district organisé dans cet espace.',
-  rule:'Orato compte 3 points pour chaque première place, 2 pour une deuxième et 1 pour une troisième ; les égalités sont départagées par le juge de départage. Le règlement des concours fait foi.',
+  rule:'Oratia compte 3 points pour chaque première place, 2 pour une deuxième et 1 pour une troisième ; les égalités sont départagées par le juge de départage. Le règlement des concours fait foi.',
   newTitle:'Nouveau concours',ctitle:'Nom du concours',type:'Concours',date:'Date',level:'Niveau',lv:{club:'Club',area:'Secteur',division:'Division',district:'District'},
   contestants:'Candidats, dans l’ordre de passage (un par ligne ; ajoutez « – club » pour les autres clubs)',create:'Créer le concours',needC:'Indiquez un nom et au moins deux candidats',
   st:{setup:'En préparation',voting:'Vote ouvert',closed:'Vote clos',published:'Résultats publiés'},
@@ -75,7 +75,7 @@ fr:{title:'Vote des juges',intro:'Les juges votent sur leur téléphone et le d�
   waiting:'Le vote n’est pas encore ouvert.',closedJ:'Le vote est clos. Merci !',yourBallot:'Votre bulletin est enregistré.',
   places:['1re place','2e place','3e place'],certTitle:'Certificat',certPart:'Certificat de participation',awarded:'décerné à',forPart:'pour sa participation au',none:'Aucun concours pour l’instant.'},
 nl:{title:'Jurering',intro:'Juryleden stemmen op hun telefoon en de telling blijft geheim. Voor een clubwedstrijd, of een area-, divisie- of districtswedstrijd in deze clubruimte.',
-  rule:'Orato telt 3 punten voor elke eerste plaats, 2 voor een tweede en 1 voor een derde; gelijke totalen worden beslist door het tiebreak-jurylid. Het Speech Contest Rulebook is de referentie.',
+  rule:'Oratia telt 3 punten voor elke eerste plaats, 2 voor een tweede en 1 voor een derde; gelijke totalen worden beslist door het tiebreak-jurylid. Het Speech Contest Rulebook is de referentie.',
   newTitle:'Nieuwe wedstrijd',ctitle:'Naam van de wedstrijd',type:'Wedstrijd',date:'Datum',level:'Niveau',lv:{club:'Club',area:'Area',division:'Divisie',district:'District'},
   contestants:'Deelnemers, in sprekersvolgorde (één per regel; voeg “ – club” toe voor andere clubs)',create:'Wedstrijd aanmaken',needC:'Vul een naam en minstens twee deelnemers in',
   st:{setup:'Voorbereiding',voting:'Stemmen open',closed:'Stemmen gesloten',published:'Uitslag gepubliceerd'},
@@ -89,7 +89,7 @@ nl:{title:'Jurering',intro:'Juryleden stemmen op hun telefoon en de telling blij
   waiting:'Het stemmen is nog niet open.',closedJ:'Het stemmen is gesloten. Bedankt!',yourBallot:'Je stembiljet is opgeslagen.',
   places:['1e plaats','2e plaats','3e plaats'],certTitle:'Certificaat',certPart:'Certificaat van deelname',awarded:'uitgereikt aan',forPart:'voor de deelname aan',none:'Nog geen wedstrijden.'},
 ar:{title:'تصويت الحكّام',intro:'يصوّت الحكّام على هواتفهم ويبقى الفرز سرّياً. لمسابقة نادٍ، أو لمسابقة منطقة أو قسم أو مقاطعة تُنظَّم في مساحة هذا النادي.',
-  rule:'يحتسب Orato ثلاث نقاط لكل مركز أول، ونقطتين للثاني، ونقطة للثالث؛ ويفصل حَكَم الترجيح في حالات التعادل. دليل المسابقات هو المرجع.',
+  rule:'يحتسب Oratia ثلاث نقاط لكل مركز أول، ونقطتين للثاني، ونقطة للثالث؛ ويفصل حَكَم الترجيح في حالات التعادل. دليل المسابقات هو المرجع.',
   newTitle:'مسابقة جديدة',ctitle:'اسم المسابقة',type:'المسابقة',date:'التاريخ',level:'المستوى',lv:{club:'النادي',area:'المنطقة',division:'القسم',district:'المقاطعة'},
   contestants:'المتسابقون بترتيب الإلقاء (واحد في كل سطر؛ أضف « – النادي» للأندية الأخرى)',create:'إنشاء المسابقة',needC:'أدخل اسماً ومتسابقَين على الأقل',
   st:{setup:'قيد التحضير',voting:'التصويت مفتوح',closed:'التصويت مغلق',published:'النتائج منشورة'},

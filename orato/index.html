@@ -8,7 +8,7 @@
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 </style>
-<title>Orato</title>
+<title>Oratia</title>
 <script>
 // Apply the saved theme before the page draws, so there is no flash of the wrong colours.
 try{var th=localStorage.getItem('gt-theme');if(th==='light'||th==='dark')document.documentElement.setAttribute('data-theme',th)}catch(e){}
@@ -307,6 +307,13 @@ button.danger:disabled,button:disabled{opacity:.5;cursor:not-allowed}
 .tli.done{opacity:.65}
 .tli.done b{text-decoration:line-through}
 .tli.late{border-color:var(--bad,#c0392b)}
+.rsvp .spk[aria-pressed=true].onsite,.rsvp .spk[aria-pressed=true].online{background:var(--ok,#1e7f4f);border-color:var(--ok,#1e7f4f);color:#fff}
+.rsvp .spk[aria-pressed=true].no{background:var(--muted);border-color:var(--muted);color:#fff}
+.rsvplist{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 16px;font-size:.92rem}
+.swapalert{border:1px solid #d4a017;background:color-mix(in srgb,#d4a017 12%,var(--surface))}
+.roletable th.num span{display:inline-block;max-width:90px;white-space:normal;line-height:1.2}
+.roletable td.heat{background:color-mix(in srgb,var(--accent) calc(var(--h)*45%),transparent);font-weight:600}
+.roletable tfoot td{font-size:.82rem;color:var(--muted);border-top:2px solid var(--line)}
 .steps{display:flex;flex-wrap:wrap;gap:4px;list-style:none;margin:6px 0 0;padding:0;font-size:.8rem}
 .steps li{padding:3px 10px;border-radius:999px;background:var(--bg);color:var(--muted)}
 .steps li.done{color:var(--ink)}
@@ -435,7 +442,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
   <div class="wrap">
     <div class="brand">
       <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
-      <h1>Orato</h1>
+      <h1>Oratia</h1>
       <span class="tag" data-i18n="tagline">Tools for Toastmasters club meetings</span>
       <span id="sync"></span>
       <span id="support-head"></span>
@@ -481,6 +488,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <script src="stats.js"></script>
 <script src="kit.js"></script>
 <script src="cpro.js"></script>
+<script src="attendance.js"></script>
 <script src="admin.js"></script>
 <script src="help.js"></script>
 <script src="modules.js"></script>

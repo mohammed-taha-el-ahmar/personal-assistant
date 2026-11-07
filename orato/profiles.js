@@ -1,4 +1,4 @@
-// Orato – personal profiles and the club directory.
+// Oratia – personal profiles and the club directory.
 //
 // Anyone can create a profile with a confirmed email address (Google, or email and password), then join a club:
 //   users/{uid}                 the person's own profile: name, email, consent date, contact details, clubs joined.
@@ -92,7 +92,7 @@ async function exportMyData(){
     out.clubs[c]=r;
   }
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
-  a.download=`orato-my-data-${todayISO()}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+  a.download=`oratia-my-data-${todayISO()}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
 }
 async function deleteMyAccount(){
   const u=myProfile();const clubs=[...new Set([...((u&&u.clubs)||[]),...(SH.club?[SH.club]:[])])];

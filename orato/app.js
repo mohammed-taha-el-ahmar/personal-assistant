@@ -1,4 +1,4 @@
-// Orato – app logic. Text and language content live in i18n.js.
+// Oratia – app logic. Text and language content live in i18n.js.
 
 // ---------- language ----------
 function detectLang(){
@@ -177,6 +177,7 @@ async function initShared(){
         if(typeof accessAuthChanged==='function')accessAuthChanged();
         if(typeof adminAuthChanged==='function')adminAuthChanged();
         if(typeof profilesAuthChanged==='function')profilesAuthChanged();
+        if(typeof rsvpStop==='function')rsvpStop();
         if(typeof cproAuthChanged==='function')cproAuthChanged();
         if(SH.closed){REQ.mine=undefined}
         if(SH.on||SH.closed||SH.adminMode)render();
@@ -185,7 +186,7 @@ async function initShared(){
   }catch(e){SH.error='connect';updateStatus();render();return}
   if(SH.adminMode){if(typeof loadContact==='function')loadContact();updateStatus();render();return}
   const base='clubs/'+SH.club;
-  // A club code opens only once the Orato administrator has approved it. The database refuses to read a club
+  // A club code opens only once the Oratia administrator has approved it. The database refuses to read a club
   // that is not open; a club whose deletion delay has passed is refused too, but keeps its deletion notice.
   try{await SH.fs.doc(base+'/meeting/agenda').get({source:'server'})}
   catch(e){
@@ -326,7 +327,8 @@ function render(){
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===tab));
   // A club whose deletion delay has passed shows only the deletion notice.
   if(SH.on&&(DEL.done||deletionPassed())){$('#main').innerHTML=deletedView();return}
-  $('#main').innerHTML=deletionBanner()+VIEWS[tab]();
+  if(typeof rsvpRefresh==='function')rsvpRefresh();
+  $('#main').innerHTML=deletionBanner()+(typeof swapAlerts==='function'?swapAlerts():'')+VIEWS[tab]();
   if(tab==='timer') paintTimer();
   if(typeof decorateHelp==='function')decorateHelp();
 }
@@ -493,7 +495,7 @@ function itemPerson(it){return it.role?(roleName(it.role)||t('ag.open')):''}
 const fmtDate=d=>d?new Date(d+'T12:00').toLocaleDateString(locale(),{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
 VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=online(a);const times=agendaTimes();const dateStr=fmtDate(a.date);const link=safeUrl(o.url);
   const head=`<div class="phead"><div><h2>${t('ag.title')}</h2><p class="muted">${t('ag.intro')}${SH.on?' '+t('ag.introShared'):''}</p></div></div>
-  ${liveBox()}${SH.on?'':sampleNotice()}`;
+  ${liveBox()}${SH.on?'':sampleNotice()}${typeof rsvpBox==='function'?rsvpBox():''}`;
   const doc=`<div class="box agenda-doc">
     <div class="ah"><span class="label">${t('ag.doc')}</span><h3>${esc(a.club||t('ag.yourClub'))}</h3><p class="muted">${esc(dateStr)}${a.venue&&o.format!=='online'?' · '+esc(a.venue):''}</p>${a.theme?`<p>${t('ag.themeIs')} <b>${esc(a.theme)}</b></p>`:''}
       ${o.format!=='inperson'?`<div class="join"><span class="chip ok">${t('fmt.'+o.format)}</span>${link?`<a class="btn primary" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${t('on.join')}</a>`:`<span class="muted">${t('on.noLink')}</span>`}
@@ -545,11 +547,11 @@ function roleCell(k){
     const mine=e&&e.u&&e.u===SH.uid;
     // Role swap: the holder asks for a replacement; any member can then take the role over.
     if(e&&e.n)return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span>${e.swap?` <span class="chip warn">${t('swap.wanted')}</span>`:''}
-      ${mine?(e.swap?`<button class="small ghost" data-act="r-swap-off" data-k="${k}">${t('swap.cancel')}</button>`:`<button class="small" data-act="r-swap" data-k="${k}">${t('swap.ask')}</button>`)+`<button class="small ghost" data-act="r-release" data-k="${k}">${t('roles.giveUp')}</button>`
+      ${mine?(e.swap?`<button class="small" data-act="rs-copy" data-k="${k}">${t('swap.copy')}</button><button class="small ghost" data-act="r-swap-off" data-k="${k}">${t('swap.cancel')}</button>`:`<button class="small" data-act="r-swap" data-k="${k}">${t('swap.ask')}</button>`)+`<button class="small ghost" data-act="r-release" data-k="${k}">${t('roles.giveUp')}</button>`
         :e.swap&&canAct()?`<button class="small primary" data-act="r-take" data-k="${k}">${t('swap.take')}</button>`:''}</div>`;
     return canAct()?`<button class="small" data-act="r-take" data-k="${k}">${t('roles.take')}</button>`:`<span class="muted">–</span>`;
   }
-  if(e&&e.u){const mine=e.u===SH.uid;return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span>${e.swap?`<span class="chip warn">${t('swap.wanted')}</span>`:''}${mine&&!e.swap?`<button class="small" data-act="r-swap" data-k="${k}">${t('swap.ask')}</button>`:''}${!mine&&e.swap?`<button class="small primary" data-act="r-take" data-k="${k}">${t('swap.take')}</button>`:''}<button class="small ghost" data-act="${mine?'r-release':'r-unassign'}" data-k="${k}">${t(mine?'roles.giveUp':'roles.clear')}</button></div>`}
+  if(e&&e.u){const mine=e.u===SH.uid;return `<div class="btns" style="align-items:center"><span class="${mine?'mine':''}">${esc(e.n)}${mine?' '+t('roles.you'):''}</span>${e.swap?`<span class="chip warn">${t('swap.wanted')}</span>`:''}${mine&&!e.swap?`<button class="small" data-act="r-swap" data-k="${k}">${t('swap.ask')}</button>`:''}${mine&&e.swap?`<button class="small" data-act="rs-copy" data-k="${k}">${t('swap.copy')}</button>`:''}${!mine&&e.swap?`<button class="small primary" data-act="r-take" data-k="${k}">${t('swap.take')}</button>`:''}<button class="small ghost" data-act="${mine?'r-release':'r-unassign'}" data-k="${k}">${t(mine?'roles.giveUp':'roles.clear')}</button></div>`}
   return `<div class="btns" style="flex-wrap:nowrap"><input id="r-${k}" data-srole="${k}" value="${esc(e&&e.n||'')}" placeholder="${t('roles.typeName')}">${!(e&&e.n)?`<button class="small" data-act="r-take" data-k="${k}">${t('roles.take')}</button>`:''}</div>`;
 }
 function rolesModeSwitch(){
@@ -563,7 +565,7 @@ VIEWS.roles=()=>{const open=officialKeys().filter(k=>!roleName(k)||(SH.on&&SH.ro
   return `<section class="panel">
   <div class="phead"><div><h2>${t('roles.title')}</h2><p class="muted">${t(SH.on?'roles.introShared':'roles.introLocal')}</p></div>
   <span class="chip ${open.length?'warn':'ok'}">${open.length?t('roles.openN',{n:open.length}):t('roles.allFilled')}</span></div>
-  ${liveBox()}${rolesModeSwitch()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}
+  ${liveBox()}${rolesModeSwitch()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}${typeof rsvpBox==='function'?rsvpBox(SH.on&&canAct()):''}
   <div class="box"><div class="tablewrap"><table><thead><tr><th>${t('roles.colRole')}</th><th>${t('roles.colMember')}</th><th>${t('roles.colStatus')}</th></tr></thead><tbody>
   ${contest?`<tr><th colspan="3">${t('roles.officials')}</th></tr>`:''}${officialKeys().map(roleRow).join('')}
   ${contest?`<tr><th colspan="3">${t('roles.contestants')} <span class="muted">· ${t('roles.contestantsN',{n:CONTESTANT_KEYS.filter(k=>roleName(k)).length})}</span></th></tr>${CONTESTANT_KEYS.map(roleRow).join('')}`:''}

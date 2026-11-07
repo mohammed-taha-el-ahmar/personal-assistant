@@ -1,4 +1,4 @@
-// Orato – mentoring: mentor and mentee pairs.
+// Oratia – mentoring: mentor and mentee pairs.
 // Members say whether they would like a mentor or can be one (flags on their club profile). Officers (the VP Education
 // or VP Membership in practice) form the pairs and end them. Each pair sees the other's name and email, a shared goal
 // and a short log of their check-ins. Officers see every pair and who is waiting for a mentor.

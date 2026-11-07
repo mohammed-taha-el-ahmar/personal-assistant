@@ -1,4 +1,4 @@
-// Orato – the Contests section: contest types and timing, contest officials and their tasks, links to the official
+// Oratia – the Contests section: contest types and timing, contest officials and their tasks, links to the official
 // Toastmasters documents (judge's ballots, tally sheet, time record sheet…), a checklist for the contest chair,
 // shortcuts to the contest tools (timer, speaking order, agenda), the club's or district's own links, and the winning
 // speeches of the World Championship of Public Speaking. Four tabs: contest (Organise), cofficials, cdocs, cvideos.

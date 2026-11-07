@@ -1,12 +1,12 @@
-// Orato – club statistics and Distinguished Club Program (DCP) progress. Premium feature "stats" (plan.js), officers only.
+// Oratia – club statistics and Distinguished Club Program (DCP) progress. Premium feature "stats" (plan.js), officers only.
 //
-// Statistics are computed in the browser from what the club already keeps in Orato for the current program year
+// Statistics are computed in the browser from what the club already keeps in Oratia for the current program year
 // (1 July – 30 June): archived meetings (history), the member list and renewals, the guest book, profiles, speech
 // requests and mentoring pairs. Nothing new is collected.
 //
 // DCP: the ten goals of the Distinguished Club Program (Toastmasters item 1111, rev. 06/2024). Education awards, officer
 // training and administration are recorded by Toastmasters International, so officers copy those numbers from Club
-// Central or dashboards.toastmasters.org; Orato suggests the new-member count and the current membership from its
+// Central or dashboards.toastmasters.org; Oratia suggests the new-member count and the current membership from its
 // member list. The official status is always the one on the Toastmasters dashboards.
 // clubs/{club}/dcp/{year}  {l1,l2,l3,l45,newMembers,trained1,trained2,dues,officerList,base,members,updatedAt,updatedBy}
 // Officers only.
@@ -26,59 +26,59 @@ function statsOfficerSubs(){
 function statsStopOfficer(){if(DCP.unsub){DCP.unsub();DCP.unsub=null}DCP.doc=null;DCP.draft=null}
 
 const STT={
-en:{title:'Club statistics',intro:'The club’s activity this program year ({y}), computed from what the club keeps in Orato, and its progress toward the Distinguished Club Program.',
+en:{title:'Club statistics',intro:'The club’s activity this program year ({y}), computed from what the club keeps in Oratia, and its progress toward the Distinguished Club Program.',
   premium:'Premium feature',
   k:{meetings:'Meetings archived',rolesPer:'Roles filled per meeting',speeches:'Speeches given',members:'Active members',newMembers:'New members',guests:'Guests',converted:'Guests who joined',mentored:'Members mentored',paid:'Dues paid ({p})'},
-  speechesBy:'Speeches given by path and level',noSpeech:'No speech marked as given in Orato yet.',lv:'L{n}',total:'Total',
-  partTitle:'Most active members',partNone:'Close your meetings in the officers’ page to build the history.',roles:'roles',
+  speechesBy:'Speeches given by path and level',noSpeech:'No speech marked as given in Oratia yet.',lv:'L{n}',total:'Total',
+  partTitle:'Most active members',roleTitle:'Roles by member',roleIntro:'How many times each member held each role this year, and how often each role was filled. Attendance counts the meetings closed with the attendance answers.',grpSpeaker:'Speaker',grpEval:'Evaluator',present:'Present',totalRoles:'Roles',coverage:'Role filled',k2:{attendance:'Average attendance',online:'of which online'},partNone:'Close your meetings in the officers’ page to build the history.',roles:'roles',
   monthly:'Meetings and guests by month',meetingsL:'Meetings',guestsL:'Guests',
-  dcpTitle:'Distinguished Club Program',dcpIntro:'Enter the numbers shown in Club Central or on the Toastmasters dashboards: the official status is the one on the dashboards. Orato suggests what it can compute.',
+  dcpTitle:'Distinguished Club Program',dcpIntro:'Enter the numbers shown in Club Central or on the Toastmasters dashboards: the official status is the one on the dashboards. Oratia suggests what it can compute.',
   dashboards:'Toastmasters dashboards',faq:'DCP questions and answers',
   g:['Four Level 1 awards','Two Level 2 awards','Two more Level 2 awards','Two Level 3 awards','One Level 4, Level 5 or DTM award','One more Level 4, Level 5 or DTM award','Four new, dual or reinstating members','Four more new, dual or reinstating members','At least four officer roles trained in each training period','Dues paid on time with eight members (three renewing) and the officer list on time'],
   f:{l1:'Level 1 awards',l2:'Level 2 awards',l3:'Level 3 awards',l45:'Level 4, Level 5 and DTM awards',newMembers:'New, dual or reinstating members',trained1:'Officers trained, June–August',trained2:'Officers trained, November–February',dues:'Dues paid on time with eight members',officerList:'Officer list submitted on time',base:'Members on 1 July',members:'Members today'},
-  suggest:'Orato: {n}',use:'Use',save:'Save',saved:'Saved',goals:'{n} of 10 goals',
+  suggest:'Oratia: {n}',use:'Use',save:'Save',saved:'Saved',goals:'{n} of 10 goals',
   memberReq:'Membership: 20 members, or a net growth of 5',memberOk:'Met',memberNo:'Not yet',
   lvl:{none:'Not distinguished yet',d:'Distinguished',s:'Select Distinguished',p:'President’s Distinguished'},
   next:'Next level: {lvl}, {n} more goal(s)',reqNote:'A level also needs the membership requirement and the club in good standing on 30 June.'},
-fr:{title:'Statistiques du club',intro:'L’activité du club pour l’année Toastmasters en cours ({y}), calculée à partir de ce que le club garde dans Orato, et sa progression dans le programme Club exemplaire (DCP).',
+fr:{title:'Statistiques du club',intro:'L’activité du club pour l’année Toastmasters en cours ({y}), calculée à partir de ce que le club garde dans Oratia, et sa progression dans le programme Club exemplaire (DCP).',
   premium:'Fonction premium',
   k:{meetings:'Réunions archivées',rolesPer:'Rôles pourvus par réunion',speeches:'Discours prononcés',members:'Membres actifs',newMembers:'Nouveaux membres',guests:'Invités',converted:'Invités devenus membres',mentored:'Membres accompagnés',paid:'Cotisations payées ({p})'},
-  speechesBy:'Discours prononcés par parcours et niveau',noSpeech:'Aucun discours marqué comme prononcé dans Orato pour l’instant.',lv:'N{n}',total:'Total',
-  partTitle:'Membres les plus actifs',partNone:'Clôturez vos réunions dans la page du bureau pour construire l’historique.',roles:'rôles',
+  speechesBy:'Discours prononcés par parcours et niveau',noSpeech:'Aucun discours marqué comme prononcé dans Oratia pour l’instant.',lv:'N{n}',total:'Total',
+  partTitle:'Membres les plus actifs',roleTitle:'Rôles par membre',roleIntro:'Combien de fois chaque membre a tenu chaque rôle cette année, et à quelle fréquence chaque rôle a été pourvu. La présence compte les réunions clôturées avec les réponses de présence.',grpSpeaker:'Orateur',grpEval:'Évaluateur',present:'Présences',totalRoles:'Rôles',coverage:'Rôle pourvu',k2:{attendance:'Présence moyenne',online:'dont en ligne'},partNone:'Clôturez vos réunions dans la page du bureau pour construire l’historique.',roles:'rôles',
   monthly:'Réunions et invités par mois',meetingsL:'Réunions',guestsL:'Invités',
-  dcpTitle:'Programme Club exemplaire (DCP)',dcpIntro:'Saisissez les chiffres affichés dans Club Central ou sur les tableaux de bord Toastmasters : le statut officiel est celui des tableaux de bord. Orato propose ce qu’il peut calculer.',
+  dcpTitle:'Programme Club exemplaire (DCP)',dcpIntro:'Saisissez les chiffres affichés dans Club Central ou sur les tableaux de bord Toastmasters : le statut officiel est celui des tableaux de bord. Oratia propose ce qu’il peut calculer.',
   dashboards:'Tableaux de bord Toastmasters',faq:'Questions sur le DCP',
   g:['Quatre récompenses de niveau 1','Deux récompenses de niveau 2','Deux autres récompenses de niveau 2','Deux récompenses de niveau 3','Une récompense de niveau 4, niveau 5 ou DTM','Une autre récompense de niveau 4, niveau 5 ou DTM','Quatre membres nouveaux, doubles ou réintégrés','Quatre autres membres nouveaux, doubles ou réintégrés','Au moins quatre rôles d’officiers formés à chaque période de formation','Cotisations payées à temps avec huit membres (dont trois renouvelants) et liste des officiers à temps'],
   f:{l1:'Récompenses de niveau 1',l2:'Récompenses de niveau 2',l3:'Récompenses de niveau 3',l45:'Récompenses de niveau 4, niveau 5 et DTM',newMembers:'Membres nouveaux, doubles ou réintégrés',trained1:'Officiers formés, juin–août',trained2:'Officiers formés, novembre–février',dues:'Cotisations payées à temps avec huit membres',officerList:'Liste des officiers envoyée à temps',base:'Membres au 1er juillet',members:'Membres aujourd’hui'},
-  suggest:'Orato : {n}',use:'Utiliser',save:'Enregistrer',saved:'Enregistré',goals:'{n} objectifs sur 10',
+  suggest:'Oratia : {n}',use:'Utiliser',save:'Enregistrer',saved:'Enregistré',goals:'{n} objectifs sur 10',
   memberReq:'Effectif : 20 membres, ou une croissance nette de 5',memberOk:'Atteint',memberNo:'Pas encore',
   lvl:{none:'Pas encore exemplaire',d:'Club exemplaire (Distinguished)',s:'Club exemplaire sélect (Select Distinguished)',p:'Club exemplaire du président (President’s Distinguished)'},
   next:'Niveau suivant : {lvl}, encore {n} objectif(s)',reqNote:'Chaque niveau demande aussi la condition d’effectif et un club en règle au 30 juin.'},
-nl:{title:'Clubstatistieken',intro:'De activiteit van de club in het lopende Toastmasters-jaar ({y}), berekend uit wat de club in Orato bijhoudt, en de voortgang in het Distinguished Club Program.',
+nl:{title:'Clubstatistieken',intro:'De activiteit van de club in het lopende Toastmasters-jaar ({y}), berekend uit wat de club in Oratia bijhoudt, en de voortgang in het Distinguished Club Program.',
   premium:'Premiumfunctie',
   k:{meetings:'Gearchiveerde bijeenkomsten',rolesPer:'Vergeven rollen per bijeenkomst',speeches:'Gehouden speeches',members:'Actieve leden',newMembers:'Nieuwe leden',guests:'Gasten',converted:'Gasten die lid werden',mentored:'Begeleide leden',paid:'Contributie betaald ({p})'},
-  speechesBy:'Gehouden speeches per pad en niveau',noSpeech:'Nog geen speech als gehouden gemarkeerd in Orato.',lv:'N{n}',total:'Totaal',
-  partTitle:'Meest actieve leden',partNone:'Sluit je bijeenkomsten af op de bestuurspagina om de geschiedenis op te bouwen.',roles:'rollen',
+  speechesBy:'Gehouden speeches per pad en niveau',noSpeech:'Nog geen speech als gehouden gemarkeerd in Oratia.',lv:'N{n}',total:'Totaal',
+  partTitle:'Meest actieve leden',roleTitle:'Rollen per lid',roleIntro:'Hoe vaak elk lid elke rol had dit jaar, en hoe vaak elke rol vergeven was. Aanwezigheid telt de afgesloten bijeenkomsten met aanwezigheidsantwoorden.',grpSpeaker:'Spreker',grpEval:'Evaluator',present:'Aanwezig',totalRoles:'Rollen',coverage:'Rol vergeven',k2:{attendance:'Gemiddelde aanwezigheid',online:'waarvan online'},partNone:'Sluit je bijeenkomsten af op de bestuurspagina om de geschiedenis op te bouwen.',roles:'rollen',
   monthly:'Bijeenkomsten en gasten per maand',meetingsL:'Bijeenkomsten',guestsL:'Gasten',
-  dcpTitle:'Distinguished Club Program',dcpIntro:'Vul de cijfers in uit Club Central of de Toastmasters-dashboards: de officiële status is die op de dashboards. Orato stelt voor wat het kan berekenen.',
+  dcpTitle:'Distinguished Club Program',dcpIntro:'Vul de cijfers in uit Club Central of de Toastmasters-dashboards: de officiële status is die op de dashboards. Oratia stelt voor wat het kan berekenen.',
   dashboards:'Toastmasters-dashboards',faq:'Vragen over het DCP',
   g:['Vier Level 1-awards','Twee Level 2-awards','Nog twee Level 2-awards','Twee Level 3-awards','Eén Level 4-, Level 5- of DTM-award','Nog één Level 4-, Level 5- of DTM-award','Vier nieuwe, dubbele of heringeschreven leden','Nog vier nieuwe, dubbele of heringeschreven leden','Minstens vier bestuursrollen getraind in elke trainingsperiode','Contributie op tijd betaald met acht leden (drie verlengend) en de bestuurslijst op tijd'],
   f:{l1:'Level 1-awards',l2:'Level 2-awards',l3:'Level 3-awards',l45:'Level 4-, Level 5- en DTM-awards',newMembers:'Nieuwe, dubbele of heringeschreven leden',trained1:'Getrainde bestuursleden, juni–augustus',trained2:'Getrainde bestuursleden, november–februari',dues:'Contributie op tijd betaald met acht leden',officerList:'Bestuurslijst op tijd ingediend',base:'Leden op 1 juli',members:'Leden vandaag'},
-  suggest:'Orato: {n}',use:'Gebruiken',save:'Opslaan',saved:'Opgeslagen',goals:'{n} van 10 doelen',
+  suggest:'Oratia: {n}',use:'Gebruiken',save:'Opslaan',saved:'Opgeslagen',goals:'{n} van 10 doelen',
   memberReq:'Ledental: 20 leden, of een nettogroei van 5',memberOk:'Gehaald',memberNo:'Nog niet',
   lvl:{none:'Nog niet distinguished',d:'Distinguished',s:'Select Distinguished',p:'President’s Distinguished'},
   next:'Volgend niveau: {lvl}, nog {n} doel(en)',reqNote:'Elk niveau vraagt ook het ledental en een club in orde op 30 juni.'},
-ar:{title:'إحصاءات النادي',intro:'نشاط النادي في السنة الحالية لـToastmasters ({y})، محسوباً مما يحفظه النادي في Orato، وتقدّمه في برنامج النادي المتميّز (DCP).',
+ar:{title:'إحصاءات النادي',intro:'نشاط النادي في السنة الحالية لـToastmasters ({y})، محسوباً مما يحفظه النادي في Oratia، وتقدّمه في برنامج النادي المتميّز (DCP).',
   premium:'ميزة مميّزة',
   k:{meetings:'الاجتماعات المؤرشفة',rolesPer:'الأدوار المشغولة لكل اجتماع',speeches:'الخطابات المُلقاة',members:'الأعضاء النشطون',newMembers:'الأعضاء الجدد',guests:'الضيوف',converted:'ضيوف أصبحوا أعضاء',mentored:'أعضاء مُرافَقون',paid:'الاشتراكات المدفوعة ({p})'},
-  speechesBy:'الخطابات المُلقاة حسب المسار والمستوى',noSpeech:'لا يوجد خطاب محدّد كمُلقى في Orato بعد.',lv:'م{n}',total:'المجموع',
-  partTitle:'الأعضاء الأكثر نشاطاً',partNone:'أغلق اجتماعاتك في صفحة مجلس الإدارة لبناء السجل.',roles:'أدوار',
+  speechesBy:'الخطابات المُلقاة حسب المسار والمستوى',noSpeech:'لا يوجد خطاب محدّد كمُلقى في Oratia بعد.',lv:'م{n}',total:'المجموع',
+  partTitle:'الأعضاء الأكثر نشاطاً',roleTitle:'الأدوار حسب العضو',roleIntro:'عدد مرات تولّي كل عضو لكل دور هذه السنة، ونسبة شغل كل دور. يحتسب الحضور الاجتماعات المغلقة التي فيها إجابات الحضور.',grpSpeaker:'متحدث',grpEval:'مقيّم',present:'الحضور',totalRoles:'الأدوار',coverage:'نسبة الشغل',k2:{attendance:'متوسط الحضور',online:'منهم عن بُعد'},partNone:'أغلق اجتماعاتك في صفحة مجلس الإدارة لبناء السجل.',roles:'أدوار',
   monthly:'الاجتماعات والضيوف حسب الشهر',meetingsL:'الاجتماعات',guestsL:'الضيوف',
-  dcpTitle:'برنامج النادي المتميّز (DCP)',dcpIntro:'أدخل الأرقام الظاهرة في Club Central أو في لوحات Toastmasters: الحالة الرسمية هي ما تعرضه اللوحات. يقترح Orato ما يمكنه حسابه.',
+  dcpTitle:'برنامج النادي المتميّز (DCP)',dcpIntro:'أدخل الأرقام الظاهرة في Club Central أو في لوحات Toastmasters: الحالة الرسمية هي ما تعرضه اللوحات. يقترح Oratia ما يمكنه حسابه.',
   dashboards:'لوحات Toastmasters',faq:'أسئلة حول DCP',
   g:['أربع جوائز من المستوى 1','جائزتان من المستوى 2','جائزتان أخريان من المستوى 2','جائزتان من المستوى 3','جائزة من المستوى 4 أو 5 أو DTM','جائزة أخرى من المستوى 4 أو 5 أو DTM','أربعة أعضاء جدد أو مزدوجين أو عائدين','أربعة أعضاء آخرون جدد أو مزدوجون أو عائدون','تدريب أربعة أدوار على الأقل من مجلس الإدارة في كل فترة تدريب','دفع الاشتراكات في موعدها مع ثمانية أعضاء (ثلاثة مجدّدون) وقائمة المجلس في موعدها'],
   f:{l1:'جوائز المستوى 1',l2:'جوائز المستوى 2',l3:'جوائز المستوى 3',l45:'جوائز المستوى 4 و5 وDTM',newMembers:'أعضاء جدد أو مزدوجون أو عائدون',trained1:'أعضاء المجلس المدرَّبون، يونيو–أغسطس',trained2:'أعضاء المجلس المدرَّبون، نوفمبر–فبراير',dues:'الاشتراكات مدفوعة في موعدها مع ثمانية أعضاء',officerList:'قائمة المجلس مرسلة في موعدها',base:'الأعضاء في 1 يوليو',members:'الأعضاء اليوم'},
-  suggest:'Orato: {n}',use:'استخدام',save:'حفظ',saved:'تم الحفظ',goals:'{n} من 10 أهداف',
+  suggest:'Oratia: {n}',use:'استخدام',save:'حفظ',saved:'تم الحفظ',goals:'{n} من 10 أهداف',
   memberReq:'العضوية: 20 عضواً، أو نمو صافٍ بمقدار 5',memberOk:'محقّق',memberNo:'ليس بعد',
   lvl:{none:'ليس متميّزاً بعد',d:'متميّز (Distinguished)',s:'متميّز مختار (Select Distinguished)',p:'متميّز الرئيس (President’s Distinguished)'},
   next:'المستوى التالي: {lvl}، يتبقّى {n} هدف',reqNote:'يتطلّب كل مستوى أيضاً شرط العضوية وأن يكون النادي في وضع سليم في 30 يونيو.'}};
@@ -100,7 +100,9 @@ function computeStats(){
   const months={};const mk=d=>String(d||'').slice(0,7);
   hist.forEach(m=>{const k=mk(m.date);(months[k]=months[k]||{m:0,g:0}).m++});
   guests.forEach(g=>{const k=mk(g.at);(months[k]=months[k]||{m:0,g:0}).g++});
-  return {py,hist,rolesPer:rolesFilled.length?rolesFilled.reduce((a,b)=>a+b,0)/rolesFilled.length:0,active,newM,guests,converted,given,per,paid,mentored,months};
+  const att=hist.filter(m=>m.attendance);const attAvg=att.length?att.reduce((a,m)=>a+(m.attendance.onsite||[]).length+(m.attendance.online||[]).length,0)/att.length:0;
+  const onlAvg=att.length?att.reduce((a,m)=>a+(m.attendance.online||[]).length,0)/att.length:0;
+  return {att,attAvg,onlAvg,py,hist,rolesPer:rolesFilled.length?rolesFilled.reduce((a,b)=>a+b,0)/rolesFilled.length:0,active,newM,guests,converted,given,per,paid,mentored,months};
 }
 function kpi(label,value,sub){return `<div class="kpi"><span class="label">${esc(label)}</span><b>${esc(value)}</b>${sub?`<span class="muted">${esc(sub)}</span>`:''}</div>`}
 function bar(n,max){const w=max?Math.round(n/max*100):0;return `<span class="sbar" aria-hidden="true"><span style="width:${w}%"></span></span>`}
@@ -118,15 +120,40 @@ function statsView(){
   <div class="kpis">
     ${kpi(L.k.meetings,s.hist.length)}${kpi(L.k.rolesPer,s.rolesPer?s.rolesPer.toFixed(1):'–')}${kpi(L.k.speeches,s.given.length)}
     ${kpi(L.k.members,s.active.length)}${kpi(L.k.newMembers,s.newM.length)}${kpi(L.k.paid.replace('{p}',s.per?periodLabel(s.per):''),s.active.length?`${s.paid} / ${s.active.length}`:'–')}
+    ${s.att.length?kpi(L.k2.attendance,s.attAvg.toFixed(1),L.k2.online+' '+s.onlAvg.toFixed(1)):''}
     ${kpi(L.k.guests,s.guests.length)}${kpi(L.k.converted,s.converted.length,s.guests.length?Math.round(s.converted.length/s.guests.length*100)+' %':'')}${kpi(L.k.mentored,s.mentored)}
   </div>
   ${dcpBox(s)}
+  ${roleStatsBox(s)}
   <div class="box"><h3>${esc(L.speechesBy)}</h3>${pathRows?`<div class="tablewrap"><table><thead><tr><th>${esc(SPL().path)}</th>${[1,2,3,4,5].map(n=>`<th class="num">${esc(L.lv.replace('{n}',n))}</th>`).join('')}<th class="num">${esc(L.total)}</th></tr></thead><tbody>${pathRows}</tbody></table></div>`:`<p class="empty">${esc(L.noSpeech)}</p>`}</div>
   <div class="grid2">
     <div class="box"><h3>${esc(L.partTitle)}</h3>${P.length?`<ul class="sbars">${P.map(p=>`<li><span>${esc(p.name)}</span>${bar(p.roles,maxP)}<b>${p.roles}</b></li>`).join('')}</ul>`:`<p class="empty">${esc(L.partNone)}</p>`}</div>
     <div class="box"><h3>${esc(L.monthly)}</h3>${months.length?`<ul class="sbars">${months.map(k=>`<li><span>${esc(mLabel(k))}</span><span class="sbar2">${bar(s.months[k].m,maxM)}${bar(s.months[k].g,maxM).replace('sbar','sbar g')}</span><b>${s.months[k].m} · ${s.months[k].g}</b></li>`).join('')}</ul>
       <p class="muted" style="font-size:.85rem;margin:0"><span class="dotk"></span> ${esc(L.meetingsL)} · <span class="dotk g"></span> ${esc(L.guestsL)}</p>`:`<p class="empty">${esc(L.partNone)}</p>`}</div>
   </div></section>`;
+}
+
+// ---------- roles by member ----------
+const ROLE_GROUPS=[['toastmaster',['toastmaster']],['speaker',['s1','s2','s3']],['evaluator',['e1','e2','e3']],['ge',['ge']],['ttm',['ttm']],['tte',['tte']],
+  ['timer',['timer']],['ah',['ah']],['gram',['gram']],['saa',['saa']],['pres',['pres']]];
+function roleStatsBox(s){
+  const L=STL();if(!s.hist.length)return '';
+  const label=g=>g==='speaker'?L.grpSpeaker:g==='evaluator'?L.grpEval:roleLabel(g);
+  const people={};const norm=n=>String(n||'').trim();const key=n=>norm(n).toLocaleLowerCase();
+  const P=n=>{const k=key(n);return people[k]||(people[k]={name:norm(n),g:{},total:0,present:0})};
+  const cover={};
+  s.hist.forEach(m=>{const r=m.roles||{};
+    ROLE_GROUPS.forEach(([g,keys])=>{let filled=false;keys.forEach(k=>{if(r[k]){filled=true;const p=P(r[k]);p.g[g]=(p.g[g]||0)+1;p.total++}});if(filled)cover[g]=(cover[g]||0)+1});
+    if(m.attendance)[...(m.attendance.onsite||[]),...(m.attendance.online||[])].forEach(n=>{if(norm(n))P(n).present++});
+  });
+  const rows=Object.values(people).filter(p=>p.name).sort((a,b)=>b.total-a.total||b.present-a.present||a.name.localeCompare(b.name));
+  const groups=ROLE_GROUPS.map(x=>x[0]).filter(g=>cover[g]);
+  const max=Math.max(1,...rows.flatMap(p=>groups.map(g=>p.g[g]||0)));
+  const cell=n=>n?`<td class="num heat" style="--h:${(n/max).toFixed(2)}">${n}</td>`:'<td class="num"></td>';
+  return `<div class="box"><div><h3>${esc(L.roleTitle)}</h3><p class="muted">${esc(L.roleIntro)}</p></div>
+    <div class="tablewrap"><table class="roletable"><thead><tr><th></th>${groups.map(g=>`<th class="num"><span>${esc(label(g))}</span></th>`).join('')}<th class="num">${esc(L.totalRoles)}</th>${s.att.length?`<th class="num">${esc(L.present)}</th>`:''}</tr></thead>
+    <tbody>${rows.map(p=>`<tr><td>${esc(p.name)}</td>${groups.map(g=>cell(p.g[g]||0)).join('')}<td class="num"><b>${p.total||''}</b></td>${s.att.length?`<td class="num">${p.present?`${p.present} / ${s.att.length}`:''}</td>`:''}</tr>`).join('')}</tbody>
+    <tfoot><tr><td>${esc(L.coverage)}</td>${groups.map(g=>`<td class="num">${Math.round((cover[g]||0)/s.hist.length*100)} %</td>`).join('')}<td></td>${s.att.length?'<td></td>':''}</tr></tfoot></table></div></div>`;
 }
 
 // ---------- DCP ----------

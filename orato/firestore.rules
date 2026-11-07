@@ -4,7 +4,7 @@ rules_version = '2';
 // Paste this file into Firebase console → Firestore Database → Rules, then Publish.
 //
 // Data layout, one space per club code:
-//   clubs/{club}                  {officers: [emails], status, name, deletion?}  created by the Orato administrator on approval
+//   clubs/{club}                  {officers: [emails], status, name, deletion?}  created by the Oratia administrator on approval
 //   requests/{club}               a request to open a club space; the requester and administrators read it
 //   app/config, app/public        administrators' list (made in the console) and public contact address
 //   users/{uid}                   a person's own profile (name, email, consent, contact details); only that person
@@ -15,6 +15,7 @@ rules_version = '2';
 //   clubs/{club}/dcp/{year}       Distinguished Club Program numbers per program year; officers only
 //   clubs/{club}/kit/{year}       officer toolkit (premium): training, action plan, events, templates; officers only
 //   clubs/{club}/contests/{id}    contests pro (premium): contest, judge codes, judges, secret ballots
+//   clubs/{club}/rsvp/{date_uid}  who comes to a meeting (on site, online, not sure, not coming); members and officers read
 //   clubs/{club}/public/plan      premium features of the club; everyone reads, the administrator writes
 //   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
@@ -77,7 +78,7 @@ service cloud.firestore {
         && get(clubPath(club)).data.get('deletion', null) != null
         && request.time > get(clubPath(club)).data.deletion.requestedAt + duration.value(3, 'd');
     }
-    // ----- Orato administrators and club approval -----
+    // ----- Oratia administrators and club approval -----
     // app/config {admins: [emails]} is created by hand in the Firebase console (see the README).
     function appConfigPath() {
       return /databases/$(database)/documents/app/config;
@@ -190,7 +191,7 @@ service cloud.firestore {
       return validClub(club) && isOfficer(club) && deletionDue(club);
     }
 
-    // The club and its officer list. Only the Orato administrator creates a club, when approving a request, with the
+    // The club and its officer list. Only the Oratia administrator creates a club, when approving a request, with the
     // requester as first officer. Officers see and change the officer list; the administrator suspends or reactivates.
     // Anyone signed in with a verified email may check whether a club exists (empty read).
     match /clubs/{club} {
@@ -319,7 +320,7 @@ service cloud.firestore {
     match /clubs/{club}/public/{docId} {
       allow read: if validClub(club) && (docId == 'status' || !deletionDue(club));
       allow write: if open(club) && docId in ['info', 'status', 'modules', 'access', 'contest'] && isOfficer(club);
-      // Premium features of the club: only the Orato administrator switches them on and off.
+      // Premium features of the club: only the Oratia administrator switches them on and off.
       allow write: if docId == 'plan' && validClub(club) && isAppAdmin() && validPlan();
       allow delete: if purging(club);
     }
@@ -524,6 +525,22 @@ service cloud.firestore {
           && request.resource.data.tie == get(/databases/$(database)/documents/clubs/$(club)/contests/$(id)/judges/$(uid)).data.tie
           && request.resource.data.rank is list && request.resource.data.rank.size() <= 30;
       }
+    }
+
+    // Attendance answers for a meeting: one per person and date ("<date>_<uid>"). Everyone answers for themselves;
+    // members and officers see the answers.
+    match /clubs/{club}/rsvp/{answerId} {
+      allow get: if request.auth != null && (resource == null || resource.data.uid == request.auth.uid || memberLevel(club) || isOfficer(club));
+      allow list: if open(club) && (memberLevel(club) || isOfficer(club));
+      allow create, update: if open(club) && request.auth != null
+        && answerId == request.resource.data.date + '_' + request.auth.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['date', 'uid', 'name', 'status', 'kind', 'at'])
+        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && validName(request.resource.data.name)
+        && request.resource.data.status in ['onsite', 'online', 'maybe', 'no']
+        && request.resource.data.kind in ['member', 'guest'];
+      allow delete: if validClub(club) && request.auth != null && (resource.data.uid == request.auth.uid || isOfficer(club));
     }
 
     match /clubs/{club}/members/{memberId} {

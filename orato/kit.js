@@ -1,4 +1,4 @@
-// Orato – officer toolkit. Premium feature "officerKit" (plan.js), officers only.
+// Oratia – officer toolkit. Premium feature "officerKit" (plan.js), officers only.
 // Four tools on one page, for the current program year (1 July – 30 June):
 //   - Officer training: which officer roles were trained in each of the two training periods (feeds the DCP goal 9).
 //   - Action plan: the club's actions with an owner, a due date, a status and the DCP goal they serve, on a timeline.
@@ -38,7 +38,7 @@ en:{title:'Officer toolkit',intro:'Train the officers, plan the year, track even
   evIntro:'Meetings, open houses, socials, demos… with attendance and guests, to see what brings people in.',evTitle:'Event',evDate:'Date',evType:'Type',evAtt:'Attendees',evGuests:'Guests',evNotes:'Notes',addEvent:'Add the event',noEvents:'No event recorded yet.',
   types:{meeting:'Special meeting',open:'Open house',social:'Social',demo:'Demo meeting',contest:'Contest',training:'Training',other:'Other'},
   totals:'{n} events · {a} attendees · {g} guests',
-  mailIntro:'Choose a message and the recipients. Orato fills in the club’s details; you send it from your own mail app.',tpl:'Message',to:'Recipients',
+  mailIntro:'Choose a message and the recipients. Oratia fills in the club’s details; you send it from your own mail app.',tpl:'Message',to:'Recipients',
   toL:{members:'Active members',unpaid:'Members who have not paid ({p})',guests:'Guests to follow up'},nRecip:'{n} address(es)',noRecip:'No email address for these recipients in the member list or the guest book.',
   subject:'Subject',body:'Message',copyMsg:'Copy the message',copyTo:'Copy the addresses',openMail:'Open in my mail app',saveTpl:'Save as my template',tplName:'Template name',tplSaved:'Template saved',mine:'(club template)',delTpl:'Delete this template',
   tplNames:{reminder:'Meeting reminder',roles:'Open roles',renewal:'Dues renewal',welcome:'Welcome a new member',guest:'Thank a guest',contest:'Speech contest'},
@@ -46,7 +46,7 @@ en:{title:'Officer toolkit',intro:'Train the officers, plan the year, track even
   t:{reminder:['Our next meeting: {date}','Hello,\n\nOur next {club} meeting is on {date}{theme}.\n\nRoles still open:\n{roles}\n\nTake a role here: {link}\n\nSee you there!'],
      roles:['Roles still open for {date}','Hello,\n\nThese roles are still open for our meeting on {date}:\n{roles}\n\nTake one in a minute: {link}\n\nThank you!'],
      renewal:['Time to renew your membership','Hello,\n\nThe dues for {period} are due. Renewing on time keeps your Pathways progress and helps the club in the Distinguished Club Program.\n\nAsk the Treasurer how to pay.\n\nThank you for being part of {club}!'],
-     welcome:['Welcome to {club}!','Hello,\n\nWelcome to {club}! We are happy to have you with us.\n\nYour next steps: create your profile in Orato ({link}), choose your path on Base Camp and plan your Ice Breaker with the VPE. A mentor can help you get started.\n\nSee you at the next meeting!'],
+     welcome:['Welcome to {club}!','Hello,\n\nWelcome to {club}! We are happy to have you with us.\n\nYour next steps: create your profile in Oratia ({link}), choose your path on Base Camp and plan your Ice Breaker with the VPE. A mentor can help you get started.\n\nSee you at the next meeting!'],
      guest:['Thank you for visiting {club}','Hello,\n\nThank you for joining our meeting. We hope you enjoyed it.\n\nOur next meeting is on {date}. You are welcome to come back, and we will be glad to tell you how to join.\n\n{link}\n\nSee you soon!'],
      contest:['Speech contest at {club}','Hello,\n\nOur club speech contest takes place on {date}. We need contestants, judges, timers and counters.\n\nSign up here: {link}\n\nThank you!']}},
 fr:{title:'Boîte à outils du bureau',intro:'Former les officiers, planifier l’année, suivre les événements et informer les membres. Année Toastmasters {y}.',
@@ -58,7 +58,7 @@ fr:{title:'Boîte à outils du bureau',intro:'Former les officiers, planifier l�
   evIntro:'Réunions spéciales, portes ouvertes, soirées, démonstrations… avec la participation et les invités, pour voir ce qui attire.',evTitle:'Événement',evDate:'Date',evType:'Type',evAtt:'Participants',evGuests:'Invités',evNotes:'Notes',addEvent:'Ajouter l’événement',noEvents:'Aucun événement enregistré pour l’instant.',
   types:{meeting:'Réunion spéciale',open:'Portes ouvertes',social:'Soirée',demo:'Réunion de démonstration',contest:'Concours',training:'Formation',other:'Autre'},
   totals:'{n} événements · {a} participants · {g} invités',
-  mailIntro:'Choisissez un message et les destinataires. Orato remplit les informations du club ; vous l’envoyez depuis votre propre messagerie.',tpl:'Message',to:'Destinataires',
+  mailIntro:'Choisissez un message et les destinataires. Oratia remplit les informations du club ; vous l’envoyez depuis votre propre messagerie.',tpl:'Message',to:'Destinataires',
   toL:{members:'Membres actifs',unpaid:'Membres qui n’ont pas payé ({p})',guests:'Invités à relancer'},nRecip:'{n} adresse(s)',noRecip:'Aucune adresse e-mail pour ces destinataires dans la liste des membres ou le livre d’accueil.',
   subject:'Objet',body:'Message',copyMsg:'Copier le message',copyTo:'Copier les adresses',openMail:'Ouvrir dans ma messagerie',saveTpl:'Enregistrer comme modèle',tplName:'Nom du modèle',tplSaved:'Modèle enregistré',mine:'(modèle du club)',delTpl:'Supprimer ce modèle',
   tplNames:{reminder:'Rappel de réunion',roles:'Rôles à pourvoir',renewal:'Renouvellement de cotisation',welcome:'Accueillir un nouveau membre',guest:'Remercier un invité',contest:'Concours de discours'},
@@ -66,7 +66,7 @@ fr:{title:'Boîte à outils du bureau',intro:'Former les officiers, planifier l�
   t:{reminder:['Notre prochaine réunion : {date}','Bonjour,\n\nLa prochaine réunion de {club} a lieu le {date}{theme}.\n\nRôles encore libres :\n{roles}\n\nPrenez un rôle ici : {link}\n\nÀ bientôt !'],
      roles:['Rôles encore libres pour le {date}','Bonjour,\n\nCes rôles sont encore libres pour notre réunion du {date} :\n{roles}\n\nPrenez-en un en une minute : {link}\n\nMerci !'],
      renewal:['Il est temps de renouveler votre adhésion','Bonjour,\n\nLa cotisation pour {period} est due. Renouveler à temps préserve votre progression Pathways et aide le club dans le programme Club exemplaire.\n\nDemandez au trésorier comment payer.\n\nMerci de faire partie de {club} !'],
-     welcome:['Bienvenue à {club} !','Bonjour,\n\nBienvenue à {club} ! Nous sommes ravis de vous compter parmi nous.\n\nVos prochaines étapes : créez votre profil dans Orato ({link}), choisissez votre parcours sur Base Camp et planifiez votre Brise-glace avec le VPE. Un mentor peut vous aider à démarrer.\n\nÀ la prochaine réunion !'],
+     welcome:['Bienvenue à {club} !','Bonjour,\n\nBienvenue à {club} ! Nous sommes ravis de vous compter parmi nous.\n\nVos prochaines étapes : créez votre profil dans Oratia ({link}), choisissez votre parcours sur Base Camp et planifiez votre Brise-glace avec le VPE. Un mentor peut vous aider à démarrer.\n\nÀ la prochaine réunion !'],
      guest:['Merci de votre visite à {club}','Bonjour,\n\nMerci d’avoir participé à notre réunion. Nous espérons qu’elle vous a plu.\n\nNotre prochaine réunion a lieu le {date}. Vous êtes le bienvenu, et nous serons heureux de vous expliquer comment nous rejoindre.\n\n{link}\n\nÀ bientôt !'],
      contest:['Concours de discours à {club}','Bonjour,\n\nLe concours de discours du club a lieu le {date}. Nous cherchons des candidats, des juges, des chronométreurs et des compteurs.\n\nInscrivez-vous ici : {link}\n\nMerci !']}},
 nl:{title:'Gereedschapskist voor het bestuur',intro:'Bestuursleden trainen, het jaar plannen, evenementen bijhouden en leden informeren. Toastmasters-jaar {y}.',
@@ -78,7 +78,7 @@ nl:{title:'Gereedschapskist voor het bestuur',intro:'Bestuursleden trainen, het 
   evIntro:'Speciale bijeenkomsten, open huis, sociale avonden, demo’s… met aanwezigheid en gasten, om te zien wat mensen trekt.',evTitle:'Evenement',evDate:'Datum',evType:'Soort',evAtt:'Aanwezigen',evGuests:'Gasten',evNotes:'Notities',addEvent:'Evenement toevoegen',noEvents:'Nog geen evenementen.',
   types:{meeting:'Speciale bijeenkomst',open:'Open huis',social:'Sociale avond',demo:'Demobijeenkomst',contest:'Wedstrijd',training:'Training',other:'Anders'},
   totals:'{n} evenementen · {a} aanwezigen · {g} gasten',
-  mailIntro:'Kies een bericht en de ontvangers. Orato vult de gegevens van de club in; je verstuurt het vanuit je eigen mailprogramma.',tpl:'Bericht',to:'Ontvangers',
+  mailIntro:'Kies een bericht en de ontvangers. Oratia vult de gegevens van de club in; je verstuurt het vanuit je eigen mailprogramma.',tpl:'Bericht',to:'Ontvangers',
   toL:{members:'Actieve leden',unpaid:'Leden die niet betaald hebben ({p})',guests:'Gasten om op te volgen'},nRecip:'{n} adres(sen)',noRecip:'Geen e-mailadres voor deze ontvangers in de ledenlijst of het gastenboek.',
   subject:'Onderwerp',body:'Bericht',copyMsg:'Bericht kopiëren',copyTo:'Adressen kopiëren',openMail:'Openen in mijn mailprogramma',saveTpl:'Opslaan als sjabloon',tplName:'Naam van het sjabloon',tplSaved:'Sjabloon opgeslagen',mine:'(clubsjabloon)',delTpl:'Dit sjabloon verwijderen',
   tplNames:{reminder:'Herinnering bijeenkomst',roles:'Vrije rollen',renewal:'Contributie verlengen',welcome:'Nieuw lid verwelkomen',guest:'Gast bedanken',contest:'Speechwedstrijd'},
@@ -86,7 +86,7 @@ nl:{title:'Gereedschapskist voor het bestuur',intro:'Bestuursleden trainen, het 
   t:{reminder:['Onze volgende bijeenkomst: {date}','Hallo,\n\nDe volgende bijeenkomst van {club} is op {date}{theme}.\n\nNog vrije rollen:\n{roles}\n\nNeem hier een rol: {link}\n\nTot dan!'],
      roles:['Nog vrije rollen voor {date}','Hallo,\n\nDeze rollen zijn nog vrij voor onze bijeenkomst van {date}:\n{roles}\n\nNeem er een in één minuut: {link}\n\nBedankt!'],
      renewal:['Tijd om je lidmaatschap te verlengen','Hallo,\n\nDe contributie voor {period} moet betaald worden. Op tijd verlengen bewaart je Pathways-voortgang en helpt de club in het Distinguished Club Program.\n\nVraag de penningmeester hoe je kunt betalen.\n\nBedankt dat je deel uitmaakt van {club}!'],
-     welcome:['Welkom bij {club}!','Hallo,\n\nWelkom bij {club}! Fijn dat je erbij bent.\n\nJe volgende stappen: maak je profiel aan in Orato ({link}), kies je pad op Base Camp en plan je Ice Breaker met de VPE. Een mentor kan je op weg helpen.\n\nTot de volgende bijeenkomst!'],
+     welcome:['Welkom bij {club}!','Hallo,\n\nWelkom bij {club}! Fijn dat je erbij bent.\n\nJe volgende stappen: maak je profiel aan in Oratia ({link}), kies je pad op Base Camp en plan je Ice Breaker met de VPE. Een mentor kan je op weg helpen.\n\nTot de volgende bijeenkomst!'],
      guest:['Bedankt voor je bezoek aan {club}','Hallo,\n\nBedankt dat je bij onze bijeenkomst was. We hopen dat je ervan genoten hebt.\n\nOnze volgende bijeenkomst is op {date}. Je bent welkom om terug te komen, en we vertellen je graag hoe je lid wordt.\n\n{link}\n\nTot snel!'],
      contest:['Speechwedstrijd bij {club}','Hallo,\n\nDe speechwedstrijd van de club vindt plaats op {date}. We zoeken deelnemers, juryleden, tijdwaarnemers en tellers.\n\nSchrijf je hier in: {link}\n\nBedankt!']}},
 ar:{title:'عُدّة مجلس الإدارة',intro:'تدريب أعضاء المجلس، وتخطيط السنة، ومتابعة الفعاليات، وإعلام الأعضاء. سنة Toastmasters {y}.',
@@ -98,7 +98,7 @@ ar:{title:'عُدّة مجلس الإدارة',intro:'تدريب أعضاء ال
   evIntro:'اجتماعات خاصة، وأبواب مفتوحة، وأمسيات، وعروض… مع الحضور والضيوف، لمعرفة ما يجذب الناس.',evTitle:'الفعالية',evDate:'التاريخ',evType:'النوع',evAtt:'الحضور',evGuests:'الضيوف',evNotes:'ملاحظات',addEvent:'إضافة الفعالية',noEvents:'لا توجد فعاليات مسجّلة بعد.',
   types:{meeting:'اجتماع خاص',open:'أبواب مفتوحة',social:'أمسية',demo:'اجتماع تعريفي',contest:'مسابقة',training:'تدريب',other:'أخرى'},
   totals:'{n} فعاليات · {a} حاضر · {g} ضيف',
-  mailIntro:'اختر رسالة والمستلمين. يملأ Orato معلومات النادي، وترسلها أنت من بريدك.',tpl:'الرسالة',to:'المستلمون',
+  mailIntro:'اختر رسالة والمستلمين. يملأ Oratia معلومات النادي، وترسلها أنت من بريدك.',tpl:'الرسالة',to:'المستلمون',
   toL:{members:'الأعضاء النشطون',unpaid:'الأعضاء الذين لم يدفعوا ({p})',guests:'ضيوف للمتابعة'},nRecip:'{n} عنوان',noRecip:'لا يوجد بريد إلكتروني لهؤلاء المستلمين في قائمة الأعضاء أو سجل الضيوف.',
   subject:'الموضوع',body:'الرسالة',copyMsg:'نسخ الرسالة',copyTo:'نسخ العناوين',openMail:'فتح في بريدي',saveTpl:'حفظ كنموذج',tplName:'اسم النموذج',tplSaved:'تم حفظ النموذج',mine:'(نموذج النادي)',delTpl:'حذف هذا النموذج',
   tplNames:{reminder:'تذكير بالاجتماع',roles:'أدوار شاغرة',renewal:'تجديد الاشتراك',welcome:'الترحيب بعضو جديد',guest:'شكر ضيف',contest:'مسابقة خطابة'},
@@ -106,7 +106,7 @@ ar:{title:'عُدّة مجلس الإدارة',intro:'تدريب أعضاء ال
   t:{reminder:['اجتماعنا القادم: {date}','مرحباً،\n\nيُعقد الاجتماع القادم لـ{club} في {date}{theme}.\n\nالأدوار التي ما زالت شاغرة:\n{roles}\n\nاحجز دوراً من هنا: {link}\n\nإلى اللقاء!'],
      roles:['أدوار شاغرة في {date}','مرحباً،\n\nهذه الأدوار ما زالت شاغرة في اجتماعنا يوم {date}:\n{roles}\n\nاحجز واحداً في دقيقة: {link}\n\nشكراً!'],
      renewal:['حان وقت تجديد عضويتك','مرحباً،\n\nحان موعد اشتراك {period}. التجديد في الموعد يحفظ تقدّمك في Pathways ويساعد النادي في برنامج النادي المتميّز.\n\nاسأل أمين الصندوق عن طريقة الدفع.\n\nشكراً لكونك جزءاً من {club}!'],
-     welcome:['مرحباً بك في {club}!','مرحباً،\n\nأهلاً بك في {club}! يسعدنا انضمامك إلينا.\n\nخطواتك التالية: أنشئ ملفك في Orato ({link})، واختر مسارك في Base Camp، وخطّط لخطاب كسر الجليد مع نائب الرئيس للتعليم. يمكن لمرشد أن يساعدك في البداية.\n\nإلى الاجتماع القادم!'],
+     welcome:['مرحباً بك في {club}!','مرحباً،\n\nأهلاً بك في {club}! يسعدنا انضمامك إلينا.\n\nخطواتك التالية: أنشئ ملفك في Oratia ({link})، واختر مسارك في Base Camp، وخطّط لخطاب كسر الجليد مع نائب الرئيس للتعليم. يمكن لمرشد أن يساعدك في البداية.\n\nإلى الاجتماع القادم!'],
      guest:['شكراً لزيارتك {club}','مرحباً،\n\nشكراً لحضورك اجتماعنا. نأمل أنه نال إعجابك.\n\nاجتماعنا القادم في {date}. أنت مرحّب بك دائماً، ويسعدنا أن نشرح لك كيفية الانضمام.\n\n{link}\n\nإلى اللقاء!'],
      contest:['مسابقة خطابة في {club}','مرحباً،\n\nتُقام مسابقة الخطابة في النادي يوم {date}. نبحث عن متسابقين وحكّام وميقاتيين وعدّادين.\n\nسجّل هنا: {link}\n\nشكراً!']}}};
 const KTL=()=>KT[LANG]||KT.en;

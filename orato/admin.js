@@ -1,13 +1,13 @@
-// Orato – club creation requests and the administrator's page.
+// Oratia – club creation requests and the administrator's page.
 //
-// A club space only opens once the Orato administrator has approved it (see firestore.rules):
+// A club space only opens once the Oratia administrator has approved it (see firestore.rules):
 //   requests/{club}   a request to open the club code {club}: club name, city, Toastmasters club number,
 //                     requester's verified email, status pending / approved / rejected (+ reason)
 //   clubs/{club}      created by the administrator on approval, with the requester as first officer;
 //                     status approved or suspended (clubs created before this feature count as approved)
 //   app/config        {admins:[emails]}  created by hand in the Firebase console; only admins can read it
 //   app/public        {contact}          email shown to people who send a request; everyone reads it
-// The administrator's page is the site address followed by ?admin (for example …/orato/?admin).
+// The administrator's page is the site address followed by ?admin (for example https://oratia.org/?admin).
 
 const REQ={mine:undefined,other:false,loading:false,draft:{name:'',city:'',tiNumber:'',role:'president',message:''},busy:false,contact:'',sentNow:false};
 const ADM={isAdmin:undefined,requests:[],clubs:[],unsubR:null,unsubC:null,reject:null,reason:'',busy:'',contactDraft:null,showDone:false,suspendAsk:null};
@@ -95,7 +95,7 @@ function requestArea(){
 }
 function contactLine(prefill){
   if(!REQ.contact)return '';
-  const subject=encodeURIComponent(`Orato – ${SH.club}`);
+  const subject=encodeURIComponent(`Oratia – ${SH.club}`);
   return `<p class="muted">${t('req.contact')} <a href="mailto:${esc(REQ.contact)}${prefill?`?subject=${subject}`:''}">${esc(REQ.contact)}</a></p>`;
 }
 function requestForm(){

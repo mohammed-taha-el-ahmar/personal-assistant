@@ -1,4 +1,4 @@
-// Orato – navigation: 5 sections (a bottom bar on phones, a short top row on larger screens), the tabs of the open
+// Oratia – navigation: 5 sections (a bottom bar on phones, a short top row on larger screens), the tabs of the open
 // section in a second row, and the officers' pages (Club officers, Members) behind the Bureau button in the header.
 // Tabs hidden by the club (modules.js) or reserved to officers are left out; a section with no tab left disappears.
 const NAV_SECTIONS=[

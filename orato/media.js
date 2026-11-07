@@ -1,4 +1,4 @@
-// Orato – photos and videos on the club page.
+// Oratia – photos and videos on the club page.
 //
 // Photos are resized in the browser and stored in Firestore itself (no paid file storage needed):
 //   clubs/{club}/media/{id}        small version (about 640 px) shown in the gallery
