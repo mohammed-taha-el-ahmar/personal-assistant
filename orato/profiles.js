@@ -34,6 +34,7 @@ function profilesAuthChanged(){
   if(SH.club&&!SH.closed){
     PROF.unsubs.push(SH.fs.doc(`clubs/${SH.club}/people/${SH.uid}`).onSnapshot(s=>{PROF.me=s.exists?s.data():null;profilesDirSub();softRender();if(typeof claimMySlots==='function')claimMySlots()},()=>{PROF.me=null;softRender()}));
   }else PROF.me=null;
+  if(typeof mentoringAuthChanged==='function')mentoringAuthChanged();
 }
 function profilesDirSub(){
   if(directoryAccess()){

@@ -11,6 +11,7 @@ rules_version = '2';
 //   clubs/{club}/people/{uid}     a person in the club: guest or member, active or former; the person and officers
 //   clubs/{club}/directory/{uid}  the contact card a member shows to the other members (opt-in)
 //   clubs/{club}/speeches/{id}    speech requests: the speaker asks, officers or the Toastmaster of the day decide
+//   clubs/{club}/mentoring/{id}   mentor and mentee pairs: officers, the mentor and the mentee
 //   clubs/{club}/public/plan      premium features of the club; everyone reads, the administrator writes
 //   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
@@ -380,9 +381,10 @@ service cloud.firestore {
         && request.resource.data.requested in ['guest', 'member']
         && request.resource.data.history == [];
       allow update: if open(club) && request.auth != null && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'requested'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'requested', 'wantsMentor', 'offersMentor'])
         && validName(request.resource.data.name)
-        && request.resource.data.requested in ['guest', 'member'];
+        && request.resource.data.requested in ['guest', 'member']
+        && request.resource.data.get('wantsMentor', false) is bool && request.resource.data.get('offersMentor', false) is bool;
       allow update: if open(club) && isOfficer(club)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'role', 'status', 'requested', 'history', 'memberId', 'decidedAt', 'decidedBy'])
         && request.resource.data.role in ['guest', 'member']
@@ -438,6 +440,25 @@ service cloud.firestore {
         && request.resource.data.slot in ['', 's1', 's2', 's3']
         && validComments();
       allow delete: if validClub(club) && request.auth != null && (resource.data.uid == request.auth.uid || isOfficer(club));
+    }
+
+    // Mentoring pairs. Officers form and end them; the mentor and the mentee read their pair and update its goal and log.
+    match /clubs/{club}/mentoring/{id} {
+      allow read: if validClub(club) && request.auth != null
+        && (isOfficer(club) || resource.data.mentor == request.auth.uid || resource.data.mentee == request.auth.uid);
+      allow create: if open(club) && isOfficer(club)
+        && request.resource.data.keys().hasOnly(['mentor', 'mentorName', 'mentorEmail', 'mentee', 'menteeName', 'menteeEmail', 'status', 'since', 'goal', 'log', 'by', 'updatedAt'])
+        && request.resource.data.mentor is string && request.resource.data.mentee is string && request.resource.data.mentor != request.resource.data.mentee
+        && request.resource.data.status == 'active' && request.resource.data.log == [];
+      allow update: if open(club) && isOfficer(club)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'endedAt', 'goal', 'log', 'updatedAt'])
+        && request.resource.data.status in ['active', 'ended'];
+      allow update: if open(club) && request.auth != null && resource.data.status == 'active'
+        && (resource.data.mentor == request.auth.uid || resource.data.mentee == request.auth.uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['goal', 'log', 'updatedAt'])
+        && request.resource.data.goal is string && request.resource.data.goal.size() <= 200
+        && request.resource.data.log is list && request.resource.data.log.size() <= 100;
+      allow delete: if validClub(club) && isOfficer(club);
     }
 
     match /clubs/{club}/members/{memberId} {

@@ -26,6 +26,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `profiles.js` | Personal profiles, joining a club as member or guest, officers' confirmation, member directory, my data |
 | `pathways.js` | The six Pathways paths and their projects, the path a member follows |
 | `speeches.js` | Speech requests: request, approval by officers or the Toastmaster of the day, slot, comments |
+| `mentoring.js` | Mentor and mentee pairs: wishes, pairs formed by officers, goal and check-ins |
 | `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
@@ -70,6 +71,15 @@ The **Learn and progress** section has two tabs:
 - **Speech requests**: a member with an active profile chooses path, level and project (or types another project), the title, the timing (Ice Breaker 4–6 min is suggested for the Ice Breaker, 5–7 min otherwise) and the preferred meeting. **Officers or the Toastmaster of the day** (whoever holds the Toastmaster role) approve it and choose the slot (Speaker 1–3), decline it, or mark it as given. The approved speech fills the speaker's role and shows its title in the agenda, the copied text and the PDF; **Time this speech** sets the timer. Each request has a comment thread between the speaker and the approvers.
 
 Data: `clubs/{club}/speeches/{id}`. **Republish `firestore.rules`.**
+
+## Mentoring
+
+The **Mentoring** tab (Learn and progress section, for members with a profile and officers):
+- Members tick **I would like a mentor** or **I can be a mentor**.
+- Officers see who is waiting and who is available, **form a pair** (mentee, mentor, shared goal) and end it later. The chip shows how many members are mentored.
+- The mentor and the mentee see their pair, contact each other by email, update the goal and add **check-ins** to a short log.
+
+Data: `clubs/{club}/mentoring/{id}`; only officers, the mentor and the mentee read a pair. **Republish `firestore.rules`.**
 
 ## Help for new visitors
 

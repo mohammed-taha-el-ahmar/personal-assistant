@@ -7,7 +7,7 @@ const MODULE_SECTIONS=[
   {id:'club',    label:'nav.club',   tabs:['club','guestbook','directory','members'],                                    subs:[['office.roles','mod.sub.officeRoles']]},
   {id:'during',  label:'nav.during', tabs:['timer','ah','gram','topics','vote'],        subs:[['reports','mod.sub.reports']]},
   {id:'before',  label:'nav.before', tabs:['agenda','roles','draw','guides','eval'],    subs:[['agenda.templates','mod.sub.templates']]},
-  {id:'learn',   label:'nav.learn',  tabs:['speeches','pathways'],                                              subs:[]},
+  {id:'learn',   label:'nav.learn',  tabs:['speeches','pathways','mentoring'],                                              subs:[]},
   {id:'contests',label:'nav.contests',tabs:['contest','cofficials','cdocs','cvideos'],                              subs:[]},
   {id:'after',   label:'nav.after',  tabs:['feedback'],                                 subs:[]}
 ];
@@ -27,7 +27,7 @@ function isOn(key){if(typeof premiumLocked==='function'&&premiumLocked(key))retu
 const firstOnTab=()=>TABS.find(x=>isOn(x)&&x!=='members')||'office';
 // The Members tab is listed only for signed-in officers.
 // The Directory, for active members and officers (profiles.js).
-const officerOnlyTab=x=>(x==='members'&&!(SH.on&&SH.officer===true))||(x==='directory'&&!(typeof directoryAccess==='function'&&directoryAccess()));
+const officerOnlyTab=x=>(x==='members'&&!(SH.on&&SH.officer===true))||(x==='directory'&&!(typeof directoryAccess==='function'&&directoryAccess()))||(x==='mentoring'&&!(typeof mentoringAccess==='function'&&mentoringAccess()));
 
 // Hide disabled tabs, and whole sections when none of their tabs is left. Called on every render.
 function applyModules(){

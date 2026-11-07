@@ -5,7 +5,7 @@ const NAV_SECTIONS=[
   {id:'club',label:'nav.club',short:'navs.club',tabs:['club','guestbook','directory'],icon:'<path d="M3 10l9-6 9 6v10H3z"/><path d="M9 20v-6h6v6"/>'},
   {id:'during',label:'nav.during',short:'navs.during',tabs:['timer','ah','gram','topics','vote'],icon:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>'},
   {id:'before',label:'nav.before',short:'navs.before',tabs:['agenda','roles','draw','guides','eval'],icon:'<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/>'},
-  {id:'learn',label:'nav.learn',short:'navs.learn',tabs:['speeches','pathways'],icon:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>'},
+  {id:'learn',label:'nav.learn',short:'navs.learn',tabs:['speeches','pathways','mentoring'],icon:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>'},
   {id:'contests',label:'nav.contests',short:'navs.contests',tabs:['contest','cofficials','cdocs','cvideos'],icon:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4"/>'},
   {id:'after',label:'nav.after',short:'navs.after',tabs:['feedback'],icon:'<path d="M4 5h16v11H8l-4 4z"/>'}
 ];
