@@ -267,6 +267,15 @@ button.danger:disabled,button:disabled{opacity:.5;cursor:not-allowed}
 .gallery .ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
 .gallery .ph:hover img{transform:scale(1.03)}
 .gallery figcaption,.videos figcaption{font-size:.85rem;color:var(--muted)}
+.sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.privacy summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+.privacy p{margin:6px 0;font-size:.88rem;color:var(--muted)}
+.dirgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px 18px}
+.dirf{display:flex;flex-direction:column;gap:4px}
+.dirf .check{font-size:.82rem}
+.dircards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.dircard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.ppreq{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
 .planlist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}
 .planlist li{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
 .planlist li .chip{flex:none}
@@ -415,6 +424,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <script src="deletion.js"></script>
 <script src="permissions.js"></script>
 <script src="members.js"></script>
+<script src="profiles.js"></script>
 <script src="admin.js"></script>
 <script src="help.js"></script>
 <script src="modules.js"></script>

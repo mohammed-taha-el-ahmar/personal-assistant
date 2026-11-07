@@ -27,7 +27,8 @@ function newCode(){
 
 // ---------- levels ----------
 const accessOn=()=>SH.on&&!!(ACC.pub&&ACC.pub.on);
-const deviceOk=()=>!!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v);
+// A device unlocked with the current code, or an active member profile (profiles.js).
+const deviceOk=()=>!!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v)||(typeof profileMember==='function'&&profileMember());
 // Edit the agenda, nominees, draw, other people's roles.
 const canManage=()=>!SH.on||!accessOn()||SH.officer===true;
 // Take your own role, send reports.

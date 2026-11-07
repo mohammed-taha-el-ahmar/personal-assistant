@@ -51,7 +51,8 @@ function guestbookView(){
   if(!SH.on)return `<section class="panel">${head}${liveBox()}<p class="muted">${t('gb.needLive')}</p></section>`;
   const officerNote=SH.officer===true&&isOn('members')?`<div class="notice"><span>${t('gb.officerNote',{n:MEM.guests.filter(g=>g.date===meetingDate()).length})}</span><button class="small" data-act="go-members">${t('gb.seeList')}</button></div>`:'';
   if(GB.done)return `<section class="panel">${head}${officerNote}<div class="box" style="text-align:center;align-items:center">
-    <h3>${t('gb.thanks')}</h3><p class="muted">${t('gb.thanksText')}</p><button class="primary" data-act="gb-next">${t('gb.next')}</button></div></section>`;
+    <h3>${t('gb.thanks')}</h3><p class="muted">${t('gb.thanksText')}</p><button class="primary" data-act="gb-next">${t('gb.next')}</button>
+    ${isMember()?'':`<p class="muted" style="margin:8px 0 0">${t('gb.profileHint')}</p><button class="ghost" data-act="go-me">${t('gb.profileBtn')}</button>`}</div></section>`;
   const g=GB.draft||(GB.draft=emptyGuest());
   return `<section class="panel">${head}${officerNote}
   <form class="box" data-form="guestbook" novalidate>
@@ -97,7 +98,7 @@ function membersView(){
   const shown=MEM.list.filter(m=>(MEM.show==='all'||(m.status||'active')===MEM.show)
     &&(!q||[m.name,m.email,m.phone,m.tmId].some(x=>fold(x).includes(q))));
   const periods=[-2,-1,0,1].map(n=>shiftPeriod(periodOf(new Date()),n));if(!periods.includes(p))periods.push(p);
-  return `<section class="panel">${head}
+  return `<section class="panel">${head}${typeof peopleBox==='function'?peopleBox():''}
   <div class="box">
     <div class="phead"><div class="field" style="min-width:240px"><label class="label" for="mem-period">${t('mem.period')}</label>
       <select id="mem-period" data-act="mem-period">${periods.map(x=>`<option value="${x}" ${x===p?'selected':''}>${esc(periodLabel(x))}</option>`).join('')}</select></div></div>

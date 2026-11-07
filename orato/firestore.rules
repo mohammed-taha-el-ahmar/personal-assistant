@@ -7,6 +7,10 @@ rules_version = '2';
 //   clubs/{club}                  {officers: [emails], status, name, deletion?}  created by the Orato administrator on approval
 //   requests/{club}               a request to open a club space; the requester and administrators read it
 //   app/config, app/public        administrators' list (made in the console) and public contact address
+//   users/{uid}                   a person's own profile (name, email, consent, contact details); only that person
+//   clubs/{club}/people/{uid}     a person in the club: guest or member, active or former; the person and officers
+//   clubs/{club}/directory/{uid}  the contact card a member shows to the other members (opt-in)
+//   clubs/{club}/public/plan      premium features of the club; everyone reads, the administrator writes
 //   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
 //   clubs/{club}/meeting/agenda   the running order
@@ -102,9 +106,20 @@ service cloud.firestore {
     function canManage(club) {
       return request.auth != null && (!protectedClub(club) || isOfficer(club));
     }
-    // Member level: take your own role, send reports.
+    // Member level: take your own role, send reports. A device unlocked with the code, or an active member profile.
     function memberLevel(club) {
-      return canManage(club) || (request.auth != null && memberDevice(club));
+      return canManage(club) || (request.auth != null && (memberDevice(club) || activeMember(club)));
+    }
+    // ----- personal profiles (profiles.js) -----
+    function personPath(club) {
+      return /databases/$(database)/documents/clubs/$(club)/people/$(request.auth.uid);
+    }
+    function activeMember(club) {
+      return request.auth != null && exists(personPath(club))
+        && get(personPath(club)).data.status == 'active' && get(personPath(club)).data.role == 'member';
+    }
+    function validName(n) {
+      return n is string && n.size() > 0 && n.size() <= 80;
     }
     function canVote(club) {
       return request.auth != null
@@ -204,6 +219,18 @@ service cloud.firestore {
             && request.resource.data.officers == resource.data.officers)
         );
       allow delete: if purging(club);
+    }
+
+    // A person's own profile: only they read and write it.
+    match /users/{uid} {
+      allow get, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if hasVerifiedEmail() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'email', 'lang', 'consentAt', 'createdAt', 'updatedAt', 'contact', 'clubs'])
+        && validName(request.resource.data.name)
+        && request.resource.data.email == myEmail()
+        && request.resource.data.consentAt is string
+        && request.resource.data.get('contact', {}) is map && request.resource.data.get('contact', {}).size() <= 6
+        && request.resource.data.get('clubs', []) is list && request.resource.data.get('clubs', []).size() <= 20;
     }
 
     // Requests to open a club space, one per club code. The requester (verified email) creates it while the code is
@@ -339,6 +366,43 @@ service cloud.firestore {
     }
 
     // Member list with renewals: officers only.
+    // A person in the club. They join as a guest (and may ask to become a member: requested 'member'); officers decide
+    // the role (guest or member), the status (active or former) and the linked member record. Either side can delete it.
+    match /clubs/{club}/people/{uid} {
+      allow get: if validClub(club) && request.auth != null && (request.auth.uid == uid || isOfficer(club));
+      allow list: if validClub(club) && isOfficer(club);
+      allow create: if open(club) && hasVerifiedEmail() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'status', 'requested', 'at', 'history'])
+        && validName(request.resource.data.name)
+        && request.resource.data.email == myEmail()
+        && request.resource.data.role == 'guest' && request.resource.data.status == 'active'
+        && request.resource.data.requested in ['guest', 'member']
+        && request.resource.data.history == [];
+      allow update: if open(club) && request.auth != null && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'requested'])
+        && validName(request.resource.data.name)
+        && request.resource.data.requested in ['guest', 'member'];
+      allow update: if open(club) && isOfficer(club)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'role', 'status', 'requested', 'history', 'memberId', 'decidedAt', 'decidedBy'])
+        && request.resource.data.role in ['guest', 'member']
+        && request.resource.data.status in ['active', 'former']
+        && request.resource.data.history is list && request.resource.data.history.size() <= 30;
+      allow delete: if validClub(club) && request.auth != null && (request.auth.uid == uid || isOfficer(club));
+    }
+    // The contact card a member chooses to show to the other members of the club.
+    match /clubs/{club}/directory/{uid} {
+      allow read: if validClub(club) && (isOfficer(club) || activeMember(club));
+      allow create, update: if open(club) && request.auth != null && request.auth.uid == uid
+        && (activeMember(club) || isOfficer(club))
+        && request.resource.data.keys().hasOnly(['name', 'email', 'phone', 'whatsapp', 'linkedin', 'updatedAt'])
+        && validName(request.resource.data.name)
+        && request.resource.data.get('email', '') is string && request.resource.data.get('email', '').size() <= 120
+        && request.resource.data.get('phone', '') is string && request.resource.data.get('phone', '').size() <= 40
+        && request.resource.data.get('whatsapp', '') is string && request.resource.data.get('whatsapp', '').size() <= 40
+        && request.resource.data.get('linkedin', '') is string && request.resource.data.get('linkedin', '').size() <= 200;
+      allow delete: if validClub(club) && request.auth != null && (request.auth.uid == uid || isOfficer(club));
+    }
+
     match /clubs/{club}/members/{memberId} {
       allow read, delete: if validClub(club) && isOfficer(club);
       allow create, update: if open(club) && isOfficer(club)

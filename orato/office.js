@@ -9,7 +9,7 @@ const emailOk=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 const isMember=()=>SH.user&&!SH.user.anon;
 
 // ---------- access ----------
-function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[];if(typeof stopInterestSub==='function')stopInterestSub();if(typeof accessStopOfficerSubs==='function')accessStopOfficerSubs();if(typeof membersStopSubs==='function')membersStopSubs()}
+function stopOfficerSubs(){['unsubClub','unsubHist','unsubFb'].forEach(k=>{if(OFF[k]){OFF[k]();OFF[k]=null}});SH.history=[];SH.feedback=[];if(typeof stopInterestSub==='function')stopInterestSub();if(typeof accessStopOfficerSubs==='function')accessStopOfficerSubs();if(typeof membersStopSubs==='function')membersStopSubs();if(typeof profilesStopOfficer==='function')profilesStopOfficer()}
 async function officeAuthChanged(){
   stopOfficerSubs();
   if(!SH.fs||!SH.club||!isMember()||!SH.user.verified){SH.officer=undefined;SH.clubExists=undefined;SH.officers=[];return}
@@ -31,12 +31,14 @@ async function officeAuthChanged(){
     }else{SH.officeErr=(e&&e.code)||'error'}
   }
   if(SH.officer&&!SH.closed)startOfficerSubs();
+  if(typeof profilesDirSub==='function'&&SH.club&&!SH.closed)profilesDirSub();
   softRender();
 }
 function startOfficerSubs(){
   if(typeof startInterestSub==='function')startInterestSub();
   if(typeof accessOfficerSubs==='function')accessOfficerSubs();
   if(typeof membersOfficerSubs==='function')membersOfficerSubs();
+  if(typeof profilesOfficerSubs==='function')profilesOfficerSubs();
   OFF.unsubClub=SH.fs.doc('clubs/'+SH.club).onSnapshot(s=>{
     SH.officers=s.exists?(s.data().officers||[]):[];SH.officer=SH.officers.includes(SH.user.email);
     SH.deletion=s.exists?(s.data().deletion||null):null;

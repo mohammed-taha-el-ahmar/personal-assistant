@@ -23,6 +23,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `evals.js` | Evaluation forms by type |
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
 | `plan.js` | Premium features per club: the administrator's switches, the officers' box, `hasFeature()` |
+| `profiles.js` | Personal profiles, joining a club as member or guest, officers' confirmation, member directory, my data |
 | `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
@@ -48,6 +49,17 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 ## Navigation
 
 The tools are grouped in 5 sections: **Club**, **Meeting**, **Prepare**, **Contests** and **Follow-up**. On a phone they form a bar at the bottom of the screen; on a larger screen, a row under the header. The tabs of the open section appear in a second row. The **Club officers** pages (and **Members** for signed-in officers) open from the person button in the header. Sections hidden by the club officers disappear from the bar. Links such as `?club=my-club#timer` keep working.
+
+## Personal profiles and member directory
+
+Anyone can create an Orato profile from **My profile** (the person button in the header): sign in with Google, or with an email and a password, enter a name and agree to the privacy notice. Then, in a club space:
+- **I am a member of this club** sends a membership request; **I am a guest** joins as a guest right away.
+- Officers see the requests at the top of the **Members** tab (**Profiles and requests**). **Confirm as member** links the person to a record of the member list (an existing one, a new one, or none). Officers can later mark someone as a former member, or remove the profile.
+- An **active member profile works like the member code**: the member takes roles and sends reports from any device without typing the code.
+- Members choose a **card in the directory** (email, phone, WhatsApp, LinkedIn, each one opt-in). The **Directory** tab (Club section) is visible to active members and officers only; the rules refuse it to everyone else.
+- **My data** downloads everything stored about the person (JSON) and deletes the account, with its club profiles and cards. The privacy notice explains what is stored, who sees it, why and for how long.
+
+Data: `users/{uid}` (only the person), `clubs/{club}/people/{uid}` (the person and officers), `clubs/{club}/directory/{uid}` (active members and officers). **Republish `firestore.rules`** after updating. The member code keeps working for clubs and members without profiles.
 
 ## Help for new visitors
 
