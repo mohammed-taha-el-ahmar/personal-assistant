@@ -141,7 +141,7 @@ function setQuery(params){
 function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.searchParams.set('club',SH.club);if(LANG!=='en')u.searchParams.set('lang',LANG);return u.toString()}
 let pendingRender=false;
 function softRender(){
-  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members','contest','cofficials','cdocs','cvideos','me','directory','speeches','mentoring'].includes(tab))return;
+  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members','contest','cofficials','cdocs','cvideos','me','directory','speeches','mentoring','stats'].includes(tab))return;
   // Don't restart a video someone is watching on the club page.
   if((tab==='club'||tab==='cvideos')&&document.querySelector('#main .vid iframe,#main .vid video'))return;
   const a=document.activeElement;
@@ -276,7 +276,7 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['club','guestbook','directory','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','speeches','pathways','mentoring','contest','cofficials','cdocs','cvideos','feedback','me','office','members'];
+const TABS=['club','guestbook','directory','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','speeches','pathways','mentoring','contest','cofficials','cdocs','cvideos','feedback','me','office','members','stats'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
 function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();if(typeof MEDIA!=='undefined')MEDIA.playing={};if(typeof CON!=='undefined')CON.playing={};tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -348,7 +348,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView(),contest:()=>contestView(),cofficials:()=>contestOfficialsView(),cdocs:()=>contestDocsView(),cvideos:()=>contestVideosView(),me:()=>meView(),directory:()=>directoryView(),speeches:()=>speechesView(),pathways:()=>pathwaysView(),mentoring:()=>mentoringView()};
+const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView(),contest:()=>contestView(),cofficials:()=>contestOfficialsView(),cdocs:()=>contestDocsView(),cvideos:()=>contestVideosView(),me:()=>meView(),directory:()=>directoryView(),speeches:()=>speechesView(),pathways:()=>pathwaysView(),mentoring:()=>mentoringView(),stats:()=>statsView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>

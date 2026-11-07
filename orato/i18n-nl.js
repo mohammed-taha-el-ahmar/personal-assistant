@@ -1007,6 +1007,7 @@ window.I18N.nl = {
   "roles.introShared": "Leden openen deze pagina en tikken op “Ik neem hem” om een rol te reserveren. Je kunt ook de naam typen van iemand die zich op een andere manier heeft aangemeld.",
   "roles.introLocal": "Vul in wie welke rol heeft. Vrije rollen worden gemarkeerd, en je kunt een kant-en-klaar bericht kopiëren voor de groepschat van je club.",
   "roles.openN": "{n} vrij",
+  "tab.stats": "Statistieken",
   "tab.mentoring": "Mentorschap",
   "tab.speeches": "Speechaanvragen",
   "tab.pathways": "Pathways",
@@ -1310,6 +1311,7 @@ window.HELP_EXTRA.nl={
     speeches:['Vraag een sprekersplek aan met je Pathways-project; het bestuur of de Toastmaster van de avond keurt het goed.',['Kies het pad, het niveau en het project, en typ je titel.','Kies de duur en, als je wilt, de bijeenkomst die je het beste uitkomt.','Na goedkeuring staat je speech met titel op de agenda, en “Deze speech timen” stelt de timer in.'],['Je hebt een ledenprofiel nodig om een speech aan te vragen. Gebruik de opmerkingen om details met de VPE af te spreken.']],
     pathways:['De zes Pathways-paden en hun projecten per niveau, met links naar toastmasters.org.',['Open een pad om de verplichte en keuzeprojecten te zien.','Ingelogd? Geef aan welk pad je volgt: je speechaanvragen beginnen daar.'],['De projecten zelf doe je op Base Camp.']],
     mentoring:['Mentor-mentee-duo’s, gevormd door het bestuur, elk met een gezamenlijk doel en een kort logboek.',['Leden vinken “Ik wil graag een mentor” of “Ik kan mentor zijn” aan.','Het bestuur vormt de duo’s op basis van deze wensen, of met wie dan ook, en beëindigt ze wanneer dat past.','Elk duo neemt per e-mail contact op, stelt een doel en noteert de contactmomenten.'],['Alleen het bestuur, de mentor en de mentee zien een duo.']],
+    stats:['De activiteit van de club in dit jaar en de voortgang in het Distinguished Club Program. Premiumfunctie, alleen voor het bestuur.',['De cijfers komen uit wat de club in Orato bijhoudt: afgesloten bijeenkomsten, ledenlijst, gastenboek, speechaanvragen, mentorschap.','Vul in het DCP-blok de cijfers uit Club Central of de Toastmasters-dashboards in; “Gebruiken” neemt het cijfer van Orato over.','De balk met tien vakjes toont de behaalde doelen en het volgende niveau.'],['De officiële status is altijd die op dashboards.toastmasters.org.']],
     feedback:['Een feedbackformulier van één minuut over de bijeenkomst, voor leden en gasten.',['Toon aan het einde van de bijeenkomst de QR-code voor feedback.','Iedereen antwoordt één keer vanaf zijn telefoon.','Het bestuur leest de resultaten in de bestuursruimte.'],['Gasten kunnen een e-mailadres achterlaten als ze willen dat de club contact opneemt.']]},
   tips:{
     live:'Deze link is de ruimte van je club. Iedereen die hem opent, deelt live dezelfde rollen, agenda en stemmingen. Deel hem in de groepschat van je club of toon de QR-code.',

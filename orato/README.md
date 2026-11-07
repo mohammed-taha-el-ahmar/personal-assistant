@@ -27,6 +27,7 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `pathways.js` | The six Pathways paths and their projects, the path a member follows |
 | `speeches.js` | Speech requests: request, approval by officers or the Toastmaster of the day, slot, comments |
 | `mentoring.js` | Mentor and mentee pairs: wishes, pairs formed by officers, goal and check-ins |
+| `stats.js` | Club statistics and DCP progress (premium) |
 | `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
@@ -80,6 +81,15 @@ The **Mentoring** tab (Learn and progress section, for members with a profile an
 - The mentor and the mentee see their pair, contact each other by email, update the goal and add **check-ins** to a short log.
 
 Data: `clubs/{club}/mentoring/{id}`; only officers, the mentor and the mentee read a pair. **Republish `firestore.rules`.**
+
+## Club statistics and DCP (premium)
+
+When the administrator switches on **Club statistics and DCP** for a club, officers get a **Statistics** tab (next to My profile, Club officers and Members):
+- **Key figures for the program year** (1 July – 30 June), computed from what the club keeps in Orato: meetings closed, roles filled per meeting, speeches given (speech requests marked as given), active and new members, dues paid this period, guests and guests who joined, members mentored.
+- **Speeches by path and level**, the **most active members**, and **meetings and guests by month**.
+- **Distinguished Club Program**: the ten goals (Toastmasters item 1111, rev. 06/2024), a ten-square bar, the level reached (Distinguished 5 goals, Select 7, President's 9) and the membership requirement (20 members or net growth of 5). Officers enter the numbers from Club Central or dashboards.toastmasters.org; **Use** takes the new-member count and the membership computed from the member list. The official status is always the one on the Toastmasters dashboards.
+
+Data: `clubs/{club}/dcp/{year}`, officers only. **Republish `firestore.rules`.**
 
 ## Help for new visitors
 
@@ -150,7 +160,7 @@ Every new club space must be approved by the Orato administrator before anyone c
 
 On the administration page (`?admin`), the **Premium** column shows each club's premium features. **Manage** opens the list: tick a feature, optionally set an end date (leave it empty for no end date), and save. The club's officers see the result in the **Premium features** box of their officers' page, with your contact address.
 
-The choice is stored in `clubs/{club}/public/plan` (everyone reads it, only the administrator writes it). To make a tab premium, add it to `PREMIUM_KEYS` in `plan.js`: it is then hidden in clubs without the feature. The Firestore rules offer `planFeature(club, 'id')` to protect premium data too, since hiding a tab is not protection. The features listed today (Contests pro, Officer toolkit, Club statistics and DCP) are marked *Coming soon*: switching them on does nothing yet.
+The choice is stored in `clubs/{club}/public/plan` (everyone reads it, only the administrator writes it). To make a tab premium, add it to `PREMIUM_KEYS` in `plan.js`: it is then hidden in clubs without the feature. The Firestore rules offer `planFeature(club, 'id')` to protect premium data too, since hiding a tab is not protection. **Club statistics and DCP** is available (it adds the Statistics tab); Contests pro and Officer toolkit are marked *Coming soon*.
 
 ## 4. Use it with your club
 

@@ -276,6 +276,31 @@ button.danger:disabled,button:disabled{opacity:.5;cursor:not-allowed}
 .dircards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .dircard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .ppreq{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.kpi b{font-size:1.6rem;line-height:1.2}
+.kpi .muted{font-size:.82rem}
+.sbars{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sbars li{display:grid;grid-template-columns:minmax(80px,140px) 1fr auto;align-items:center;gap:10px;font-size:.9rem}
+.sbars li>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sbar{display:block;height:10px;background:var(--bg);border-radius:6px;overflow:hidden}
+.sbar>span{display:block;height:100%;background:var(--accent);border-radius:6px}
+.sbar.g>span{background:#d4a017}
+.sbar2{display:grid;gap:3px}
+.dotk{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--accent);vertical-align:middle}
+.dotk.g{background:#d4a017}
+.dcphead{display:flex;flex-direction:column;gap:8px}
+.dcphead>div:first-child{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dcpn{font-size:1.3rem}
+.dcpmeter{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.dcpmeter span{height:12px;border-radius:4px;background:var(--bg);border:1px solid var(--line)}
+.dcpmeter span.on{background:var(--accent);border-color:var(--accent)}
+.dcpgoals{margin:0;padding-inline-start:0;list-style:none;display:grid;gap:4px;font-size:.92rem}
+.dcpgoals li{color:var(--muted)}
+.dcpgoals li.ok{color:var(--ink)}
+.dcpgoals li.ok span{color:var(--accent);font-weight:700}
+.dcpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 16px;margin-bottom:10px}
+.dcpf input{max-width:110px}
 .spform .fields{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .spcard{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;display:flex;flex-direction:column;gap:8px}
 .spcard .phead{margin:0}
@@ -438,6 +463,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <script src="pathways.js"></script>
 <script src="speeches.js"></script>
 <script src="mentoring.js"></script>
+<script src="stats.js"></script>
 <script src="admin.js"></script>
 <script src="help.js"></script>
 <script src="modules.js"></script>

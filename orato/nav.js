@@ -9,7 +9,7 @@ const NAV_SECTIONS=[
   {id:'contests',label:'nav.contests',short:'navs.contests',tabs:['contest','cofficials','cdocs','cvideos'],icon:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4"/>'},
   {id:'after',label:'nav.after',short:'navs.after',tabs:['feedback'],icon:'<path d="M4 5h16v11H8l-4 4z"/>'}
 ];
-const NAV_OFFICE=['me','office','members'];
+const NAV_OFFICE=['me','office','members','stats'];
 const navVisible=x=>isOn(x)&&!officerOnlyTab(x);
 const navSectionOf=x=>NAV_SECTIONS.find(s=>s.tabs.includes(x));
 const navIcon=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;

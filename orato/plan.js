@@ -10,10 +10,10 @@
 const FEATURES=[
   {id:'contestsPro',status:'soon'},  // judges' ballots on phones, secret counting, tiebreak, certificates, area/division/district contests
   {id:'officerKit',status:'soon'},   // officer training, events, participation, action plan, announcements to members
-  {id:'stats',status:'soon'}         // club statistics and DCP progress
+  {id:'stats',status:''}             // club statistics and DCP progress (stats.js)
 ];
 const FEATURE_IDS=FEATURES.map(f=>f.id);
-const PREMIUM_KEYS={};               // tab or option key -> feature id, e.g. {cballots:'contestsPro'}
+const PREMIUM_KEYS={stats:'stats'}; // tab or option key -> feature id
 const PLAN={features:{},loaded:false,unsub:null};
 
 const endOfDayMs=d=>{const [y,m,dd]=d.split('-').map(Number);return new Date(y,m-1,dd,23,59,59,999).getTime()};

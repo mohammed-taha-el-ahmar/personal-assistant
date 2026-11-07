@@ -27,7 +27,7 @@ function isOn(key){if(typeof premiumLocked==='function'&&premiumLocked(key))retu
 const firstOnTab=()=>TABS.find(x=>isOn(x)&&x!=='members')||'office';
 // The Members tab is listed only for signed-in officers.
 // The Directory, for active members and officers (profiles.js).
-const officerOnlyTab=x=>(x==='members'&&!(SH.on&&SH.officer===true))||(x==='directory'&&!(typeof directoryAccess==='function'&&directoryAccess()))||(x==='mentoring'&&!(typeof mentoringAccess==='function'&&mentoringAccess()));
+const officerOnlyTab=x=>(['members','stats'].includes(x)&&!(SH.on&&SH.officer===true))||(x==='directory'&&!(typeof directoryAccess==='function'&&directoryAccess()))||(x==='mentoring'&&!(typeof mentoringAccess==='function'&&mentoringAccess()));
 
 // Hide disabled tabs, and whole sections when none of their tabs is left. Called on every render.
 function applyModules(){

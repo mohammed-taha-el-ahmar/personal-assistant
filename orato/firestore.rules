@@ -12,6 +12,7 @@ rules_version = '2';
 //   clubs/{club}/directory/{uid}  the contact card a member shows to the other members (opt-in)
 //   clubs/{club}/speeches/{id}    speech requests: the speaker asks, officers or the Toastmaster of the day decide
 //   clubs/{club}/mentoring/{id}   mentor and mentee pairs: officers, the mentor and the mentee
+//   clubs/{club}/dcp/{year}       Distinguished Club Program numbers per program year; officers only
 //   clubs/{club}/public/plan      premium features of the club; everyone reads, the administrator writes
 //   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
@@ -459,6 +460,13 @@ service cloud.firestore {
         && request.resource.data.goal is string && request.resource.data.goal.size() <= 200
         && request.resource.data.log is list && request.resource.data.log.size() <= 100;
       allow delete: if validClub(club) && isOfficer(club);
+    }
+
+    // Distinguished Club Program numbers entered by officers, one document per program year (e.g. 2026-2027).
+    match /clubs/{club}/dcp/{year} {
+      allow read, delete: if validClub(club) && isOfficer(club);
+      allow write: if open(club) && isOfficer(club) && year.matches('^[0-9]{4}-[0-9]{4}$')
+        && request.resource.data.keys().hasOnly(['l1', 'l2', 'l3', 'l45', 'newMembers', 'trained1', 'trained2', 'base', 'members', 'dues', 'officerList', 'updatedAt', 'updatedBy']);
     }
 
     match /clubs/{club}/members/{memberId} {
