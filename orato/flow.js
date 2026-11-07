@@ -6,14 +6,28 @@
 //   already speaking, and rename anyone in the report afterwards.
 
 const FLOW_TT=4; // Table Topics slots added to the running order (names filled in later, or left as "Table Topics n")
+// The running order follows the agenda (Prepare → Agenda), item by item: each speech with its own timing, the Table
+// Topics session as separate slots, the evaluations as one line per evaluator, and every other segment (welcome,
+// introduction, break, reports, closing…) as a transition of the nearest length (1, 2, 5, 10 or 15 minutes).
+const TR_MIN=[1,2,5,10,15];
+const trPreset=d=>'tr'+TR_MIN.reduce((b,m)=>Math.abs(m-(+d||0))<Math.abs(b-(+d||0))?m:b,TR_MIN[0]);
 function flowPeople(){
-  const keys=['s1','s2','s3'];const out=[];
-  keys.forEach((k,i)=>{const n=roleName(k);if(!n)return;const sp=typeof speechForSlot==='function'?speechForSlot(k):null;
-    out.push({name:n,preset:sp&&sp.preset||'std',label:roleLabel(k)+(sp?` – “${sp.title}”`:'')})});
-  for(let i=1;i<=FLOW_TT;i++)out.push({name:'',preset:'tt',label:t('flow.tt',{n:i})});
-  ['e1','e2','e3'].forEach(k=>{const n=roleName(k);if(n)out.push({name:n,preset:'eval',label:roleLabel(k)})});
-  if(roleName('tte'))out.push({name:roleName('tte'),preset:'eval',label:roleLabel('tte')});
-  if(roleName('ge'))out.push({name:roleName('ge'),preset:'ge',label:roleLabel('ge')});
+  const out=[];let items=(S.agenda&&S.agenda.items)||[];
+  // An empty agenda: fall back to the usual order of a meeting, with the roles filled in.
+  if(!items.length)items=[['speech1','s1'],['speech2','s2'],['speech3','s3'],['tt','ttm'],['evals','ge'],['ttEval','tte'],['ge','ge']].map(([k,role])=>({k,role,dur:7}))
+    .filter(it=>!['s1','s2','s3'].includes(it.role)||roleName(it.role));
+  items.forEach(it=>{
+    if(it.k==='doors')return; // before the meeting starts
+    const title=itemTitle(it);
+    if(['s1','s2','s3'].includes(it.role)){const sp=typeof speechForSlot==='function'?speechForSlot(it.role):null;
+      out.push({name:roleName(it.role)||'',preset:sp&&sp.preset||'std',label:title});return}
+    if(it.k==='tt'){for(let i=1;i<=FLOW_TT;i++)out.push({name:'',preset:'tt',label:t('flow.tt',{n:i})});return}
+    if(it.k==='evals'){const ev=['e1','e2','e3'].filter(k=>roleName(k));
+      (ev.length?ev:['e1','e2','e3']).forEach(k=>out.push({name:roleName(k)||'',preset:'eval',label:roleLabel(k)}));return}
+    if(it.k==='ttEval'){out.push({name:roleName('tte')||'',preset:'eval',label:title});return}
+    if(it.k==='ge'){out.push({name:roleName('ge')||'',preset:'ge',label:title});return}
+    out.push({name:it.role?roleName(it.role)||'':'',preset:trPreset(it.dur),label:title});
+  });
   return out;
 }
 const flowSpeakerNames=()=>[...new Set(['toastmaster','s1','s2','s3','ttm','e1','e2','e3','tte','ge','timer','ah','gram'].map(k=>roleName(k)).filter(Boolean))];

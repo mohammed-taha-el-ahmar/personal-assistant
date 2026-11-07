@@ -25,6 +25,9 @@ const PRESETS=[
   // Speech contests (rulebook timing): lo–hi is the qualifying window; outside it the contestant is disqualified.
   {id:'cIntl',g:300,a:360,r:420,lo:270,hi:450},{id:'cEval',g:120,a:150,r:180,lo:90,hi:210},
   {id:'cTT',g:60,a:90,r:120,lo:60,hi:150},{id:'cTall',g:180,a:240,r:300,lo:150,hi:330},
+  // Transitions and other agenda segments: green at half the time, yellow at three quarters, red at the end; no minimum.
+  {id:'tr1',g:30,a:45,r:60,lo:0},{id:'tr2',g:60,a:90,r:120,lo:0},{id:'tr5',g:150,a:225,r:300,lo:0},
+  {id:'tr10',g:300,a:450,r:600,lo:0},{id:'tr15',g:450,a:675,r:900,lo:0},
   {id:'custom'}
 ];
 const ROLE_KEYS=['toastmaster','ge','timer','ah','gram','ttm','tte','s1','s2','s3','e1','e2','e3','saa','pres'];
