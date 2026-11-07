@@ -10,6 +10,7 @@ rules_version = '2';
 //   users/{uid}                   a person's own profile (name, email, consent, contact details); only that person
 //   clubs/{club}/people/{uid}     a person in the club: guest or member, active or former; the person and officers
 //   clubs/{club}/directory/{uid}  the contact card a member shows to the other members (opt-in)
+//   clubs/{club}/speeches/{id}    speech requests: the speaker asks, officers or the Toastmaster of the day decide
 //   clubs/{club}/public/plan      premium features of the club; everyone reads, the administrator writes
 //   clubs/{club}/history/{id}     archived meetings; officers only
 //   clubs/{club}/meeting/roles    who holds each meeting role
@@ -225,7 +226,7 @@ service cloud.firestore {
     match /users/{uid} {
       allow get, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if hasVerifiedEmail() && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['name', 'email', 'lang', 'consentAt', 'createdAt', 'updatedAt', 'contact', 'clubs'])
+        && request.resource.data.keys().hasOnly(['name', 'email', 'lang', 'consentAt', 'createdAt', 'updatedAt', 'contact', 'clubs', 'path'])
         && validName(request.resource.data.name)
         && request.resource.data.email == myEmail()
         && request.resource.data.consentAt is string
@@ -401,6 +402,42 @@ service cloud.firestore {
         && request.resource.data.get('whatsapp', '') is string && request.resource.data.get('whatsapp', '').size() <= 40
         && request.resource.data.get('linkedin', '') is string && request.resource.data.get('linkedin', '').size() <= 200;
       allow delete: if validClub(club) && request.auth != null && (request.auth.uid == uid || isOfficer(club));
+    }
+
+    // Speech requests. An active member (or an officer) asks; officers or the Toastmaster of the day decide.
+    function isToastmasterOfDay(club) {
+      let r = /databases/$(database)/documents/clubs/$(club)/meeting/roles;
+      return request.auth != null && exists(r)
+        && get(r).data.get('roles', {}).get('toastmaster', {}).get('u', '') == request.auth.uid;
+    }
+    function validComments() {
+      let c = request.resource.data.comments;
+      return c is list && c.size() <= 50
+        && (c.size() == 0 || c == resource.data.comments
+          || (c.size() > 0 && c[c.size() - 1].uid == request.auth.uid && c[c.size() - 1].text is string && c[c.size() - 1].text.size() <= 500));
+    }
+    match /clubs/{club}/speeches/{id} {
+      allow read: if open(club) && request.auth != null;
+      allow create: if open(club) && request.auth != null && (activeMember(club) || isOfficer(club))
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'path', 'level', 'project', 'title', 'preset', 'date', 'note', 'status', 'slot', 'comments', 'at', 'updatedAt'])
+        && request.resource.data.uid == request.auth.uid
+        && validName(request.resource.data.name)
+        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 120
+        && request.resource.data.project is string && request.resource.data.project.size() > 0 && request.resource.data.project.size() <= 100
+        && request.resource.data.note is string && request.resource.data.note.size() <= 300
+        && request.resource.data.status == 'pending' && request.resource.data.slot == '' && request.resource.data.comments == [];
+      // The speaker: withdraw, or add a comment.
+      allow update: if open(club) && request.auth != null && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'comments', 'updatedAt'])
+        && (request.resource.data.status == resource.data.status || request.resource.data.status == 'withdrawn')
+        && validComments();
+      // Officers or the Toastmaster of the day: decide, choose the slot, comment.
+      allow update: if open(club) && (isOfficer(club) || isToastmasterOfDay(club))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'slot', 'decidedBy', 'decidedAt', 'comments', 'updatedAt'])
+        && request.resource.data.status in ['pending', 'approved', 'declined', 'done', 'withdrawn']
+        && request.resource.data.slot in ['', 's1', 's2', 's3']
+        && validComments();
+      allow delete: if validClub(club) && request.auth != null && (resource.data.uid == request.auth.uid || isOfficer(club));
     }
 
     match /clubs/{club}/members/{memberId} {

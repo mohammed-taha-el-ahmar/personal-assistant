@@ -276,6 +276,16 @@ button.danger:disabled,button:disabled{opacity:.5;cursor:not-allowed}
 .dircards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .dircard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .ppreq{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.spform .fields{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.spcard{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.spcard .phead{margin:0}
+.spcom summary{cursor:pointer;font-size:.88rem}
+.spcom .com{margin:6px 0;font-size:.9rem;padding:6px 10px;background:var(--bg);border-radius:8px}
+.path .pathbody{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.levels{margin:0;padding-inline-start:0;list-style:none;display:grid;gap:10px}
+.levels>li{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.levels ul{margin:4px 0;padding-inline-start:20px}
+.els summary{cursor:pointer;font-size:.88rem}
 .planlist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}
 .planlist li{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
 .planlist li .chip{flex:none}
@@ -425,6 +435,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;font-size:.85rem
 <script src="permissions.js"></script>
 <script src="members.js"></script>
 <script src="profiles.js"></script>
+<script src="pathways.js"></script>
+<script src="speeches.js"></script>
 <script src="admin.js"></script>
 <script src="help.js"></script>
 <script src="modules.js"></script>

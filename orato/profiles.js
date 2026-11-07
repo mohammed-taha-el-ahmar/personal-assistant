@@ -32,7 +32,7 @@ function profilesAuthChanged(){
   if(!SH.fs||!SH.user||SH.user.anon||!SH.user.verified){PROF.user=null;PROF.me=null;return}
   PROF.unsubs.push(SH.fs.doc(`users/${SH.uid}`).onSnapshot(s=>{PROF.user=s.exists?s.data():null;softRender()},()=>{PROF.user=null;softRender()}));
   if(SH.club&&!SH.closed){
-    PROF.unsubs.push(SH.fs.doc(`clubs/${SH.club}/people/${SH.uid}`).onSnapshot(s=>{PROF.me=s.exists?s.data():null;profilesDirSub();softRender()},()=>{PROF.me=null;softRender()}));
+    PROF.unsubs.push(SH.fs.doc(`clubs/${SH.club}/people/${SH.uid}`).onSnapshot(s=>{PROF.me=s.exists?s.data():null;profilesDirSub();softRender();if(typeof claimMySlots==='function')claimMySlots()},()=>{PROF.me=null;softRender()}));
   }else PROF.me=null;
 }
 function profilesDirSub(){

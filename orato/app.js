@@ -65,7 +65,10 @@ function removeWord(id){
 }
 let editWords=false;
 const catName=c=>c.key?t('cat.'+c.key):c.name;
-const itemTitle=it=>it.title!=null&&it.title!==''?it.title:(it.k?t('agi.'+it.k):'');
+// A speech slot with an approved speech request (speeches.js) shows the speech title after the item name.
+const itemTitle=it=>{if(it.title!=null&&it.title!=='')return it.title;const base=it.k?t('agi.'+it.k):'';
+  const sp=typeof speechForSlot==='function'&&['s1','s2','s3'].includes(it.role)?speechForSlot(it.role):null;
+  return sp?`${base} – “${sp.title}”`:base};
 
 // ---------- state ----------
 function defaultAgenda(){return {club:'',date:'',theme:'',start:'19:00',venue:'',online:{format:'inperson',url:'',id:'',pass:''},items:AGENDA_KEYS.map(([k,role,dur])=>({k,role,dur}))}}
@@ -138,7 +141,7 @@ function setQuery(params){
 function shareLink(){const u=new URL(location.href);u.hash='';u.search='';u.searchParams.set('club',SH.club);if(LANG!=='en')u.searchParams.set('lang',LANG);return u.toString()}
 let pendingRender=false;
 function softRender(){
-  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members','contest','cofficials','cdocs','cvideos','me','directory'].includes(tab))return;
+  if(!['roles','agenda','vote','office','feedback','club','draw','guestbook','members','contest','cofficials','cdocs','cvideos','me','directory','speeches'].includes(tab))return;
   // Don't restart a video someone is watching on the club page.
   if((tab==='club'||tab==='cvideos')&&document.querySelector('#main .vid iframe,#main .vid video'))return;
   const a=document.activeElement;
@@ -194,7 +197,7 @@ async function initShared(){
     reports:SH.fs.doc(base+'/meeting/reports'),ballots:SH.fs.collection(base+'/ballots')};
   SH.on=true;S.vote.cats=defaultCats();S.vote.reveal=false;S.vote.cat=0;S.agenda=defaultAgenda();
   const onErr=e=>{SH.error='stopped:'+(e&&e.code||'error');updateStatus()};
-  SH.ref.roles.onSnapshot(s=>{SH.roles=s.exists?clone(s.data().roles||{}):{};softRender()},onErr);
+  SH.ref.roles.onSnapshot(s=>{SH.roles=s.exists?clone(s.data().roles||{}):{};softRender();if(typeof claimMySlots==='function')claimMySlots()},onErr);
   SH.ref.agenda.onSnapshot(s=>{if(SH.agendaDirty)return;S.agenda=s.exists?clone(s.data()):defaultAgenda();if(!Array.isArray(S.agenda.items))S.agenda.items=[];softRender()},onErr);
   SH.ref.vote.onSnapshot(s=>{const d=s.exists?s.data():null;S.vote.cats=d&&Array.isArray(d.cats)?clone(d.cats):defaultCats();S.vote.reveal=!!(d&&d.reveal);
     S.vote.by=d&&d.by||'';S.vote.byName=d&&d.byName||'';
@@ -209,6 +212,7 @@ async function initShared(){
   if(typeof accessLive==='function')accessLive();
   if(typeof contestLive==='function')contestLive();
   if(typeof planLive==='function')planLive();
+  if(typeof speechesLive==='function')speechesLive();
   updateStatus();render();
 }
 function errorText(){if(!SH.error)return '';if(SH.error==='connect')return t('live.connectFail');return t('live.stopped',{code:SH.error.split(':')[1]})}
@@ -272,7 +276,7 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['club','guestbook','directory','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','contest','cofficials','cdocs','cvideos','feedback','me','office','members'];
+const TABS=['club','guestbook','directory','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','speeches','pathways','contest','cofficials','cdocs','cvideos','feedback','me','office','members'];
 let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
 function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();if(typeof MEDIA!=='undefined')MEDIA.playing={};if(typeof CON!=='undefined')CON.playing={};tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -344,7 +348,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView(),contest:()=>contestView(),cofficials:()=>contestOfficialsView(),cdocs:()=>contestDocsView(),cvideos:()=>contestVideosView(),me:()=>meView(),directory:()=>directoryView()};
+const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView(),contest:()=>contestView(),cofficials:()=>contestOfficialsView(),cdocs:()=>contestDocsView(),cvideos:()=>contestVideosView(),me:()=>meView(),directory:()=>directoryView(),speeches:()=>speechesView(),pathways:()=>pathwaysView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>

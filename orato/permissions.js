@@ -94,6 +94,7 @@ function memberLink(){const u=new URL(shareLink());if(ACC.cfg)u.searchParams.set
 // Shown inside the "live" notice on shared pages (roles, agenda, voting, draw).
 function accessStrip(){
   if(!accessOn()||SH.officer===true)return '';
+  if(typeof profileMember==='function'&&profileMember()&&!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v))return `<div class="notice"><span>✓ ${t('me.memberText')}</span></div>`;
   if(deviceOk())return `<div class="notice"><span>${t('acc.isMember')}</span><button class="small ghost" data-act="acc-forget">${t('acc.forget')}</button></div>`;
   return unlockForm();
 }

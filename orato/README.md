@@ -24,6 +24,8 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | `templates.js` | Meeting templates for the agenda: built-in, club and on-device |
 | `plan.js` | Premium features per club: the administrator's switches, the officers' box, `hasFeature()` |
 | `profiles.js` | Personal profiles, joining a club as member or guest, officers' confirmation, member directory, my data |
+| `pathways.js` | The six Pathways paths and their projects, the path a member follows |
+| `speeches.js` | Speech requests: request, approval by officers or the Toastmaster of the day, slot, comments |
 | `nav.js` | Navigation: the 5 sections (bottom bar on phones), the tabs of the open section, the Bureau button |
 | `contests.js` | Contests section (4 tabs): contest types and timing, checklist, officials, official documents, club links, World Champions videos |
 | `draw.js` | Random speaking order (contests, speakers) |
@@ -60,6 +62,14 @@ Anyone can create an Orato profile from **My profile** (the person button in the
 - **My data** downloads everything stored about the person (JSON) and deletes the account, with its club profiles and cards. The privacy notice explains what is stored, who sees it, why and for how long.
 
 Data: `users/{uid}` (only the person), `clubs/{club}/people/{uid}` (the person and officers), `clubs/{club}/directory/{uid}` (active members and officers). **Republish `firestore.rules`** after updating. The member code keeps working for clubs and members without profiles.
+
+## Pathways and speech requests
+
+The **Learn and progress** section has two tabs:
+- **Pathways**: the six paths (Dynamic Leadership, Engaging Humor, Motivational Strategies, Persuasive Influence, Presentation Mastery, Visionary Communication) with their projects by level, required and elective, and a link to each path page on toastmasters.org. Open to everyone, guests included. A signed-in person can mark **the path they follow** (stored in their profile). Project names are copied from the toastmasters.org path pages (November 2026); update `PATHS` in `pathways.js` when Toastmasters International changes a path.
+- **Speech requests**: a member with an active profile chooses path, level and project (or types another project), the title, the timing (Ice Breaker 4–6 min is suggested for the Ice Breaker, 5–7 min otherwise) and the preferred meeting. **Officers or the Toastmaster of the day** (whoever holds the Toastmaster role) approve it and choose the slot (Speaker 1–3), decline it, or mark it as given. The approved speech fills the speaker's role and shows its title in the agenda, the copied text and the PDF; **Time this speech** sets the timer. Each request has a comment thread between the speaker and the approvers.
+
+Data: `clubs/{club}/speeches/{id}`. **Republish `firestore.rules`.**
 
 ## Help for new visitors
 
