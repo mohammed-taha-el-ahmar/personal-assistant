@@ -7,14 +7,14 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/13
 import { getFirestore } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  // Copy the exact Realtime Database URL from the console (region-specific).
-  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyCL_cRYl-AmBdlhSNIGdAj_RFPv29dojf4",
+  authDomain: "quizlive-d3b60.firebaseapp.com",
+  databaseURL: "https://quizlive-d3b60-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "quizlive-d3b60",
+  storageBucket: "quizlive-d3b60.firebasestorage.app",
+  messagingSenderId: "30542254081",
+  appId: "1:30542254081:web:bc712ce16ecd43311cf000",
+  measurementId: "G-XEYVXN34YF"
 };
 
 if (firebaseConfig.apiKey.startsWith("YOUR_")) {
