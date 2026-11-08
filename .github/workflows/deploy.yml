@@ -69,6 +69,10 @@ jobs:
           cp -r css js assets docs articles _site/
           mkdir _site/bayanat
           cp -r bayanat/site/dist/. _site/bayanat/
+          mkdir _site/orato
+          cp -r orato/ _site/orato/
+          mkdir _site/quizlive
+          cp -r quizlive/ _site/quizlive/
           touch _site/.nojekyll
 
       - uses: actions/upload-pages-artifact@v3
