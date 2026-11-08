@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import { formatDate, t } from '../../../i18n';
+import { sentIssues } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const briefs = await getCollection('brief');
+  return (await sentIssues()).map((issue) => ({
+    params: { issue: String(issue.data.issue) },
+    props: { issue, items: issue.data.items.map((id) => briefs.find((b) => b.id === id)).filter(Boolean) },
+  }));
+}
+const { issue, items } = Astro.props;
+const s = t('en');
+---
+<Base lang="en" title={issue.data.title} current="newsletter">
+  <article class="article">
+    <p class="kicker">{s.heroKicker} · {formatDate(issue.data.date, 'en')}</p>
+    <h1>{issue.data.title}</h1>
+    {issue.data.editor_note && <p class="lede">{issue.data.editor_note}</p>}
+    {items.map((b) => b && (
+      <div class="brief-item">
+        <span class="tag">{s.pillars[b.data.pillar as keyof typeof s.pillars]?.toUpperCase()}</span>
+        <h3><a href={b.data.source_url} rel="noopener">{b.data.title}</a></h3>
+        <p>{b.data.summary}</p>
+        {b.data.my_take && <p class="take"><strong>{s.myTake}:</strong> {b.data.my_take}</p>}
+      </div>
+    ))}
+    {issue.data.one_thing && <div class="aside-box" style="margin-top:24px"><p class="kicker">ONE THING TO DO THIS WEEK</p><p>{issue.data.one_thing}</p></div>}
+  </article>
+</Base>

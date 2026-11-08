@@ -147,7 +147,7 @@ async function approveSpeech(s,slot){
   const now=new Date().toISOString();
   await spRef(s.id).update({status:'approved',slot,decidedBy:SH.user&&SH.user.email||SH.uid,decidedAt:now,updatedAt:now});
   // Officers (and everyone while member access is off) write the role directly; otherwise the speaker's device takes it.
-  if(canManage()&&!(s.date===S.agenda.date&&roleName(slot)))await (typeof writeRoleOn==='function'?writeRoleOn(s.date,slot,{n:s.name.slice(0,60),u:s.uid}):writeRole(slot,{n:s.name.slice(0,60),u:s.uid}));
+  if(canEditMeeting()&&!(s.date===S.agenda.date&&roleName(slot)))await (typeof writeRoleOn==='function'?writeRoleOn(s.date,slot,{n:s.name.slice(0,60),u:s.uid}):writeRole(slot,{n:s.name.slice(0,60),u:s.uid}));
 }
 function myDisplayName(){const u=typeof myProfile==='function'&&myProfile();return u&&u.name||myName()||SH.user&&SH.user.email||''}
 
@@ -180,7 +180,7 @@ document.addEventListener('click',ev=>{
   if(!s)return;const L=SPL();const now=new Date().toISOString();
   if(a==='sp-approve'){const sel=document.getElementById('sp-slot-'+s.id);spRun(()=>approveSpeech(s,sel?sel.value:'s1'),L.approved);return}
   if(a==='sp-status'){const v=b.dataset.v;spRun(async()=>{await spRef(s.id).update({status:v,...(v==='pending'?{slot:''}:{}),decidedBy:SH.user&&SH.user.email||SH.uid,decidedAt:now,updatedAt:now});
-    if(v==='pending'&&s.slot&&canManage()){const e=SH.roles[s.slot];if(e&&e.u===s.uid)await writeRole(s.slot,null)}});return}
+    if(v==='pending'&&s.slot&&canEditMeeting()){const e=SH.roles[s.slot];if(e&&e.u===s.uid)await writeRole(s.slot,null)}});return}
   if(a==='sp-withdraw'){spRun(async()=>{await spRef(s.id).update({status:'withdrawn',updatedAt:now});const e=s.slot&&SH.roles[s.slot];if(e&&e.u===SH.uid)await writeRole(s.slot,null)});return}
   if(a==='sp-del'){spRun(()=>spRef(s.id).delete());return}
   if(a==='sp-time'){S.timer.preset=s.preset||'std';S.timer.name=s.name;save();setTab('timer');return}

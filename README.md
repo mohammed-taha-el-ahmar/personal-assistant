@@ -1,9 +1,12 @@
 # personal-assistant
 
-Recruiter-facing website for **Mohammed Taha EL AHMAR**, live at [www.tahaelahmar.dev](https://www.tahaelahmar.dev).
+Website for **Mohammed Taha EL AHMAR**, live at [www.tahaelahmar.dev](https://www.tahaelahmar.dev).
 
-- **Assistant page**: an AI assistant that answers recruiters' questions from my resume, FAQ and portfolio (English or French, streamed, with sources), checks a pasted job description against my profile, and hands off to a call with the conversation pre-filled in the booking notes.
+- **Assistant page**: an AI assistant that answers questions from recruiters and freelance clients, from my resume, FAQ, services, portfolio and published articles (English or French, streamed, with sources), checks a pasted job description or project brief against my profile, and hands off to a call with the conversation pre-filled in the booking notes.
 - **Projects page**: filterable grid of hands-on data engineering and GenAI demos, each with architecture flow, key decisions and code links. Deep links: `projects.html#<project-id>`.
+- **Services page**: freelance offer and how I work, for clients and recruiters (EN / FR).
+- **Articles** (`/articles/`): written from production work; every code block comes from `examples/` and passes its tests before publishing.
+- **Bayanat** (`/bayanat/`): a bilingual (EN / AR) data & AI media for EMEA, with an AI-assisted editorial pipeline.
 
 ## How the assistant works
 
@@ -28,11 +31,13 @@ POST /feedback {rating}   ──▶ logged (Analytics Engine if bound)
 ## Repository layout
 
 ```
-index.html, projects.html   Pages (static, no build step)
+index.html, projects.html,
+services.html               Pages (static, no build step)
 css/
   tokens.css                Colours, radii, fonts — light + dark themes (WCAG AA)
   base.css                  Reset, header/nav, buttons, tags, cards, footer
   home.css · projects.css   Page-specific styles
+  content.css               Services page and generated article pages
 js/                         ES modules, no framework
   config.js                 ★ Single source of truth: worker URL, links, data paths
   i18n.js                   English / French UI strings + language switch
@@ -42,14 +47,23 @@ js/                         ES modules, no framework
   resume.js                 Experience explorer
   projects.js · icons.js    Projects grid, filters, deep links
   theme-init.js             Applies saved theme before first paint
+  page.js                   Entry point for the Services page and article pages
 assets/                     favicon.svg, og.png (link previews), cv.pdf (optional)
 docs/                       ★ Content: JSON for the site, Markdown for the assistant
   projects.json             Source of truth for projects (site + assistant)
-  resume.md · faq.md · projects.md · resume-bullets.json
+  resume.md · faq.md · projects.md · services.md · resume-bullets.json
+  articles/*.md             ★ Articles (Markdown + front matter), also fed to the assistant once published
   projects-summary.md       GENERATED
 scripts/
   build-content.mjs         Validates content, writes projects-summary.md + the knowledge base
   lib/chunk.mjs             Markdown/project → chunks
+  build-articles.mjs        docs/articles → articles/ (pages, index, RSS)
+  lib/articles.mjs          Front matter, code includes from examples/
+  lib/page-shell.mjs        Header/footer shared by generated pages
+examples/                   ★ Code shown in articles, with its tests (pytest)
+articles/                   GENERATED — not committed, built on deploy
+bayanat/                    Bayanat, the data & AI media at /bayanat/ (see bayanat/README.md)
+.github/workflows/          ci.yml · deploy.yml · bayanat-pipeline.yml · bayanat-newsletter.yml
 worker/
   wrangler.toml             Worker config: origins, models, token budgets, optional bindings
   src/
@@ -80,7 +94,7 @@ To test the site against a local worker, point `WORKER_URL` in `js/config.js` at
 | To change…                         | Edit                                           | Then                                         |
 | ---------------------------------- | ---------------------------------------------- | -------------------------------------------- |
 | A project (site **and** assistant) | `docs/projects.json`                           | `npm run build:content`, redeploy the worker |
-| What the assistant knows           | `docs/resume.md`, `faq.md`, `projects.md`      | `npm run build:content`, redeploy the worker |
+| What the assistant knows           | `docs/resume.md`, `faq.md`, `projects.md`, `services.md` | `npm run build:content`, redeploy the worker |
 | Experience shown on the site       | `docs/resume-bullets.json`                     | —                                            |
 | UI text (EN / FR)                  | `js/i18n.js`                                   | —                                            |
 | Links, email, booking URL, CV      | `js/config.js` (+ `CAL_LINK` in wrangler.toml) | —                                            |
@@ -88,11 +102,46 @@ To test the site against a local worker, point `WORKER_URL` in `js/config.js` at
 
 Tips for the knowledge base: write short sections under clear headings (each heading becomes a chunk title the retriever matches on), put numbers in the text (the assistant never invents them), and add FAQ entries as `**Question?**` followed by the answer. The FR→EN keyword map lives in `worker/src/text.js`.
 
+## Services page
+
+`services.html` presents the freelance offer (review, delivery, training) to clients and the senior-role track to recruiters. All its text lives in `js/i18n.js` (`services.*`, `offer.*`, `aud.*`, `pr.*`), in English and French. The "Check a project brief" button opens the assistant's match panel directly (`index.html?match`). The assistant answers freelance questions from `docs/services.md` and `docs/faq.md`; it never quotes rates or start dates and points to a call instead.
+
+## Writing articles
+
+1. Put the code in `examples/<slug>/` with tests next to it (`test_*.py`). Mark the parts to show with `# region name` / `# endregion`.
+2. Write `docs/articles/<slug>.md`:
+   ````markdown
+   ---
+   title: "…"
+   description: "One sentence for the list, previews and search engines"
+   date: 2026-11-07
+   tags: [data quality, duckdb]
+   status: draft            # draft | published
+   ---
+
+   Prose…
+
+   ```python file=examples/<slug>/module.py#region-name
+   ```
+   ````
+   The empty fence is replaced by the region at build time, labelled "Tested in CI". A missing file or region fails the build.
+3. Preview: `pytest examples && SHOW_DRAFTS=true node scripts/build-articles.mjs && npm run dev`, then open http://localhost:5173/articles/. Drafts are marked and `noindex`.
+4. Publish: set `status: published`, run `npm run build:content` (published articles feed the assistant, with a link back to the article), commit, and redeploy the worker.
+5. With the first article published, set `LINKS.articles = 'articles/'` in `js/config.js` so the Articles nav item appears on the home and projects pages.
+
+Set the repository variable `PUBLIC_REPO_URL` (e.g. `https://github.com/<you>/<repo>`) to make each "Tested in CI" label link to the code; leave it unset while the repository is private.
+
+## Bayanat
+
+The Bayanat media site and its editorial pipeline live in `bayanat/` and are served at www.tahaelahmar.dev/bayanat/. Setup, secrets (Groq, Gemini) and the review flow are in [bayanat/README.md](bayanat/README.md).
+
 To publish a CV: commit `assets/cv.pdf` and set `LINKS.cv = 'assets/cv.pdf'`; the nav item and button appear automatically.
 
 ## Deploying
 
-- **Site**: GitHub Pages from the repository root (`CNAME` → www.tahaelahmar.dev).
+- **Site**: `.github/workflows/deploy.yml` on every push to `main`. It checks the knowledge base, runs `pytest examples`, builds the articles and Bayanat, then publishes `_site/` to GitHub Pages (`CNAME` → www.tahaelahmar.dev). Only the site files are published, not `scripts/`, `worker/` or the Bayanat sources.
+  - **Once**: Settings → Pages → Build and deployment → Source: **GitHub Actions** (instead of "Deploy from a branch").
+  - Optional repository variables (Settings → Secrets and variables → Actions → Variables): `PUBLIC_REPO_URL`, `PUBLIC_SUBSCRIBE_URL`, `PUBLIC_CF_BEACON`, `PUBLIC_CONTACT_EMAIL`.
 - **Worker** — the Worker is several modules plus a generated knowledge base, so it can no longer be pasted into the dashboard as-is. Either:
   - **Wrangler (recommended)**
     ```bash
@@ -107,4 +156,4 @@ To publish a CV: commit `assets/cv.pdf` and set `LINKS.cv = 'assets/cv.pdf'`; th
 
 ## CI
 
-`.github/workflows/ci.yml` runs on every PR: lint/format, `check:content` (content is valid and the generated knowledge base is up to date) and `npm test`.
+`.github/workflows/ci.yml` runs on every PR: `check:content` (content is valid and the generated knowledge base is up to date), `npm test`, an articles build with drafts, `pytest examples`, and Bayanat's tests, content checks and site build. Lint is still commented out, as before.

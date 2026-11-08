@@ -1,0 +1,21 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { formatDate, t } from '../../../i18n';
+import { approvedBriefs } from '../../../lib/content';
+
+const s = t('en');
+const briefs = await approvedBriefs();
+---
+<Base lang="en" title={s.briefTitle} current="brief">
+  <h1 style="margin:0;font-size:36px">{s.briefTitle}</h1>
+  <p class="quiet" style="font-size:17px">{s.briefIntro}</p>
+  {briefs.length === 0 ? <p class="empty">{s.briefEmpty}</p> : briefs.map((b) => (
+    <article class="brief-item" id={b.id}>
+      <span class="tag">{s.pillars[b.data.pillar as keyof typeof s.pillars]?.toUpperCase()} · {formatDate(b.data.date, 'en')}</span>
+      <h3><a href={b.data.source_url} rel="noopener">{b.data.title}</a></h3>
+      <p>{b.data.summary}</p>
+      {b.data.my_take && <p class="take"><strong>{s.myTake}:</strong> {b.data.my_take}</p>}
+      <p class="quiet">{s.source}: <a href={b.data.source_url} rel="noopener">{b.data.source_name}</a></p>
+    </article>
+  ))}
+</Base>

@@ -1,0 +1,70 @@
+---
+import Base from '../../layouts/Base.astro';
+import Subscribe from '../../components/Subscribe.astro';
+import Tracker from '../../components/Tracker.astro';
+import AnalysisCard from '../../components/AnalysisCard.astro';
+import { LANGS, t, type Lang } from '../../i18n';
+import { analyses, approvedBriefs } from '../../lib/content';
+import { url } from '../../lib/site';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const latest = (await analyses(lang)).slice(0, 3);
+const briefs = (await approvedBriefs()).slice(0, 4);
+const pillarLabel = t('en').pillars;
+---
+<Base lang={lang} altPath={`/${lang === 'en' ? 'ar' : 'en'}/`} current="home">
+  <section id="subscribe" class="hero" aria-labelledby="h-brief">
+    <div class="hero-main">
+      <p class="kicker">{s.heroKicker}</p>
+      <h1 id="h-brief">{s.heroTitle}</h1>
+      <p class="lede">{s.heroText}</p>
+      <Subscribe lang={lang} id="email-hero" />
+      <p class="quiet" style="margin:10px 0 0">{s.subscribeNote}</p>
+    </div>
+    <div class="hero-side">
+      <h2>{s.thisWeek}</h2>
+      {briefs.length === 0 ? (
+        <p class="empty">{s.briefEmpty}</p>
+      ) : (
+        <ol class="list">
+          {briefs.map((b) => (
+            <li lang="en" dir="ltr">
+              <span class="tag">{pillarLabel[b.data.pillar as keyof typeof pillarLabel]?.toUpperCase()}</span>
+              <a href={url(`/en/brief/#${b.id}`)}>{b.data.title}</a>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-tracker">
+    <div class="section-head">
+      <h2 id="h-tracker">{s.tracker}</h2>
+    </div>
+    <Tracker lang={lang} limit={5} />
+    <a class="more" href={url(`/${lang}/tracker/`)}>{s.openTracker}</a>
+  </section>
+
+  <section class="section" aria-labelledby="h-latest">
+    <div class="section-head">
+      <h2 id="h-latest">{s.latest}</h2>
+      <a class="more" style="margin:0" href={url(`/${lang}/analysis/`)}>{s.allAnalysis}</a>
+    </div>
+    {latest.length === 0 ? (
+      <p class="empty">{s.analysisEmpty}</p>
+    ) : (
+      <div class="grid">
+        {latest.map((a) => (
+          <AnalysisCard lang={lang} slug={a.id} title={a.data.title} description={a.data.description}
+            pillar={a.data.pillar} minutes={a.data.reading_minutes} />
+        ))}
+      </div>
+    )}
+  </section>
+</Base>

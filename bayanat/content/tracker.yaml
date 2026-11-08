@@ -1,0 +1,43 @@
+# Regulation tracker, shown on the home page and on /tracker/.
+# Update a row when you approve a tracker-update draft. Dates are ISO (YYYY-MM-DD).
+# status: postponed | pending | in_force | applies
+
+rows:
+  - id: ai-act-annex-iii
+    rule:
+      en: EU AI Act · high-risk systems, Annex III
+      ar: قانون الذكاء الاصطناعي الأوروبي · الأنظمة عالية المخاطر، الملحق الثالث
+    scope:
+      en: Hiring, education, essential services and other listed uses
+      ar: التوظيف والتعليم والخدمات الأساسية وغيرها من الاستخدامات المدرجة
+    key_date: 2027-12-02
+    status: postponed
+    source_url: https://www.aiacto.eu/fr/blog/digital-omnibus-ai-act-report-2027
+    last_checked: 2026-11-05
+
+  - id: ai-act-annex-i
+    rule:
+      en: EU AI Act · high-risk systems, Annex I
+      ar: قانون الذكاء الاصطناعي الأوروبي · الأنظمة عالية المخاطر، الملحق الأول
+    scope:
+      en: AI in products covered by EU product legislation
+      ar: الذكاء الاصطناعي في المنتجات الخاضعة لتشريعات المنتجات الأوروبية
+    key_date: 2028-08-02
+    status: postponed
+    source_url: https://www.aiacto.eu/fr/blog/digital-omnibus-ai-act-report-2027
+    last_checked: 2026-11-05
+
+  - id: nis2-france
+    rule:
+      en: NIS2 · France
+      ar: توجيه NIS2 · فرنسا
+    scope:
+      en: Essential and important entities
+      ar: الكيانات الأساسية والمهمة
+    key_date: null
+    key_date_note:
+      en: Not yet transposed
+      ar: لم يُنقل بعد إلى القانون الفرنسي
+    status: pending
+    source_url: https://nisd2.eu/en/wiki/timelines-and-status/nis2-status-france
+    last_checked: 2026-11-05

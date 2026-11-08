@@ -427,7 +427,7 @@ document.addEventListener('click',async ev=>{
   switch(b.dataset.act){
   case 'ct-type':CON.type=b.dataset.v;try{localStorage.setItem('gt-contest-type',CON.type)}catch(e){}render();return;
   case 'ct-timer':contestTimer();return;
-  case 'ct-signup':if(!(SH.on&&!canManage())&&rolesMode()!=='contest'){S.agenda.rolesMode='contest';save();pushAgenda()}setTab('roles');return;
+  case 'ct-signup':if(!(SH.on&&!canEditMeeting())&&rolesMode()!=='contest'){S.agenda.rolesMode='contest';save();pushAgenda()}setTab('roles');return;
   case 'ct-go':setTab(b.dataset.v);return;
   case 'ct-agenda':if(typeof TPL!=='undefined'){TPL.sel='b:contest';TPL.confirm=false}setTab('agenda');setTimeout(()=>{const s=document.getElementById('tpl-pick');if(s)s.scrollIntoView({block:'center'})},50);return;
   case 'ct-check-reset':CON.checks=[];saveChecks();render();return;

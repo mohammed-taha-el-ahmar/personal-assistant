@@ -10,7 +10,7 @@ en:{title:'Meeting roles',intro:'Add the roles of this meeting that are not in t
   none:'No extra role for this meeting.',max:'Up to 12 extra roles per meeting.',dup:'This role already exists.',added:'Role “{r}” added',removed:'Role removed',
   remove:'Remove the role {r}',
   sugg:[['Joke of the day','other',3],['Quiz master','other',5],['Thought of the day','other',2],['Speaker 4','speech',7],['Evaluator 4','eval',3],['Online host','other',0],['Photographer','other',0],['Greeter','other',0]],
-  tm:'Timer',auto:'Auto · {x}',autoSlots:'Auto · {n} × {x}',autoNone:'Auto',notTimed:'Not timed',minN:'{a}–{b} min',
+  tm:'Timer',auto:'Auto · {x}',autoSlots:'Auto · {n} × {x}',autoNone:'Auto',notTimed:'Not timed',custom:'Personalized…',customBad:'Check the times: green ≤ amber ≤ red, red above 0. Until then, the timer uses Auto.',min:'min',minN:'{a}–{b} min',
   cands:'Contestants on the agenda',candsHint:'Up to 8 contestants. The Roles tab lists 8 judges (judges 6 to 8 are optional) and the tiebreaking judge.',
   planned:'planned {t}',late:'{n} min behind schedule',early:'{n} min ahead of schedule',onTime:'On schedule',
   changed:'The agenda has changed since the running order was loaded.',update:'Update the running order',updated:'Running order updated'},
@@ -19,7 +19,7 @@ fr:{title:'Rôles de la réunion',intro:'Ajoutez les rôles de cette réunion qu
   none:'Aucun rôle supplémentaire pour cette réunion.',max:'Jusqu’à 12 rôles supplémentaires par réunion.',dup:'Ce rôle existe déjà.',added:'Rôle « {r} » ajouté',removed:'Rôle retiré',
   remove:'Retirer le rôle {r}',
   sugg:[['Blague du jour','other',3],['Maître du quiz','other',5],['Pensée du jour','other',2],['Orateur 4','speech',7],['Évaluateur 4','eval',3],['Hôte en ligne','other',0],['Photographe','other',0],['Accueil','other',0]],
-  tm:'Chrono',auto:'Auto · {x}',autoSlots:'Auto · {n} × {x}',autoNone:'Auto',notTimed:'Non chronométré',minN:'{a} à {b} min',
+  tm:'Chrono',auto:'Auto · {x}',autoSlots:'Auto · {n} × {x}',autoNone:'Auto',notTimed:'Non chronométré',custom:'Personnalisé…',customBad:'Vérifiez les temps : vert ≤ orange ≤ rouge, rouge supérieur à 0. En attendant, le chrono utilise Auto.',min:'min',minN:'{a} à {b} min',
   cands:'Candidats au programme',candsHint:'Jusqu’à 8 candidats. L’onglet Rôles liste 8 juges (les juges 6 à 8 sont facultatifs) et le juge de départage.',
   planned:'prévu {t}',late:'{n} min de retard sur le programme',early:'{n} min d’avance sur le programme',onTime:'Dans les temps',
   changed:'L’ordre du jour a changé depuis le chargement de l’ordre de passage.',update:'Mettre à jour l’ordre de passage',updated:'Ordre de passage mis à jour'},
@@ -28,7 +28,7 @@ nl:{title:'Rollen van de bijeenkomst',intro:'Voeg rollen toe die niet in de gewo
   none:'Geen extra rol voor deze bijeenkomst.',max:'Maximaal 12 extra rollen per bijeenkomst.',dup:'Deze rol bestaat al.',added:'Rol “{r}” toegevoegd',removed:'Rol verwijderd',
   remove:'Rol {r} verwijderen',
   sugg:[['Mop van de dag','other',3],['Quizmaster','other',5],['Gedachte van de dag','other',2],['Spreker 4','speech',7],['Evaluator 4','eval',3],['Online host','other',0],['Fotograaf','other',0],['Ontvangst','other',0]],
-  tm:'Timer',auto:'Auto · {x}',autoSlots:'Auto · {n} × {x}',autoNone:'Auto',notTimed:'Niet getimed',minN:'{a}–{b} min',
+  tm:'Timer',auto:'Auto · {x}',autoSlots:'Auto · {n} × {x}',autoNone:'Auto',notTimed:'Niet getimed',custom:'Op maat…',customBad:'Controleer de tijden: groen ≤ oranje ≤ rood, rood groter dan 0. Tot dan gebruikt de timer Auto.',min:'min',minN:'{a}–{b} min',
   cands:'Deelnemers op de agenda',candsHint:'Maximaal 8 deelnemers. Het tabblad Rollen toont 8 juryleden (jurylid 6 tot 8 zijn optioneel) en het tiebreak-jurylid.',
   planned:'gepland {t}',late:'{n} min achter op schema',early:'{n} min voor op schema',onTime:'Op schema',
   changed:'De agenda is gewijzigd sinds de volgorde werd geladen.',update:'Volgorde bijwerken',updated:'Volgorde bijgewerkt'},
@@ -37,7 +37,7 @@ ar:{title:'أدوار الاجتماع',intro:'أضف أدوار هذا الاج
   none:'لا يوجد دور إضافي لهذا الاجتماع.',max:'حتى 12 دورًا إضافيًا لكل اجتماع.',dup:'هذا الدور موجود بالفعل.',added:'تمت إضافة الدور «{r}»',removed:'تمت إزالة الدور',
   remove:'إزالة الدور {r}',
   sugg:[['نكتة اليوم','other',3],['مدير المسابقة الثقافية','other',5],['فكرة اليوم','other',2],['المتحدث 4','speech',7],['المقيّم 4','eval',3],['مضيف الاجتماع عبر الإنترنت','other',0],['المصوّر','other',0],['الاستقبال','other',0]],
-  tm:'المؤقت',auto:'تلقائي · {x}',autoSlots:'تلقائي · {n} × {x}',autoNone:'تلقائي',notTimed:'بدون توقيت',minN:'{a}–{b} د',
+  tm:'المؤقت',auto:'تلقائي · {x}',autoSlots:'تلقائي · {n} × {x}',autoNone:'تلقائي',notTimed:'بدون توقيت',custom:'مخصّص…',customBad:'تحقق من الأوقات: الأخضر ≤ البرتقالي ≤ الأحمر، والأحمر أكبر من 0. حتى ذلك الحين يستخدم المؤقت الوضع التلقائي.',min:'min',minN:'{a}–{b} د',
   cands:'المتسابقون في جدول الأعمال',candsHint:'حتى 8 متسابقين. يعرض تبويب الأدوار 8 حكّام (الحكّام 6 إلى 8 اختياريون) وحَكَم الترجيح.',
   planned:'مقرر {t}',late:'تأخير {n} د عن البرنامج',early:'تقدّم {n} د عن البرنامج',onTime:'في الوقت المحدد',
   changed:'تغيّر جدول الأعمال منذ تحميل ترتيب المتحدثين.',update:'تحديث ترتيب المتحدثين',updated:'تم تحديث ترتيب المتحدثين'}
@@ -55,8 +55,15 @@ const isEvalRole=k=>['e1','e2','e3'].includes(k)||customKind(k)==='eval';
 const contestPreset=()=>typeof ctType==='function'&&ctType().preset||'cIntl';
 const ttSlots=it=>Math.max(1,Math.min(10,Math.floor((Number(it.dur)||20)/4)));
 // What the Timer uses for one agenda item: {preset} or {preset:'custom',cg,ca,cr,seg:true}, or null (not timed).
+// Personalized timing of an agenda item (minutes): valid when 0 ≤ green ≤ amber ≤ red and red > 0.
+function customTiming(it){const g=Number(it.cg),a=Number(it.ca),r=Number(it.cr);
+  return it.cg!==''&&it.ca!==''&&it.cr!==''&&[g,a,r].every(Number.isFinite)&&g>=0&&g<=a&&a<=r&&r>0&&r<=120?{preset:'custom',cg:g,ca:a,cr:r}:null}
+// Minutes of a timing, to prefill the personalized fields.
+function timingMinutes(x){if(!x)return null;if(x.preset==='custom')return {cg:x.cg,ca:x.ca,cr:x.cr};
+  const p=PRESETS.find(p=>p.id===x.preset);return p&&p.r?{cg:p.g/60,ca:p.a/60,cr:p.r/60}:null}
 function itemTiming(it){
   if(it.tm==='none')return null;
+  if(it.tm==='custom'){const c=customTiming(it);if(c)return c;return itemTiming({...it,tm:''})}
   if(it.tm&&PRESETS.some(p=>p.id===it.tm&&p.id!=='custom'))return {preset:it.tm};
   if(it.k==='tt')return {preset:'tt'};
   if(it.k==='evals'||isEvalRole(it.role)||it.k==='ttEval')return {preset:'eval'};
@@ -71,7 +78,11 @@ function timingSelect(it,i){
   const L=AGL();const auto=itemTiming({...it,tm:''});
   const autoL=!auto?L.autoNone:it.k==='tt'?L.autoSlots.replace('{n}',ttSlots(it)).replace('{x}',timingLabel(auto)):L.auto.replace('{x}',timingLabel(auto));
   const opts=PRESETS.filter(p=>p.id!=='custom').map(p=>`<option value="${p.id}" ${it.tm===p.id?'selected':''}>${esc(t('preset.'+p.id))}</option>`).join('');
-  return `<select class="tmsel" id="ai-m${i}" aria-label="${esc(L.tm)}" title="${esc(L.tm)}" data-item="${i}" data-k="tm"><option value="" ${!it.tm?'selected':''}>⏱ ${esc(autoL)}</option>${opts}<option value="none" ${it.tm==='none'?'selected':''}>${esc(L.notTimed)}</option></select>`;
+  const sel=`<select class="tmsel" id="ai-m${i}" aria-label="${esc(L.tm)}" title="${esc(L.tm)}" data-item="${i}" data-k="tm"><option value="" ${!it.tm?'selected':''}>⏱ ${esc(autoL)}</option>${opts}<option value="custom" ${it.tm==='custom'?'selected':''}>${esc(L.custom)}</option><option value="none" ${it.tm==='none'?'selected':''}>${esc(L.notTimed)}</option></select>`;
+  if(it.tm!=='custom')return `<div class="tmwrap">${sel}</div>`;
+  const cards=[['cg','green','timer.green'],['ca','amber','timer.amber'],['cr','red','timer.red']];
+  return `<div class="tmwrap">${sel}<div class="tmcards">${cards.map(([k,c,lab])=>`<label class="tmcard ${c}"><span>${esc(t(lab))}</span><input id="ai-${k}${i}" type="number" inputmode="decimal" min="0" max="120" step="0.5" data-item="${i}" data-k="${k}" value="${esc(it[k]??'')}"><span class="muted">${esc(L.min)}</span></label>`).join('')}</div>
+    ${customTiming(it)?'':`<span class="chip warn tmbad">${esc(L.customBad)}</span>`}</div>`;
 }
 
 // ---------- custom roles ----------
@@ -135,12 +146,12 @@ function setContestants(n){
 }
 
 document.addEventListener('click',ev=>{
-  const b=ev.target.closest('[data-act="cr-del"],[data-act="cr-sugg"]');if(!b||!canManage())return;
+  const b=ev.target.closest('[data-act="cr-del"],[data-act="cr-sugg"]');if(!b||!canEditMeeting())return;
   if(b.dataset.act==='cr-del'){removeCustomRole(b.dataset.id);render();return}
   const s=AGL().sugg[+b.dataset.i];if(s&&addCustomRole(s[0],s[1],s[2],!!(document.getElementById('cr-ag')||{checked:true}).checked))render();
 });
 document.addEventListener('submit',ev=>{
-  if(ev.target.dataset.form!=='cr-add')return;ev.preventDefault();if(!canManage())return;
+  if(ev.target.dataset.form!=='cr-add')return;ev.preventDefault();if(!canEditMeeting())return;
   const name=$('#cr-name').value,kind=$('#cr-kind').value,ag=$('#cr-ag').checked;
   const dur=kind==='speech'?7:kind==='eval'?3:3;
   if(addCustomRole(name,kind,dur,ag)){CRD.name='';CRD.kind='other';render();const f=$('#cr-name');if(f)f.focus()}
@@ -148,8 +159,8 @@ document.addEventListener('submit',ev=>{
 document.addEventListener('input',ev=>{const el=ev.target;if(el.id==='cr-name')CRD.name=el.value;if(el.id==='cr-ag')CRD.agenda=el.checked;if(el.id==='cr-kind')CRD.kind=el.value});
 document.addEventListener('change',ev=>{
   const el=ev.target;const ds=el.dataset||{};
-  if(ds.act==='ag-cands'){if(canManage())setContestants(+el.value);return}
-  if(ds.crname||ds.crkind){if(!canManage())return;const r=customRoles().find(x=>x.id===(ds.crname||ds.crkind));if(!r)return;
+  if(ds.act==='ag-cands'){if(canEditMeeting())setContestants(+el.value);return}
+  if(ds.crname||ds.crkind){if(!canEditMeeting())return;const r=customRoles().find(x=>x.id===(ds.crname||ds.crkind));if(!r)return;
     if(ds.crname){const v=el.value.trim().replace(/\s+/g,' ').slice(0,40);if(!v){el.value=r.name;return}
       S.agenda.items.forEach(it=>{if(it.role===r.id&&(!it.title||it.title===r.name))it.title=v});r.name=v}
     else r.kind=['speech','eval'].includes(el.value)?el.value:'other';

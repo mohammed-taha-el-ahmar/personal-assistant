@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LANGS, t, type Lang } from '../../i18n';
+import { CONTACT_EMAIL } from '../../lib/site';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+// French LCEN (art. 6-III) requires these details. Fill the brackets before going live.
+const rows = lang === 'en' ? [
+  ['Publisher', 'Mohammed Taha EL AHMAR, entrepreneur individuel (micro-entreprise) registered in France, SIRET [number], [postal address]'],
+  ['Publication director', 'Mohammed Taha EL AHMAR'],
+  ['Contact', CONTACT_EMAIL],
+  ['Hosting provider', 'GitHub Pages, GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, United States'],
+  ['Personal data', 'Newsletter emails are used only to send the newsletter. You can unsubscribe at any time with the link in every email. Audience measurement is cookie-less. Requests: ' + CONTACT_EMAIL],
+] : [
+  ['الناشر', 'Mohammed Taha EL AHMAR، مقاولة ذاتية مسجّلة في فرنسا، رقم SIRET [الرقم]، [العنوان البريدي]'],
+  ['مدير النشر', 'Mohammed Taha EL AHMAR'],
+  ['التواصل', CONTACT_EMAIL],
+  ['جهة الاستضافة', 'GitHub Pages، شركة GitHub Inc.، 88 Colin P. Kelly Jr. Street، سان فرانسيسكو، CA 94107، الولايات المتحدة'],
+  ['البيانات الشخصية', 'تُستخدم عناوين البريد الإلكتروني لإرسال النشرة فقط. يمكنك إلغاء الاشتراك في أي وقت عبر الرابط الموجود في كل رسالة. قياس الجمهور لا يستخدم ملفات تعريف الارتباط. للطلبات: ' + CONTACT_EMAIL],
+];
+---
+<Base lang={lang} title={s.legal} altPath={`/${lang === 'en' ? 'ar' : 'en'}/legal/`}>
+  <article class="article">
+    <h1>{s.legal}</h1>
+    <div class="prose">
+      {rows.map(([h, p]) => (<><h2>{h}</h2><p>{p}</p></>))}
+    </div>
+  </article>
+</Base>

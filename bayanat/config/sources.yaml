@@ -1,0 +1,88 @@
+# Sources the pipeline watches.
+# type:  rss (RSS or Atom) | cisa_kev (CISA Known Exploited Vulnerabilities JSON)
+# kind:  official | vendor | advisory | research | open_source | media
+#        (official, vendor and advisory count as primary sources for incident stories)
+# enabled: false = kept for later; check the URL in a browser, then switch it on.
+#
+# Start small (20-30 sources) and add the ones your readers care about.
+
+sources:
+  # --- Research -----------------------------------------------------------
+  - id: arxiv-cs-db
+    name: arXiv · Databases
+    type: rss
+    kind: research
+    url: https://rss.arxiv.org/rss/cs.DB
+    enabled: true
+  - id: arxiv-cs-cr
+    name: arXiv · Cryptography and Security
+    type: rss
+    kind: research
+    url: https://rss.arxiv.org/rss/cs.CR
+    enabled: true
+
+  # --- Open source releases (GitHub publishes an Atom feed per repository) --
+  - id: gh-unitycatalog
+    name: Unity Catalog releases
+    type: rss
+    kind: open_source
+    url: https://github.com/unitycatalog/unitycatalog/releases.atom
+    enabled: true
+  - id: gh-iceberg
+    name: Apache Iceberg releases
+    type: rss
+    kind: open_source
+    url: https://github.com/apache/iceberg/releases.atom
+    enabled: true
+  - id: gh-delta
+    name: Delta Lake releases
+    type: rss
+    kind: open_source
+    url: https://github.com/delta-io/delta/releases.atom
+    enabled: true
+  - id: gh-openmetadata
+    name: OpenMetadata releases
+    type: rss
+    kind: open_source
+    url: https://github.com/open-metadata/OpenMetadata/releases.atom
+    enabled: true
+  - id: gh-datahub
+    name: DataHub releases
+    type: rss
+    kind: open_source
+    url: https://github.com/datahub-project/datahub/releases.atom
+    enabled: true
+  - id: gh-great-expectations
+    name: Great Expectations releases
+    type: rss
+    kind: open_source
+    url: https://github.com/great-expectations/great_expectations/releases.atom
+    enabled: true
+
+  # --- Security advisories -------------------------------------------------
+  - id: cisa-kev
+    name: CISA Known Exploited Vulnerabilities
+    type: cisa_kev
+    kind: advisory
+    url: https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+    enabled: true
+
+  # --- Regulators (verify each URL, then enable) ---------------------------
+  - id: edpb-news
+    name: European Data Protection Board · News
+    type: rss
+    kind: official
+    url: https://www.edpb.europa.eu/feed/news_en
+    enabled: false
+  - id: cnil-actu
+    name: CNIL · Actualités
+    type: rss
+    kind: official
+    url: https://www.cnil.fr/fr/rss.xml
+    enabled: false
+  - id: enisa-news
+    name: ENISA · News
+    type: rss
+    kind: official
+    url: https://www.enisa.europa.eu/news/rss
+    enabled: false

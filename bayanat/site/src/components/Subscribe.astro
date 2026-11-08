@@ -1,0 +1,17 @@
+---
+import { t, type Lang } from '../i18n';
+import { SUBSCRIBE_URL } from '../lib/site';
+
+// Posts the email to your newsletter platform's public form endpoint
+// (set PUBLIC_SUBSCRIBE_URL at build time). The field name defaults to "email".
+interface Props { lang: Lang; id: string }
+const { lang, id } = Astro.props;
+const s = t(lang);
+---
+<form class="subscribe" method="post" action={SUBSCRIBE_URL || '#'} target="_blank">
+  <div class="field">
+    <label for={id}>{s.emailLabel}</label>
+    <input id={id} name="email" type="email" required autocomplete="email" dir="ltr" placeholder={s.emailPlaceholder} />
+  </div>
+  <button class="btn" type="submit">{s.getBrief}</button>
+</form>

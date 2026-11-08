@@ -6,7 +6,13 @@
 Yes, Mohammed Taha is open to new opportunities. He is actively exploring senior or lead data engineering roles.
 
 **What type of contract is he looking for?**
-He is open to full-time permanent positions (CDI) as well as long-term consulting missions.
+He is open to full-time permanent positions (CDI) as well as freelance and long-term consulting missions.
+
+**Is he available for freelance missions?**
+Yes. He takes on freelance data engineering missions: architecture and cost reviews, hands-on delivery on Databricks, Azure, AWS or GCP, and training for data teams. See the Services page for details.
+
+**What are his rates and when can he start?**
+Daily rates, start dates and contract terms depend on the mission or role and are discussed directly on a call.
 
 **Is he open to remote work?**
 Yes, he is comfortable with full remote, hybrid, or on-site arrangements in the Paris region.

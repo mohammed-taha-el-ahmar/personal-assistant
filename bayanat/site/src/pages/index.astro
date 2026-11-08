@@ -1,0 +1,16 @@
+---
+import { url } from '../lib/site';
+const target = url('/en/');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bayanat · بيانات</title>
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={target} />
+  </head>
+  <body>
+    <p><a href={target}>Bayanat in English</a> · <a href={url('/ar/')} lang="ar">بيانات بالعربية</a></p>
+  </body>
+</html>

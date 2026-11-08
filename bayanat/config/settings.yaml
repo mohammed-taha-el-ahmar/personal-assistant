@@ -1,0 +1,61 @@
+# Bayanat pipeline settings.
+# Model names and free-tier limits change often: check your provider consoles
+# (console.groq.com/settings/limits, aistudio.google.com) and update this file.
+
+site:
+  name: Bayanat
+  base_url: https://www.tahaelahmar.dev/bayanat
+  user_agent: "BayanatBot/0.1 (+https://www.tahaelahmar.dev/bayanat/en/charter/)"
+
+paths:
+  database: data/bayanat.db
+  content: content
+  newsletter_html: dist/newsletter
+
+collect:
+  timeout_seconds: 20
+  max_age_days: 10          # ignore feed items older than this
+  dedupe_window_days: 14    # near-duplicate titles are compared within this window
+  title_similarity: 0.9     # 0-1, above this two titles are treated as the same story
+
+prefilter:
+  min_score: 3              # keyword score needed to reach the LLM
+  max_items_per_run: 100    # keeps each run inside free-tier token budgets
+
+triage:
+  batch_size: 8             # items per LLM call (fewer requests, fits 8k tokens/min)
+  min_relevance_for_draft: 60
+  max_drafts_per_run: 12
+
+# Providers speak the OpenAI-compatible chat API.
+# api_key_env: name of the environment variable holding the key.
+# tokens_per_minute: local pacing so free tiers are not exceeded.
+providers:
+  groq:
+    base_url: https://api.groq.com/openai/v1
+    api_key_env: GROQ_API_KEY
+    tokens_per_minute: 7000
+  gemini:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    api_key_env: GEMINI_API_KEY
+    tokens_per_minute: 30000
+  anthropic:
+    base_url: https://api.anthropic.com/v1/
+    api_key_env: ANTHROPIC_API_KEY
+    tokens_per_minute: 30000
+
+# Each task tries its routes in order and falls back on rate limits,
+# missing keys or errors. Free tiers first, paid model last.
+routes:
+  triage:
+    - {provider: groq, model: openai/gpt-oss-120b}
+    - {provider: gemini, model: gemini-flash-latest}
+  summary:
+    - {provider: groq, model: qwen/qwen3.8-27b}
+    - {provider: gemini, model: gemini-flash-latest}
+  watch:
+    - {provider: groq, model: openai/gpt-oss-120b}
+    - {provider: gemini, model: gemini-flash-latest}
+  analysis_outline:
+    - {provider: anthropic, model: claude-sonnet-5-5}
+    - {provider: gemini, model: gemini-flash-latest}

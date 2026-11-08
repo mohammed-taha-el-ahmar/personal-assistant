@@ -1,0 +1,55 @@
+# Manual: assemble this week's issue from approved briefs and open a pull request.
+# After editing the note and sponsor block, run it again with action=render to get
+# the email HTML as a downloadable artifact, ready to paste into your platform.
+name: Bayanat · newsletter
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: draft or render
+        type: choice
+        options: [draft, render]
+        default: draft
+      date:
+        description: Issue date (YYYY-MM-DD), empty for today
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  newsletter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bayanat
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Run
+        run: |
+          DATE="${{ inputs.date }}"
+          python -m pipeline newsletter ${{ inputs.action }} ${DATE:+--date "$DATE"}
+      - name: Open pull request with the issue
+        if: inputs.action == 'draft'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bayanat/newsletter
+          add-paths: bayanat/content/newsletter/
+          commit-message: "Newsletter issue draft"
+          title: "Bayanat newsletter: next issue"
+          body: |
+            Write `editor_note` and `one_thing`, fill or empty the `sponsor` block, reorder `items`.
+            Merge, then run this workflow with action=render. Set `status: sent` after sending
+            to publish the issue in the site archive.
+      - name: Upload email HTML
+        if: inputs.action == 'render'
+        uses: actions/upload-artifact@v4
+        with:
+          name: newsletter-html
+          path: bayanat/dist/newsletter/

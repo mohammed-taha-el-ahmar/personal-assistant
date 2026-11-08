@@ -511,6 +511,8 @@ window.I18N.nl = {
   "acc.forget": "Dit apparaat vergeten",
   "acc.forgotten": "Dit apparaat is weer een bezoeker.",
   "acc.officersOnly": "Alleen het clubbestuur kan {what} wijzigen.",
+  "acc.officersTmOnly": "Alleen bestuursleden en de Toastmaster van de avond kunnen {what} wijzigen.",
+  "acc.youTm": "Je bent de Toastmaster van de avond: je kunt samen met het bestuur de agenda voorbereiden en de rollen van deze bijeenkomst toewijzen.",
   "acc.what.agenda": "de agenda",
   "acc.what.vote": "de genomineerden en de uitslag",
   "acc.what.draw": "de sprekersvolgorde",

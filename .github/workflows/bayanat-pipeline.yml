@@ -1,0 +1,81 @@
+# Twice a day: collect, filter, triage, draft and watch, then open (or update)
+# a pull request with the new drafts. Nothing is published until you merge.
+name: Bayanat · editorial pipeline
+
+on:
+  schedule:
+    - cron: "17 5 * * *"    # 05:17 UTC
+    - cron: "17 15 * * *"   # 15:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: bayanat-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bayanat
+    timeout-minutes: 45   # free-tier pacing can make triage slow; that is expected
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: bayanat/pyproject.toml
+
+      - run: pip install -e .
+
+      # The SQLite database (seen items, page snapshots, LLM usage) lives in the
+      # Actions cache between runs. If it is ever evicted, the next run rebuilds
+      # it; already-drafted stories are skipped because their files exist in Git.
+      - name: Restore database
+        uses: actions/cache/restore@v4
+        with:
+          path: bayanat/data/bayanat.db
+          key: bayanat-db-${{ github.run_id }}
+          restore-keys: bayanat-db-
+
+      - name: Run pipeline
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m pipeline run
+
+      - name: Usage report
+        run: python -m pipeline stats
+
+      - name: Save database
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: bayanat/data/bayanat.db
+          key: bayanat-db-${{ github.run_id }}
+
+      - name: Open or update the drafts pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bayanat/drafts
+          add-paths: bayanat/content/
+          commit-message: "Drafts from the editorial pipeline"
+          title: "Bayanat: drafts to review"
+          body: |
+            New drafts from the pipeline. For each file in `bayanat/content/en/brief/`:
+
+            - keep it: write `my_take`, check `facts_to_check` against the source, set `status: approved`
+            - drop it: delete the file
+
+            Tracker notes are in `bayanat/content/en/tracker-updates/`; if one moves a date or a status,
+            update `bayanat/content/tracker.yaml` in the same pull request.
+            Merging publishes the approved items on the site.
+          labels: bayanat
+          delete-branch: true

@@ -14,6 +14,9 @@ export const LINKS = {
   email: 'mailto:med.taha.elahmar@gmail.com',
   // Set to e.g. 'assets/cv.pdf' once the PDF is committed; the CV nav item stays hidden while null.
   cv: null,
+  // Set to '/articles/' once the first article is published (status: published in docs/articles/);
+  // the Articles nav item stays hidden while null.
+  articles: null,
 };
 
 export const EMAIL = 'med.taha.elahmar@gmail.com';

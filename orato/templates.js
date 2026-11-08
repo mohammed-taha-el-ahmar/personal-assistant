@@ -32,7 +32,7 @@ const savesToClub=()=>SH.on&&SH.officer===true;
 const totalMinutes=items=>items.reduce((s,it)=>s+(Number(it.dur)||0),0);
 const fmtDuration=m=>{const h=Math.floor(m/60),mm=m%60;return h?`${h} h ${String(mm).padStart(2,'0')}`:`${mm} min`};
 // What gets stored: the running order only. Club name, date, theme, venue and online link stay with each meeting.
-const itemsForSave=items=>items.map(it=>({k:it.k||null,title:it.title||null,role:it.role||'',dur:Math.max(0,Number(it.dur)||0),...(it.tm?{tm:it.tm}:{})})).slice(0,40);
+const itemsForSave=items=>items.map(it=>({k:it.k||null,title:it.title||null,role:it.role||'',dur:Math.max(0,Number(it.dur)||0),...(it.tm?{tm:it.tm}:{}),...(it.tm==='custom'?{cg:Number(it.cg)||0,ca:Number(it.ca)||0,cr:Number(it.cr)||0}:{})})).slice(0,40);
 // Custom roles used by the saved items travel with the template, so applying it brings them back.
 const rolesForSave=items=>customRoles().filter(r=>items.some(it=>it.role===r.id)).map(r=>({id:r.id,name:r.name,kind:r.kind||'other'}));
 
@@ -47,7 +47,7 @@ function templatesLive(){
 
 // ---------- view (inside the Agenda tab) ----------
 function templatesBox(){
-  if(!isOn('agenda.templates')||!canManage())return '';
+  if(!isOn('agenda.templates')||!canEditMeeting())return '';
   const L=templateList();
   // A template deleted elsewhere falls back to a built-in one.
   if(!findTemplate(TPL.sel))TPL.sel='b:3';
@@ -81,8 +81,8 @@ function templatesBox(){
 
 // ---------- actions ----------
 function applyTemplate(tp){
-  S.agenda.items=clone(tp.items).map(it=>({k:it.k||undefined,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0,tm:it.tm||undefined}))
-    .map(it=>{if(!it.k)delete it.k;if(!it.tm)delete it.tm;return it});
+  S.agenda.items=clone(tp.items).map(it=>({k:it.k||undefined,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0,tm:it.tm||undefined,cg:it.cg,ca:it.ca,cr:it.cr}))
+    .map(it=>{if(!it.k)delete it.k;if(!it.tm)delete it.tm;if(it.tm!=='custom'){delete it.cg;delete it.ca;delete it.cr}return it});
   // Bring the template's custom roles, keeping the meeting's own ones.
   const have=customRoles();const add=(tp.customRoles||[]).filter(r=>r&&isCustomRole(r.id)&&!have.some(h=>h.id===r.id));
   if(add.length)S.agenda.customRoles=[...have,...add].slice(0,CR_MAX);

@@ -327,8 +327,25 @@ a {
   .brand-name {
     display: none;
   }
+  /* Up to five nav items (Assistant, Projects, Services, Articles, CV): on narrow screens the
+     nav shrinks and scrolls sideways on its own, so the page itself never scrolls horizontally. */
+  .site-nav {
+    min-width: 0;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .site-nav::-webkit-scrollbar {
+    display: none;
+  }
   .site-nav a {
-    padding: 6px 10px;
+    padding: 6px 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .header-actions {
+    flex-shrink: 0;
   }
   .header-actions .btn {
     display: none;

@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LANGS, t, type Lang } from '../../i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const rules = lang === 'en' ? [
+  ['Humans decide what is published', 'AI tools help collect, sort and draft. Every item is read, corrected and approved by the editor, who signs it and is responsible for it.'],
+  ['Sources first', 'Every fact links to its source. Incidents that name an organisation are only published from primary sources: official statements, security advisories, court or regulator documents.'],
+  ['Sponsors never buy opinion', 'Sponsored content is labelled "Sponsored" wherever it appears. Sponsors have no say on editorial choices, never see analyses before publication, and are covered like anyone else.'],
+  ['No conflicts hidden', 'When a topic involves a company the editor works with or for, the article says so.'],
+  ['Corrections are visible', 'Errors are corrected quickly, and substantive corrections are noted at the end of the article.'],
+] : [
+  ['البشر يقررون ما يُنشر', 'تساعد أدوات الذكاء الاصطناعي في الجمع والفرز وإعداد المسودات. يقرأ المحرر كل مادة ويصححها ويوافق عليها، ويوقّعها ويتحمل مسؤوليتها.'],
+  ['المصادر أولاً', 'كل معلومة مرتبطة بمصدرها. لا تُنشر الحوادث التي تسمّي جهة ما إلا استناداً إلى مصادر أولية: بيانات رسمية، تنبيهات أمنية، وثائق قضائية أو تنظيمية.'],
+  ['الرعاة لا يشترون الرأي', 'يُعلَّم المحتوى المموَّل بعبارة «محتوى برعاية» أينما ظهر. لا رأي للرعاة في الخيارات التحريرية، ولا يطّلعون على التحليلات قبل نشرها، ويُغطَّون كغيرهم.'],
+  ['لا تضارب مصالح مخفياً', 'عندما يتعلق موضوع بشركة يعمل المحرر معها أو لديها، يُذكر ذلك في المقال.'],
+  ['التصحيحات ظاهرة', 'تُصحَّح الأخطاء بسرعة، ويُشار إلى التصحيحات الجوهرية في نهاية المقال.'],
+];
+---
+<Base lang={lang} title={s.charter} altPath={`/${lang === 'en' ? 'ar' : 'en'}/charter/`}>
+  <article class="article">
+    <h1>{s.charter}</h1>
+    <div class="prose">
+      {rules.map(([h, p]) => (<><h2>{h}</h2><p>{p}</p></>))}
+    </div>
+  </article>
+</Base>

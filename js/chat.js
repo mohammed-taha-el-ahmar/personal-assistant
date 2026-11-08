@@ -364,7 +364,7 @@ async function matchJobDescription(jd) {
   return request({
     mode: 'jd',
     jd,
-    messages: [{ role: 'user', content: `Job description:\n${jd}\n\nHow well does he fit this role?` }],
+    messages: [{ role: 'user', content: `Job description or project brief:\n${jd}\n\nHow well does his background fit this role or project?` }],
   });
 }
 
@@ -476,5 +476,12 @@ export function initChat() {
     window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash);
     $('chat').scrollIntoView({ block: 'start' });
     ask(preset);
+  } else if (params.has('match')) {
+    // Deep link from the Services page: index.html?match opens the job description / brief panel
+    params.delete('match');
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash);
+    $('chat').scrollIntoView({ block: 'start' });
+    openJdPanel();
   }
 }

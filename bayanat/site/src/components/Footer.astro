@@ -1,0 +1,28 @@
+---
+import { t, type Lang } from '../i18n';
+import { CONTACT_EMAIL, url } from '../lib/site';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+const legal = lang === 'en'
+  ? ['Publisher and editor: Mohammed Taha EL AHMAR', 'Registered in France · SIRET [number]', 'Hosting: GitHub Pages']
+  : ['الناشر ورئيس التحرير: Mohammed Taha EL AHMAR', 'مسجَّلة في فرنسا · SIRET [الرقم]', 'الاستضافة: GitHub Pages'];
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <div style="flex:1 1 320px">
+      <p class="brand-name">{s.siteName}</p>
+      <p style="margin-top:6px">{s.footerAi}</p>
+    </div>
+    <div style="flex:1 1 260px">
+      {legal.map((line) => <p>{line}</p>)}
+    </div>
+    <div class="footer-links">
+      <a href={url(`/${lang}/charter/`)}>{s.charter}</a>
+      <a href={`mailto:${CONTACT_EMAIL}?subject=Advertising`}>{s.advertise}</a>
+      <a href={url(`/${lang}/legal/`)}>{s.legal}</a>
+      <a href="/" lang="en" dir="ltr">{lang === 'en' ? 'By Mohammed Taha EL AHMAR' : 'Mohammed Taha EL AHMAR'}</a>
+    </div>
+  </div>
+</footer>

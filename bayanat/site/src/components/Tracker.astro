@@ -1,0 +1,35 @@
+---
+import { formatDate, t, type Lang } from '../i18n';
+import { loadTracker } from '../lib/site';
+
+interface Props { lang: Lang; limit?: number; showSource?: boolean }
+const { lang, limit, showSource = false } = Astro.props;
+const s = t(lang);
+const rows = loadTracker().slice(0, limit ?? undefined);
+const checked = rows.map((r) => r.last_checked).sort().at(-1);
+---
+<p class="quiet">{s.lastChecked}: {checked ? formatDate(new Date(checked), lang) : '—'}</p>
+<div class="table-box" role="region" aria-label={s.tracker} tabindex="0">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">{s.rule}</th>
+        <th scope="col">{s.scope}</th>
+        <th scope="col">{s.keyDate}</th>
+        <th scope="col">{s.status}</th>
+        {showSource && <th scope="col">{s.source}</th>}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((r) => (
+        <tr>
+          <td class="rule">{r.rule[lang]}</td>
+          <td>{r.scope[lang]}</td>
+          <td class="date">{r.key_date ? formatDate(new Date(r.key_date), lang) : (r.key_date_note?.[lang] ?? '—')}</td>
+          <td><span class={`pill ${r.status}`}>{s.statuses[r.status]}</span></td>
+          {showSource && <td><a href={r.source_url} rel="noopener">{s.source}</a></td>}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

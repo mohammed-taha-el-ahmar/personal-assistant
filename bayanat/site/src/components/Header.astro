@@ -1,0 +1,45 @@
+---
+import { t, type Lang } from '../i18n';
+import { url } from '../lib/site';
+
+interface Props { lang: Lang; altPath?: string; current?: string }
+const { lang, altPath, current } = Astro.props;
+const s = t(lang);
+const other: Lang = lang === 'en' ? 'ar' : 'en';
+const otherHref = url(altPath ?? `/${other}/`);
+const links = [
+  { key: 'analysis', href: `/${lang}/analysis/`, label: lang === 'en' ? 'Analysis' : 'التحليلات' },
+  { key: 'tracker', href: `/${lang}/tracker/`, label: s.nav.tracker },
+  { key: 'brief', href: `/en/brief/`, label: s.nav.brief },
+  { key: 'newsletter', href: `/en/newsletter/`, label: s.nav.newsletter },
+];
+---
+<div class="topbar">
+  <div class="wrap">
+    <span>{s.tagline}</span>
+    <span style="display:flex;gap:20px">
+      <span>{s.briefLabel}</span>
+      <a class="lang-switch" href={otherHref} lang={other} hreflang={other}>{s.otherLang}</a>
+    </span>
+  </div>
+</div>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href={url(`/${lang}/`)} aria-label={lang === 'en' ? 'Bayanat, home' : 'بيانات، الصفحة الرئيسية'}>
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="32" height="32" rx="7" stroke="var(--accent)" stroke-width="2"></rect>
+        <path d="M9 12h16M9 17h11M9 22h7" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"></path>
+      </svg>
+      <span class="brand-name">{s.siteName}</span>
+      {lang === 'en'
+        ? <span class="brand-alt" lang="ar">بيانات</span>
+        : <span class="brand-alt" lang="en" dir="ltr">Bayanat</span>}
+    </a>
+    <nav class="main-nav" aria-label={lang === 'en' ? 'Sections' : 'الأقسام'}>
+      {links.map((l) => (
+        <a href={url(l.href)} aria-current={current === l.key ? 'page' : undefined}>{l.label}</a>
+      ))}
+    </nav>
+    <a class="btn" href={url(`/${lang}/#subscribe`)}>{s.subscribe}</a>
+  </div>
+</header>

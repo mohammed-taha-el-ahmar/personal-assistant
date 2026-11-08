@@ -1,0 +1,57 @@
+---
+import { render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import Subscribe from '../../../components/Subscribe.astro';
+import { formatDate, t, type Lang } from '../../../i18n';
+import { analyses } from '../../../lib/content';
+import { CONTACT_EMAIL } from '../../../lib/site';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const lang of ['en', 'ar'] as const) {
+    for (const entry of await analyses(lang)) {
+      paths.push({ params: { lang, slug: entry.id }, props: { entry } });
+    }
+  }
+  return paths;
+}
+
+const lang = Astro.params.lang as Lang;
+const { entry } = Astro.props;
+const s = t(lang);
+const { Content } = await render(entry);
+const d = entry.data;
+const other = lang === 'en' ? 'ar' : 'en';
+const altPath = d.translation ? `/${other}/analysis/${d.translation}/` : undefined;
+---
+<Base lang={lang} title={d.title} description={d.description} altPath={altPath} current="analysis">
+  <div class="article-layout">
+    <article class="article">
+      <p class="kicker">{s.pillars[d.pillar].toUpperCase()}{d.reading_minutes ? ` · ${d.reading_minutes} ${s.min}` : ''}</p>
+      <h1>{d.title}</h1>
+      <p class="lede">{d.description}</p>
+      <div class="byline">
+        <span><strong>{d.author}</strong> · {formatDate(d.date, lang)}</span>
+        {altPath && <a href={altPath.startsWith('/') ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}${altPath}` : altPath} lang={other}>{s.readInOther}</a>}
+      </div>
+      <div class="prose"><Content /></div>
+      {d.sources.length > 0 && (
+        <section class="sources" aria-labelledby="h-sources">
+          <h2 id="h-sources">{s.sources}</h2>
+          <ol>{d.sources.map((src) => <li><a href={src.url} rel="noopener">{src.title}</a></li>)}</ol>
+        </section>
+      )}
+      <div class="made">
+        <p><strong style="color:var(--ink)">{s.howMade}</strong> {s.howMadeText}</p>
+        <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Correction: ' + d.title)}`}>{s.reportError}</a>
+      </div>
+    </article>
+    <aside class="aside">
+      <div class="aside-box">
+        <p class="kicker">{s.heroKicker}</p>
+        <p class="big">{lang === 'en' ? 'Get analyses like this every Tuesday.' : 'احصل على تحليلات كهذه كل ثلاثاء.'}</p>
+        <Subscribe lang={lang} id="email-aside" />
+      </div>
+    </aside>
+  </div>
+</Base>

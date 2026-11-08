@@ -1,0 +1,16 @@
+# Official pages watched for changes (regulation tracker).
+# The pipeline fetches each page, compares its text with the previous run
+# and drafts a "what changed" note when the text moves.
+# Pick pages that change rarely and matter a lot (timelines, status pages).
+
+pages:
+  - id: ai-act-timeline
+    name: EU AI Act · implementation timeline
+    jurisdiction: EU
+    url: https://artificialintelligenceact.eu/implementation-timeline/
+    enabled: false   # verify the URL, then enable
+  - id: nis2-france
+    name: NIS2 · France transposition status
+    jurisdiction: FR
+    url: https://nisd2.eu/en/wiki/timelines-and-status/nis2-status-france
+    enabled: true

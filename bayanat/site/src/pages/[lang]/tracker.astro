@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import Tracker from '../../components/Tracker.astro';
+import { LANGS, t, type Lang } from '../../i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang;
+const s = t(lang);
+const intro = lang === 'en'
+  ? 'The rules that shape how data and AI teams work in EMEA, with the dates that matter. Each row links to its source; changes on the official pages are detected automatically and checked by the editor.'
+  : 'القواعد التي تحدد طريقة عمل فرق البيانات والذكاء الاصطناعي في المنطقة، مع التواريخ المهمة. يرتبط كل سطر بمصدره، وتُرصد التغييرات في الصفحات الرسمية آلياً ويتحقق منها المحرر.';
+---
+<Base lang={lang} title={s.tracker} altPath={`/${lang === 'en' ? 'ar' : 'en'}/tracker/`} current="tracker">
+  <h1 style="margin:0;font-size:36px">{s.tracker}</h1>
+  <p class="lede" style="max-width:760px;color:var(--muted);font-size:18px">{intro}</p>
+  <Tracker lang={lang} showSource />
+</Base>

@@ -69,7 +69,7 @@ test('job-description mode uses the fit-assessment prompt and ignores history', 
   const sent = calls[0].messages;
   assert.match(sent[0].content, /Overall fit/);
   assert.equal(sent.length, 2);
-  assert.match(sent[1].content, /^Job description:/);
+  assert.match(sent[1].content, /^Job description or project brief:/);
 });
 
 test('job-description mode rejects empty input', async () => {

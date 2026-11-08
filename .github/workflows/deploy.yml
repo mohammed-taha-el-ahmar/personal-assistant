@@ -1,0 +1,86 @@
+name: Deploy site
+
+# Builds the whole of www.tahaelahmar.dev and publishes it to GitHub Pages:
+#   /             personal site + assistant (static, as before)
+#   /articles/    generated from docs/articles/ (published articles only)
+#   /bayanat/     the Bayanat media site (Astro, bayanat/site)
+#
+# One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            bayanat/site/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: npm ci
+      - name: Knowledge base is in sync with docs/
+        run: npm run check:content
+
+      # Code shown in articles comes from examples/: it must pass before anything is published.
+      - name: Test article code
+        run: |
+          pip install -r examples/requirements.txt
+          pytest examples -q
+      - name: Build articles
+        run: node scripts/build-articles.mjs
+        env:
+          PUBLIC_REPO_URL: ${{ vars.PUBLIC_REPO_URL }}
+
+      - name: Build Bayanat
+        working-directory: bayanat/site
+        run: |
+          npm ci
+          npm run build
+        env:
+          PUBLIC_SUBSCRIBE_URL: ${{ vars.PUBLIC_SUBSCRIBE_URL }}
+          PUBLIC_CF_BEACON: ${{ vars.PUBLIC_CF_BEACON }}
+          PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
+
+      # Only what the site needs is published (no scripts/, worker/, bayanat sources...).
+      - name: Assemble site
+        run: |
+          mkdir _site
+          cp index.html projects.html services.html CNAME _site/
+          cp -r css js assets docs articles _site/
+          mkdir _site/bayanat
+          cp -r bayanat/site/dist/. _site/bayanat/
+          touch _site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

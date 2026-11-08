@@ -84,7 +84,7 @@ async function handleChat(request, env, cfg, cors, fetchImpl) {
   let history;
   if (mode === 'jd') {
     const jd = typeof body.jd === 'string' ? body.jd.trim().slice(0, DEFAULTS.MAX_JD_CHARS) : '';
-    if (jd.length < 40) return errorJson('Please paste a job description (at least a few lines).', 400, cors);
+    if (jd.length < 40) return errorJson('Please paste a job description or project brief (at least a few lines).', 400, cors);
     question = jd;
     history = [];
   } else {
@@ -98,7 +98,7 @@ async function handleChat(request, env, cfg, cors, fetchImpl) {
   const messages = [
     { role: 'system', content: mode === 'jd' ? jdSystemPrompt(promptArgs) : chatSystemPrompt(promptArgs) },
     ...history,
-    { role: 'user', content: mode === 'jd' ? `Job description:\n${question}` : question },
+    { role: 'user', content: mode === 'jd' ? `Job description or project brief:\n${question}` : question },
   ];
   const meta = {
     sources: sourcesOf(chunks),
@@ -111,7 +111,7 @@ async function handleChat(request, env, cfg, cors, fetchImpl) {
       lang,
       chunks: chunks.map((c) => c.id).join(','),
       contextTokens,
-      question: mode === 'jd' ? '[job description]' : question,
+      question: mode === 'jd' ? '[job description or brief]' : question,
       ms: Date.now() - started,
       ...extra,
     });

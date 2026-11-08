@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  checks:
+  site:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,5 +19,44 @@ jobs:
       #   run: npm run lint
       - name: Content is valid and the assistant's knowledge base is in sync
         run: npm run check:content
-      - name: Unit tests (chunker, retrieval, worker)
+      - name: Unit tests (chunker, retrieval, worker, articles)
         run: npm test
+      - name: Articles build, drafts included (catches broken code includes early)
+        run: node scripts/build-articles.mjs
+        env:
+          SHOW_DRAFTS: "true"
+
+  article-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r examples/requirements.txt
+      - name: Code shown in articles
+        run: pytest examples -q
+
+  bayanat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: bayanat/site/package-lock.json
+      - name: Pipeline tests and content checks
+        working-directory: bayanat
+        run: |
+          pip install -e ".[dev]"
+          pytest -q
+          python -m pipeline check
+      - name: Site builds
+        working-directory: bayanat/site
+        run: |
+          npm ci
+          npm run build

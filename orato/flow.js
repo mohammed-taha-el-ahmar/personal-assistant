@@ -9,7 +9,7 @@
 // in the agenda (⏱ select), or by default the one of its role (speech, evaluation, Table Topics, contest…), or else
 // exactly its planned length (red at the end of its minutes). Each line also keeps its planned start time, so the Timer
 // sees at a glance whether the meeting runs ahead or behind schedule.
-function flowSig(){const a=S.agenda||{};return JSON.stringify([a.start||'',(a.items||[]).map(it=>[it.k||'',it.title||'',it.role||'',+it.dur||0,it.tm||'']),
+function flowSig(){const a=S.agenda||{};return JSON.stringify([a.start||'',(a.items||[]).map(it=>[it.k||'',it.title||'',it.role||'',+it.dur||0,it.tm||'',it.cg??'',it.ca??'',it.cr??'']),
   (a.customRoles||[]).map(r=>[r.id,r.kind]),['s1','s2','s3','e1','e2','e3','tte','ge','ttm'].map(k=>roleName(k))])}
 const toMin=hm=>{const [h,m]=String(hm||'0:0').split(':').map(Number);return (h||0)*60+(m||0)};
 function flowPeople(){

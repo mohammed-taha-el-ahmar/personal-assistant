@@ -252,7 +252,7 @@ async function writeRole(k,val){const before=SH.roles[k];SH.roles[k]=val;
 const roleTimers={};
 function queueRoleText(k,v){clearTimeout(roleTimers[k]);roleTimers[k]=setTimeout(()=>writeRole(k,v.trim()?{n:v.trim().slice(0,60)}:null),600)}
 function pushAgenda(){
-  if(!SH.on||!canManage())return;
+  if(!SH.on||!canEditMeeting())return;
   SH.agendaDirty=true;clearTimeout(SH.agendaTimer);
   SH.agendaTimer=setTimeout(async()=>{try{if(typeof writeAgendaTarget==='function')await writeAgendaTarget(clone(S.agenda));else await SH.ref.agenda.set(clone(S.agenda))}catch(e){writeFail(e)}SH.agendaDirty=false},700);
 }
@@ -527,9 +527,9 @@ VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=onlin
     <div class="btns"><button class="primary" data-act="a-pdf">${t('ag.pdf')}</button><button data-act="a-copy">${t('ag.copy')}</button></div>
   </div>`;
   // Read-only for visitors and members once the club has a code: the agenda document only.
-  if(!canManage())return `<section class="panel">${head}${officersOnlyNote('acc.what.agenda')}${doc}</section>`;
+  if(!canEditMeeting())return `<section class="panel">${head}${officersOnlyNote('acc.what.agenda',true)}${doc}</section>`;
   return `<section class="panel">
-  ${head}
+  ${head}${tmNote()}
   ${templatesBox()}
   <div class="box"><div class="fields">
     <div class="field"><label class="label" for="a-club">${t('ag.club')}</label><input id="a-club" data-bind="agenda.club" data-live="1" value="${esc(a.club)}"></div>
@@ -565,8 +565,8 @@ function roleCell(k){
   const e=SH.roles[k];
   // Judges' names: only signed-in officers and the judge see them.
   if(e&&e.n&&SECRET_ROLES.includes(k)&&SH.officer!==true&&!(e.u&&e.u===SH.uid))
-    return `<div class="btns" style="align-items:center"><span class="muted">${t('roles.secretTaken')}</span>${canManage()?`<button class="small ghost" data-act="r-unassign" data-k="${k}">${t('roles.clear')}</button>`:''}</div>`;
-  if(!canManage()){
+    return `<div class="btns" style="align-items:center"><span class="muted">${t('roles.secretTaken')}</span>${canEditMeeting()?`<button class="small ghost" data-act="r-unassign" data-k="${k}">${t('roles.clear')}</button>`:''}</div>`;
+  if(!canEditMeeting()){
     // Members take a free role or give up their own; visitors only see who holds what.
     const mine=e&&e.u&&e.u===SH.uid;
     // Role swap: the holder asks for a replacement; any member can then take the role over.
@@ -580,7 +580,7 @@ function roleCell(k){
 }
 function rolesModeSwitch(){
   const m=rolesMode();
-  if(SH.on&&!canManage())return m==='contest'?`<div class="notice"><span>${t('roles.contestNote')}</span></div>`:'';
+  if(SH.on&&!canEditMeeting())return m==='contest'?`<div class="notice"><span>${t('roles.contestNote')}</span></div>`:'';
   return `<div class="box"><span class="label">${t('roles.modeLabel')}</span><div class="speakers" role="group" aria-label="${esc(t('roles.modeLabel'))}">${chip('r-mode','meeting',m==='meeting',esc(t('roles.modeMeeting')))}${chip('r-mode','contest',m==='contest',esc(t('roles.modeContest')))}</div>
     ${m==='contest'?`<p class="muted" style="margin:8px 0 0">${t('roles.contestIntro')}</p>`:''}</div>`;
 }
@@ -589,13 +589,13 @@ VIEWS.roles=()=>{const open=officialKeys().filter(roleIsOpen);const contest=role
   return `<section class="panel">
   <div class="phead"><div><h2>${t('roles.title')}</h2><p class="muted">${t(SH.on?'roles.introShared':'roles.introLocal')}</p></div>
   <span class="chip ${open.length?'warn':'ok'}">${open.length?t('roles.openN',{n:open.length}):t('roles.allFilled')}</span></div>
-  ${liveBox()}${typeof meetingBar==='function'?meetingBar():''}${rolesModeSwitch()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}${typeof rsvpBox==='function'?rsvpBox(SH.on&&canAct()):''}
+  ${liveBox()}${typeof meetingBar==='function'?meetingBar():''}${tmNote()}${rolesModeSwitch()}${SH.on&&canAct()?`<div class="box"><div class="field"><label class="label" for="my-name">${t('roles.myName')}</label><input id="my-name" data-act="my-name" value="${esc(myName())}" placeholder="${t('roles.myNamePh')}" autocomplete="name"></div></div>`:SH.on?'':sampleNotice()}${typeof rsvpBox==='function'?rsvpBox(SH.on&&canAct()):''}
   <div class="box"><div class="tablewrap"><table><thead><tr><th>${t('roles.colRole')}</th><th>${t('roles.colMember')}</th><th>${t('roles.colStatus')}</th></tr></thead><tbody>
   ${contest?`<tr><th colspan="3">${t('roles.officials')}</th></tr>`:''}${officialKeys().map(roleRow).join('')}
   ${contest?`<tr><th colspan="3">${t('roles.contestants')} <span class="muted">· ${t('roles.contestantsN',{n:CONTESTANT_KEYS.filter(k=>roleName(k)).length})}</span></th></tr>${CONTESTANT_KEYS.map(roleRow).join('')}`:''}
   </tbody></table></div>
   <div class="btns"><button class="primary" data-act="r-copy">${t('roles.copyOpen')}</button>${SH.on&&typeof MTG!=='undefined'&&MTG.plans.length?`<button data-act="mtg-copy">${esc(MGL2().copyMulti)}</button>`:''}
-  ${!canManage()?'':confirmClear?`<span class="muted" style="align-self:center">${t(SH.on?'roles.askAll':'roles.askHere')}</span><button class="small primary" data-act="r-clear">${t('roles.yesClear')}</button><button class="small" data-act="r-cancel">${t('common.cancel')}</button>`:`<button class="ghost" data-act="r-ask">${t('roles.clearAll')}</button>`}</div></div></section>`};
+  ${!canEditMeeting()?'':confirmClear?`<span class="muted" style="align-self:center">${t(SH.on?'roles.askAll':'roles.askHere')}</span><button class="small primary" data-act="r-clear">${t('roles.yesClear')}</button><button class="small" data-act="r-cancel">${t('common.cancel')}</button>`:`<button class="ghost" data-act="r-ask">${t('roles.clearAll')}</button>`}</div></div></section>`};
 
 // ---------- GUIDES ----------
 function guideName(k){return (GUIDE_NAMES[LANG]||GUIDE_NAMES.en)[k]||roleLabel(k)}
@@ -614,7 +614,10 @@ document.addEventListener('input',ev=>{const el=ev.target;
     if(el.dataset.live) liveRefresh();
   }
   if(el.dataset.item!==undefined){const it=S.agenda.items[+el.dataset.item];const k=el.dataset.k;
-    it[k]=k==='dur'?Math.max(0,Number(el.value)||0):el.value;save();pushAgenda();if(k!=='role')liveRefresh()}
+    if(k==='tm'&&el.value==='custom'&&it.cr==null){const m=timingMinutes(itemTiming({...it,tm:''}))||timingMinutes(segTiming(it.dur)&&{preset:'custom',...segTiming(it.dur)})||{cg:1,ca:1.5,cr:2};Object.assign(it,m)}
+    it[k]=k==='dur'?Math.max(0,Number(el.value)||0):['cg','ca','cr'].includes(k)?(el.value===''?'':Number(el.value)):el.value;
+    if(k==='tm'&&el.value!=='custom'){delete it.cg;delete it.ca;delete it.cr}if(k==='tm'&&!el.value)delete it.tm;
+    save();pushAgenda();if(k!=='role')liveRefresh()}
   if(el.dataset.act==='my-name'){setMyName(el.value)}
   if(el.dataset.srole){const k=el.dataset.srole;queueRoleText(k,el.value);const c=$('#rs-'+k);if(c)c.innerHTML=filledChip(el.value.trim())}
   if(el.dataset.role){S.roles[el.dataset.role]=el.value.trim();save();const c=$('#rs-'+el.dataset.role);if(c)c.innerHTML=filledChip(el.value.trim())}
@@ -701,11 +704,11 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
     if(b.dataset.act==='r-swap')toast(t('swap.asked'));break}
   case 'r-copy':{const open=officialKeys().filter(roleIsOpen).map(k=>'• '+roleLabel(k)+(roleName(k)?' ('+t('swap.wanted')+')':''));const ag=S.agenda;
     copyText(open.length?t('roles.msgOpen',{date:ag.date?t('roles.msgDate',{d:fmtDate(ag.date)}):'',theme:ag.theme?t('roles.msgTheme',{t:ag.theme}):'',list:open.join('\n')}):t('roles.msgFull'));break}
-  case 'r-mode':if(SH.on&&!canManage())break;S.agenda.rolesMode=b.dataset.v;save();pushAgenda();render();break;
+  case 'r-mode':if(SH.on&&!canEditMeeting())break;S.agenda.rolesMode=b.dataset.v;save();pushAgenda();render();break;
   case 'r-ask':confirmClear=true;render();break;
   case 'r-cancel':confirmClear=false;render();break;
   case 'r-clear':confirmClear=false;
-    if(SH.on){if(!canManage())break;SH.roles={};render();(typeof MTG!=='undefined'&&MTG.sel?planRef(MTG.sel).update({roles:{},edit:''}):SH.ref.roles.set({roles:{}})).catch(writeFail);break}
+    if(SH.on){if(!canEditMeeting())break;SH.roles={};render();(typeof MTG!=='undefined'&&MTG.sel?planRef(MTG.sel).update({roles:{},edit:''}):SH.ref.roles.set({roles:{}})).catch(writeFail);break}
     Object.keys(S.roles).forEach(k=>S.roles[k]='');save();render();break;
   case 'r-take':{if(!canAct())break;const n=(myName()||(typeof myProfile==='function'&&myProfile()&&myProfile().name)||'').trim();if(!n){toast(t('roles.nameFirst'));const f=$('#my-name');if(f)f.focus();break}writeRole(b.dataset.k,{n:n.slice(0,60),u:SH.uid});render();break}
   case 'r-release':case 'r-unassign':writeRole(b.dataset.k,null);render();break;

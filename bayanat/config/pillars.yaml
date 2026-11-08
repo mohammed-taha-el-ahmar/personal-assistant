@@ -1,0 +1,71 @@
+# Keyword pre-filter: cheap scoring before any LLM call.
+# Each match in the title counts double. Terms are case-insensitive;
+# short acronyms are matched as whole words.
+
+pillars:
+  governance:
+    label: Governance & MDM
+    terms:
+      data governance: 3
+      master data: 3
+      mdm: 3
+      data catalog: 3
+      data catalogue: 3
+      lineage: 3
+      data quality: 3
+      data contract: 3
+      data steward: 2
+      metadata: 2
+      reference data: 2
+      golden record: 3
+      unity catalog: 2
+      iceberg: 1
+      delta lake: 1
+      schema: 1
+  llm:
+    label: Enterprise LLMs
+    terms:
+      large language model: 2
+      llm: 2
+      rag: 2
+      retrieval-augmented: 2
+      model governance: 3
+      fine-tuning: 1
+      evaluation: 1
+      agent: 1
+      hallucination: 2
+  security:
+    label: Data & AI security
+    terms:
+      data breach: 3
+      data leak: 3
+      prompt injection: 3
+      exfiltration: 3
+      access control: 2
+      vulnerability: 2
+      cve: 2
+      ransomware: 2
+      encryption: 1
+      privacy: 1
+      sovereignty: 2
+  regulation:
+    label: Regulation
+    terms:
+      ai act: 3
+      gdpr: 3
+      rgpd: 3
+      nis2: 3
+      dora: 2
+      data act: 3
+      regulation: 1
+      compliance: 2
+      supervisory authority: 2
+      edpb: 2
+      cnil: 2
+      enisa: 2
+
+# Items from these source kinds get a bonus (they are on-topic by construction).
+source_kind_bonus:
+  open_source: 2
+  advisory: 1
+  official: 2

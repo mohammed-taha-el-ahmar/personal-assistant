@@ -42,6 +42,8 @@ rules_version = '2';
 //   visitor (link only)          read, vote (unless guestsVote is false), feedback, interest form
 //   member  (active member profile, or device unlocked with the member code)
 //                                + take a free role or give up their own, send reports, launch a vote
+//   Toastmaster of the evening (member holding the "toastmaster" role of a meeting)
+//                                + that meeting's agenda and anyone's role in it
 //   officer (on the officer list) + agenda, planned meetings, nominees and results, draw, anyone's roles, everything else
 //
 // Members are signed in anonymously. Officers sign in with Google and are recognised by their verified email.
@@ -594,7 +596,21 @@ service cloud.firestore {
       allow read, delete: if validClub(club) && isOfficer(club);
     }
 
-    // The current meeting. Agenda, voting setup and draw: officer level. Reports: member level.
+    // The Toastmaster of the evening: the member holding the "toastmaster" role of that meeting prepares it with the
+    // officers (agenda and roles). For the roles document itself, the holder is read from the document before the change.
+    function tmHolds(roles) {
+      return roles is map && roles.get('toastmaster', {}) is map && roles.get('toastmaster', {}).get('u', '') == request.auth.uid;
+    }
+    function tmOfEvening(club) {
+      let r = /databases/$(database)/documents/clubs/$(club)/meeting/roles;
+      return request.auth != null && memberLevel(club) && exists(r) && tmHolds(get(r).data.get('roles', {}));
+    }
+    function tmOfRolesDoc(club) {
+      return request.auth != null && resource != null && memberLevel(club) && tmHolds(resource.data.get('roles', {}));
+    }
+
+    // The current meeting. Agenda, voting setup and draw: officer level (agenda: also the Toastmaster of the evening).
+    // Reports: member level.
     // Roles: officer level for any change; member level to take a free role or give up one's own.
     match /clubs/{club}/meeting/{docId} {
       allow read: if open(club) || purging(club);
@@ -605,6 +621,8 @@ service cloud.firestore {
         && ((docId != 'vote' && canManage(club))
           || (docId == 'vote' && (isOfficer(club) || (memberLevel(club) && voteControl())))
           || (docId == 'reports' && memberLevel(club))
+          || (docId == 'agenda' && tmOfEvening(club))
+          || (docId == 'roles' && tmOfRolesDoc(club))
           || (docId == 'roles' && memberLevel(club) && memberRoleEdit()));
       allow delete: if purging(club);
     }
@@ -617,6 +635,9 @@ service cloud.firestore {
         && request.resource.data.date == date;
       allow update: if request.auth != null && open(club)
         && ((canManage(club) && request.resource.data.date == resource.data.date)
+          // the Toastmaster of that planned meeting prepares its agenda and roles
+          || (memberLevel(club) && tmHolds(resource.data.get('roles', {}))
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['agenda', 'roles', 'edit']))
           || (memberLevel(club) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['roles', 'edit']) && memberRoleEdit()));
       allow delete: if (open(club) && canManage(club)) || purging(club);
     }

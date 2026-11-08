@@ -1,0 +1,20 @@
+---
+import { t, type Lang } from '../i18n';
+import { url } from '../lib/site';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  title: string;
+  description: string;
+  pillar: 'governance' | 'llm' | 'security' | 'regulation';
+  minutes?: number;
+}
+const { lang, slug, title, description, pillar, minutes } = Astro.props;
+const s = t(lang);
+---
+<article class="card">
+  <p class="kicker">{s.pillars[pillar].toUpperCase()}{minutes ? ` · ${minutes} ${s.min}` : ''}</p>
+  <h3><a href={url(`/${lang}/analysis/${slug}/`)}>{title}</a></h3>
+  <p>{description}</p>
+</article>

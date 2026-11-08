@@ -7,10 +7,11 @@
 //
 //   node scripts/build-content.mjs          → writes both files
 //   node scripts/build-content.mjs --check  → exits 1 if either is out of date (used in CI)
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { chunkMarkdown, projectChunks, estimateTokens } from './lib/chunk.mjs';
+import { parseArticle } from './lib/articles.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const p = (rel) => path.join(root, rel);
@@ -23,7 +24,32 @@ const MARKDOWN_DOCS = [
   { key: 'resume', file: 'docs/resume.md', label: 'Resume', pinned: ['Profile'] },
   { key: 'faq', file: 'docs/faq.md', label: 'FAQ' },
   { key: 'projects', file: 'docs/projects.md', label: 'Work projects' },
+  { key: 'services', file: 'docs/services.md', label: 'Services', href: 'services.html' },
 ];
+
+// Published articles (docs/articles/*.md, status: published) also feed the assistant,
+// each chunk linking back to the article. Drafts never reach the knowledge base.
+async function articleChunks() {
+  let files = [];
+  try {
+    files = (await readdir(p('docs/articles'))).filter((f) => f.endsWith('.md')).sort();
+  } catch {
+    return [];
+  }
+  const chunks = [];
+  for (const f of files) {
+    const a = parseArticle(await readFile(p(`docs/articles/${f}`), 'utf8'), `docs/articles/${f}`);
+    if (a.status !== 'published') continue;
+    // Code blocks are shown on the page; the assistant only needs the prose around them.
+    const prose = a.body.replace(/^```[^\n]*\n[\s\S]*?^```[ \t]*$/gm, '');
+    const md = `# ${a.title}\n\n${a.description}\n\n${prose}`;
+    for (const c of chunkMarkdown(`article-${a.slug}`, md, { label: 'Article' })) {
+      const title = [a.title, 'Article'].includes(c.title) ? a.title : `${a.title} › ${c.title}`;
+      chunks.push({ ...c, title, href: `articles/${a.slug}/` });
+    }
+  }
+  return chunks;
+}
 
 function renderSummary(projects) {
   const lines = ['# Projects & Technical Demos — Summary', ''];
@@ -59,9 +85,11 @@ async function buildKb(projects) {
   const chunks = [];
   for (const doc of MARKDOWN_DOCS) {
     const md = await readFile(p(doc.file), 'utf8');
-    chunks.push(...chunkMarkdown(doc.key, md, { label: doc.label, pinned: doc.pinned ?? [] }));
+    const docChunks = chunkMarkdown(doc.key, md, { label: doc.label, pinned: doc.pinned ?? [] });
+    chunks.push(...docChunks.map((c) => (doc.href ? { ...c, href: doc.href } : c)));
   }
   chunks.push(...projects.flatMap(projectChunks));
+  chunks.push(...(await articleChunks()));
   const tokens = chunks.reduce((n, c) => n + estimateTokens(c.text), 0);
   const body = JSON.stringify({ chunks }, null, 1);
   return {

@@ -31,6 +31,10 @@ const accessOn=()=>SH.on&&!!(ACC.pub&&ACC.pub.on);
 const deviceOk=()=>!!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v)||(typeof profileMember==='function'&&profileMember());
 // Edit the agenda, nominees, draw, planned meetings, other people's roles: signed-in officers only in a club space.
 const canManage=()=>!SH.on||SH.officer===true;
+// The Toastmaster of the evening: a member holding the "toastmaster" role of the meeting shown (the next one, or the
+// planned meeting picked in the Agenda and Roles tabs) prepares it with the officers: its agenda and anyone's role.
+const isTmOfEvening=()=>!!(SH.on&&SH.uid&&SH.roles&&SH.roles.toastmaster&&SH.roles.toastmaster.u===SH.uid&&deviceOk());
+const canEditMeeting=()=>canManage()||isTmOfEvening();
 // Take your own role, send reports.
 const canAct=()=>canManage()||deviceOk();
 // Cast a ballot.
@@ -110,8 +114,9 @@ function unlockForm(){
   </form>`;
 }
 // A one-line note where editing is reserved to officers.
-function officersOnlyNote(what){
+function officersOnlyNote(what,tmToo){
   if(canManage())return '';
+  if(tmToo)return `<div class="notice"><span>${t('acc.officersTmOnly',{what:t(what)})}</span><button class="small" data-act="acc-officer">${t('office.signIn')}</button></div>`;
   return `<div class="notice"><span>${t('acc.officersOnly',{what:t(what)})}</span><button class="small" data-act="acc-officer">${t('office.signIn')}</button></div>`;
 }
 
@@ -204,3 +209,6 @@ document.addEventListener('click',ev=>{
   }
   render();
 });
+
+// Shown to the Toastmaster of the evening in the Agenda and Roles tabs.
+const tmNote=()=>isTmOfEvening()&&!canManage()?`<div class="notice"><span>🎤 ${t('acc.youTm')}</span></div>`:'';

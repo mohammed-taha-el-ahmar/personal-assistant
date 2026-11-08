@@ -157,7 +157,7 @@ Data: `clubs/{club}/rsvp/{date}_{uid}`. **Republish `firestore.rules`.**
 
 ## Timer, Ah-Counter and Grammarian in a hurry
 
-- **Timer, running order:** **Load from the agenda** follows the agenda (Prepare → Agenda) item by item, in the same order, with the timing of each item. Under every agenda line, a **⏱** selector shows that timing: **Auto** (the default) or a timing chosen by hand (speech, Ice Breaker, evaluation, Table Topics, contest…), or **Not timed**. Auto means: the speech request's timing for a speech slot (5–7 min otherwise), 1–2 min for each Table Topics speaker (one slot per 4 minutes of the session), 2–3 min for each evaluator, the contest type's timing for each contestant, and for every other item exactly its planned length: red at the end of its minutes, yellow one minute before, green two minutes before (for items under 5 minutes: green one minute before, yellow 30 seconds before). The doors-open item is skipped. Each line shows its planned start time, and on the day of the meeting a chip says whether the meeting runs ahead or behind schedule. If the agenda changes after loading, a notice offers **Update the running order** (lines already timed stay done). The first line is ready: press **Start**, then **Stop and record**, and the next one is ready. Names can be typed in the list at any time, and any line can be picked by hand.
+- **Timer, running order:** **Load from the agenda** follows the agenda (Prepare → Agenda) item by item, in the same order, with the timing of each item. Under every agenda line, a **⏱** selector shows that timing: **Auto** (the default) or a timing chosen by hand (speech, Ice Breaker, evaluation, Table Topics, contest…), **Personalized** (the organizer types the minutes of the green, amber and red cards; for Table Topics and evaluations they apply to each speaker), or **Not timed**. Auto means: the speech request's timing for a speech slot (5–7 min otherwise), 1–2 min for each Table Topics speaker (one slot per 4 minutes of the session), 2–3 min for each evaluator, the contest type's timing for each contestant, and for every other item exactly its planned length: red at the end of its minutes, yellow one minute before, green two minutes before (for items under 5 minutes: green one minute before, yellow 30 seconds before). The doors-open item is skipped. Each line shows its planned start time, and on the day of the meeting a chip says whether the meeting runs ahead or behind schedule. If the agenda changes after loading, a notice offers **Update the running order** (lines already timed stay done). The first line is ready: press **Start**, then **Stop and record**, and the next one is ready. Names can be typed in the list at any time, and any line can be picked by hand.
 - **Timer, report:** the speaker and the type of each recorded time can be changed afterwards; the result (qualified or not) is recalculated.
 - **Ah-Counter and Grammarian:** **+ Next speaker** adds an unnamed speaker in one tap while someone is already speaking; **Add the agenda's speakers** adds everyone holding a role; any name can be corrected later in the report.
 
@@ -361,7 +361,7 @@ The officers' area asks for the officer's email address first:
 
 ### Who can do what: member access
 
-Visitors (anyone with the club link only) can always read, and never edit. There are three levels:
+Visitors (anyone with the club link only) can always read, and never edit. There are three levels, plus the **Toastmaster of the evening**: the member holding the Toastmaster role of a meeting prepares that meeting with the officers (its agenda, and assigning or clearing anyone's role in it), for the next meeting or a planned one. A banner tells them so in the Agenda and Roles tabs. Planning or deleting meetings, the draw, voting results and club templates stay with the officers.
 
 | | Visitor (link only) | Member (confirmed profile, or device unlocked with the member code) | Officer (signed in) |
 |---|---|---|---|
@@ -370,7 +370,8 @@ Visitors (anyone with the club link only) can always read, and never edit. There
 | Take a free role or give up their own | – | ✓ | ✓ |
 | Send Timer, Ah-Counter and Grammarian reports | – | ✓ | ✓ |
 | Launch a vote (nominees, show results, new vote) | – | ✓ (see below) | ✓ |
-| Edit the agenda, plan or delete meetings, templates, draw; assign or clear anyone's role | – | – | ✓ |
+| Edit the agenda; assign or clear anyone's role | – | Toastmaster of the evening only | ✓ |
+| Plan or delete meetings, club templates, draw | – | – | ✓ |
 | Officers' area (history, feedback, settings) | – | – | ✓ |
 
 - Members whose profile an officer has confirmed (Members tab) are members on every device where they are signed in, with no code.
