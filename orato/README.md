@@ -18,6 +18,8 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 | File | What it is |
 |---|---|
 | `index.html` | The page layout and styles |
+| `landing.js` | The landing page (no club in the address, the logo, “About Oratia”) |
+| `agendaplus.js` | Custom meeting roles, the timing of each agenda item, the number of contestants on a contest agenda |
 | `app.js` | How the tools work |
 | `office.js` | The club officers' space: sign-in, archive, history, participation |
 | `evals.js` | Evaluation forms by type |
@@ -58,6 +60,18 @@ An independent tool for club members. Not affiliated with or endorsed by Toastma
 ## Navigation
 
 The tools are grouped in 5 sections: **Club**, **Meeting**, **Prepare**, **Contests** and **Follow-up**. On a phone they form a bar at the bottom of the screen; on a larger screen, a row under the header. The tabs of the open section appear in a second row. The **Club officers** pages (and **Members** for signed-in officers) open from the person button in the header. Sections hidden by the club officers disappear from the bar. Links such as `?club=my-club#timer` keep working.
+
+## Landing page
+
+Opening the site without a club link shows the landing page: what Oratia does (one card per section, each opening its tools), how a club starts, a short FAQ (including that Oratia is independent from Toastmasters International), and a **club code** field that opens a club space (or the request to open one). **Try the timer now** opens the tools without signing in. The Oratia logo and **About Oratia** at the bottom of every page bring the landing page back.
+
+## Custom meeting roles
+
+In **Prepare → Agenda**, officers add the roles of a meeting that are not in the usual list (joke of the day, quiz master, a fourth speaker, an online host…), from the suggestions or by name, with a type: **Other role**, **Speech** or **Evaluation**. **Also add it to the agenda** inserts a line for it at the right place (after the speeches, after the evaluations, or before the closing). Custom roles appear in the Roles tab, where members take them like any role, in the open-roles messages, in the history, and in the role statistics (speeches and evaluations join their column; the others get a column of their own). Each meeting keeps its own custom roles, and saving a template saves the custom roles it uses. Up to 12 per meeting.
+
+## Contest agendas
+
+A contest agenda takes **up to 8 contestants**: in contest mode, the **Contestants on the agenda** selector (Prepare → Agenda) adds or removes contestant lines. The Roles tab lists 8 contestants, 8 judges (judges 6 to 8 are optional and not counted as open roles when empty) and the tiebreaking judge, whose names stay confidential.
 
 ## Personal profiles and member directory
 
@@ -143,7 +157,7 @@ Data: `clubs/{club}/rsvp/{date}_{uid}`. **Republish `firestore.rules`.**
 
 ## Timer, Ah-Counter and Grammarian in a hurry
 
-- **Timer, running order:** **Load from the agenda** follows the agenda (Prepare → Agenda) item by item, in the same order: each speech with its timing (the speech request's timing when approved, 5–7 min otherwise), the Table Topics session as four slots, one line per evaluator, the Table Topics Evaluator, the General Evaluator, and every other segment (welcome, introduction, break, reports, closing, your own items) as a **transition** of the nearest length: 1, 2, 5, 10 or 15 minutes (green at half the time, yellow at three quarters, red at the end). The doors-open item is skipped. The first one is ready: press **Start**, then **Stop and record**, and the next speaker is ready. Names can be typed in the list at any time (Table Topics speakers, for example), and any line can be picked by hand.
+- **Timer, running order:** **Load from the agenda** follows the agenda (Prepare → Agenda) item by item, in the same order, with the timing of each item. Under every agenda line, a **⏱** selector shows that timing: **Auto** (the default) or a timing chosen by hand (speech, Ice Breaker, evaluation, Table Topics, contest…), or **Not timed**. Auto means: the speech request's timing for a speech slot (5–7 min otherwise), 1–2 min for each Table Topics speaker (one slot per 4 minutes of the session), 2–3 min for each evaluator, the contest type's timing for each contestant, and for every other item exactly its planned length: red at the end of its minutes, yellow one minute before, green two minutes before (for items under 5 minutes: green one minute before, yellow 30 seconds before). The doors-open item is skipped. Each line shows its planned start time, and on the day of the meeting a chip says whether the meeting runs ahead or behind schedule. If the agenda changes after loading, a notice offers **Update the running order** (lines already timed stay done). The first line is ready: press **Start**, then **Stop and record**, and the next one is ready. Names can be typed in the list at any time, and any line can be picked by hand.
 - **Timer, report:** the speaker and the type of each recorded time can be changed afterwards; the result (qualified or not) is recalculated.
 - **Ah-Counter and Grammarian:** **+ Next speaker** adds an unnamed speaker in one tap while someone is already speaking; **Add the agenda's speakers** adds everyone holding a role; any name can be corrected later in the report.
 
@@ -347,24 +361,25 @@ The officers' area asks for the officer's email address first:
 
 ### Who can do what: member access
 
-Until officers turn it on, a club space is open: anyone with the club link can edit everything (this is how clubs created before this feature keep working). In the officers' area, the **Member access** box turns on three levels:
+Visitors (anyone with the club link only) can always read, and never edit. There are three levels:
 
-| | Visitor (link only) | Member (device unlocked) | Officer (signed in) |
+| | Visitor (link only) | Member (confirmed profile, or device unlocked with the member code) | Officer (signed in) |
 |---|---|---|---|
 | See the club page, agenda, roles, results | ✓ | ✓ | ✓ |
 | Vote, give feedback, "I'm interested" form | ✓ (voting can be limited to members) | ✓ | ✓ |
 | Take a free role or give up their own | – | ✓ | ✓ |
 | Send Timer, Ah-Counter and Grammarian reports | – | ✓ | ✓ |
 | Launch a vote (nominees, show results, new vote) | – | ✓ (see below) | ✓ |
-| Edit the agenda, templates, draw; assign or clear anyone's role | – | – | ✓ |
+| Edit the agenda, plan or delete meetings, templates, draw; assign or clear anyone's role | – | – | ✓ |
 | Officers' area (history, feedback, settings) | – | – | ✓ |
 
+- Members whose profile an officer has confirmed (Members tab) are members on every device where they are signed in, with no code.
 - **Turn on member access** creates a random 8-character **member code** (for example `K7MQ-2PXA`). Share it in your members' private group with **Copy invitation message**. Each member enters it once, in the Roles tab (or any shared tab); the device then stays a member device.
 - **Copy member link** and **Member QR code** contain the code and unlock the phone directly. Share them with members only, never on a public page or on a screen guests can see.
-- **Who runs a vote:** a vote belongs to the person who launched it (by typing the nominees or pressing "Start a new vote"). Until its results are shown, only that person and the officers see the **Show results** and **Start a new vote** buttons and can change the nominees; everyone else sees "Vote launched by …" and can only vote. Once the results are shown, the next vote can be launched by anyone allowed to (any member, or anyone with the link while member access is off). The database enforces this too.
+- **Who runs a vote:** a vote belongs to the person who launched it (by typing the nominees or pressing "Start a new vote"). Until its results are shown, only that person and the officers see the **Show results** and **Start a new vote** buttons and can change the nominees; everyone else sees "Vote launched by …" and can only vote. Once the results are shown, the next vote can be launched by anyone allowed to (any member). The database enforces this too.
 - **Guests can vote**: untick it to keep voting for members and officers.
 - **Change the code** creates a new one: every device unlocked with the old code becomes a visitor again until it enters the new one. Use it at the start of each club year, or when someone leaves. You can also remove a single device from the list.
-- **Turn off** makes the club space open again.
+- **Turn off** removes the member code: only confirmed member profiles and officers can then take roles. Visitors stay read-only either way.
 - The database checks all of this itself (see `firestore.rules`): the code is stored where only officers can read it, and a write without the right level is refused, whatever the page shows.
 - A member who clears their browser data or changes phone simply enters the code again.
 
@@ -400,7 +415,7 @@ The free Firebase plan has no scheduled tasks, so the final erase runs when an o
 
 ## Things to know
 
-- **Turn on member access** (see above). Without it, anyone with the club link can edit roles, the agenda and voting settings. Everyone with the link can always read the meeting data, so share the link only in your club's own channels; a club code that is hard to guess (`paris-orators-7f3k`) adds a little privacy.
+- **Give members access** (confirmed profiles or the member code, see above): visitors can only read. Everyone with the link can always read the meeting data, so share the link only in your club's own channels; a club code that is hard to guess (`paris-orators-7f3k`) adds a little privacy.
 - **Ballots are anonymous in the app but not encrypted.** The page shows only totals, and only after someone taps Reveal. A technically minded member could still read the raw ballots from the browser, so treat it like a show of hands, not a secret contest ballot. Do not use it for official contest judging.
 - **One ballot per device.** A member who opens the link on two devices or in a private window can vote twice. "Start a new vote" begins a fresh round for that category.
 - **Free tier:** Firebase's Spark plan covers tens of thousands of reads and writes a day, far more than a club meeting uses.

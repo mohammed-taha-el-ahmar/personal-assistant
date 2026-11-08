@@ -22,8 +22,8 @@ const builtinItems=id=>BUILTIN_TEMPLATES[id].map(([k,role,dur])=>({k,role,dur}))
 function templateList(){
   return [
     ...Object.keys(BUILTIN_TEMPLATES).map(id=>({id:'b:'+id,group:'builtin',name:t('tpl.b.'+id),items:builtinItems(id)})),
-    ...TPL.club.map(x=>({id:'c:'+x.id,group:'club',docId:x.id,name:x.name,items:x.items||[],start:x.start||''})),
-    ...TPL.local.map(x=>({id:'d:'+x.id,group:'local',localId:x.id,name:x.name,items:x.items||[],start:x.start||''}))
+    ...TPL.club.map(x=>({id:'c:'+x.id,group:'club',docId:x.id,name:x.name,items:x.items||[],customRoles:x.customRoles||[],start:x.start||''})),
+    ...TPL.local.map(x=>({id:'d:'+x.id,group:'local',localId:x.id,name:x.name,items:x.items||[],customRoles:x.customRoles||[],start:x.start||''}))
   ];
 }
 const findTemplate=id=>templateList().find(x=>x.id===id);
@@ -32,7 +32,9 @@ const savesToClub=()=>SH.on&&SH.officer===true;
 const totalMinutes=items=>items.reduce((s,it)=>s+(Number(it.dur)||0),0);
 const fmtDuration=m=>{const h=Math.floor(m/60),mm=m%60;return h?`${h} h ${String(mm).padStart(2,'0')}`:`${mm} min`};
 // What gets stored: the running order only. Club name, date, theme, venue and online link stay with each meeting.
-const itemsForSave=items=>items.map(it=>({k:it.k||null,title:it.title||null,role:it.role||'',dur:Math.max(0,Number(it.dur)||0)})).slice(0,40);
+const itemsForSave=items=>items.map(it=>({k:it.k||null,title:it.title||null,role:it.role||'',dur:Math.max(0,Number(it.dur)||0),...(it.tm?{tm:it.tm}:{})})).slice(0,40);
+// Custom roles used by the saved items travel with the template, so applying it brings them back.
+const rolesForSave=items=>customRoles().filter(r=>items.some(it=>it.role===r.id)).map(r=>({id:r.id,name:r.name,kind:r.kind||'other'}));
 
 // ---------- live club templates ----------
 function templatesLive(){
@@ -79,8 +81,11 @@ function templatesBox(){
 
 // ---------- actions ----------
 function applyTemplate(tp){
-  S.agenda.items=clone(tp.items).map(it=>({k:it.k||undefined,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0}))
-    .map(it=>{if(!it.k)delete it.k;return it});
+  S.agenda.items=clone(tp.items).map(it=>({k:it.k||undefined,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0,tm:it.tm||undefined}))
+    .map(it=>{if(!it.k)delete it.k;if(!it.tm)delete it.tm;return it});
+  // Bring the template's custom roles, keeping the meeting's own ones.
+  const have=customRoles();const add=(tp.customRoles||[]).filter(r=>r&&isCustomRole(r.id)&&!have.some(h=>h.id===r.id));
+  if(add.length)S.agenda.customRoles=[...have,...add].slice(0,CR_MAX);
   if(tp.start)S.agenda.start=tp.start;
   // A template that uses contest roles switches the Roles tab to the contest list, any other one back to the meeting list.
   S.agenda.rolesMode=S.agenda.items.some(it=>CONTEST_OFFICIAL_KEYS.includes(it.role)||CONTESTANT_KEYS.includes(it.role))?'contest':'meeting';
@@ -88,7 +93,7 @@ function applyTemplate(tp){
 }
 async function saveTemplate(name){
   name=name.trim().slice(0,60);if(!name){toast(t('tpl.needName'));return}
-  const data={name,items:itemsForSave(S.agenda.items),start:S.agenda.start||'',updatedAt:new Date().toISOString()};
+  const data={name,items:itemsForSave(S.agenda.items),customRoles:rolesForSave(S.agenda.items),start:S.agenda.start||'',updatedAt:new Date().toISOString()};
   if(savesToClub()){
     data.updatedBy=SH.user.email;
     try{const ref=await SH.fs.collection(`clubs/${SH.club}/templates`).add(data);
@@ -102,7 +107,7 @@ async function saveTemplate(name){
 }
 async function updateTemplate(tp,changes){
   if(tp.group==='club'){
-    try{await SH.fs.doc(`clubs/${SH.club}/templates/${tp.docId}`).set({name:tp.name,items:itemsForSave(tp.items),start:tp.start||'',...changes,updatedAt:new Date().toISOString(),updatedBy:SH.user.email})}
+    try{await SH.fs.doc(`clubs/${SH.club}/templates/${tp.docId}`).set({name:tp.name,items:itemsForSave(tp.items),customRoles:tp.customRoles||[],start:tp.start||'',...changes,updatedAt:new Date().toISOString(),updatedBy:SH.user.email})}
     catch(e){writeFail(e);return false}
   }else{
     const x=TPL.local.find(x=>x.id===tp.localId);if(!x)return false;Object.assign(x,changes,{updatedAt:new Date().toISOString()});saveLocalTemplates();
@@ -126,7 +131,7 @@ document.addEventListener('click',async ev=>{
   case 'tpl-apply-ask':TPL.confirm=true;TPL.confirmDel=false;break;
   case 'tpl-cancel':TPL.confirm=false;break;
   case 'tpl-apply':applyTemplate(tp);return;
-  case 'tpl-update':if(await updateTemplate(tp,{items:itemsForSave(S.agenda.items),start:S.agenda.start||''}))toast(t('tpl.updated',{name:tp.name}));break;
+  case 'tpl-update':if(await updateTemplate(tp,{items:itemsForSave(S.agenda.items),customRoles:rolesForSave(S.agenda.items),start:S.agenda.start||''}))toast(t('tpl.updated',{name:tp.name}));break;
   case 'tpl-rename':TPL.renaming=true;render();{const i=document.getElementById('tpl-rename');if(i){i.focus();i.select()}}return;
   case 'tpl-rename-cancel':TPL.renaming=false;break;
   case 'tpl-del-ask':TPL.confirmDel=true;break;

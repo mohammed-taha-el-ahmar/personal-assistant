@@ -33,17 +33,26 @@ const PRESETS=[
 const ROLE_KEYS=['toastmaster','ge','timer','ah','gram','ttm','tte','s1','s2','s3','e1','e2','e3','saa','pres'];
 // Speech contest roles (Roles tab, "Contest" list). Judges' and the tiebreaking judge's names stay confidential
 // (rulebook): only officers and the person themselves see them, and they never go on the agenda or in the history.
-const CONTEST_OFFICIAL_KEYS=['cchair','cchief','cj1','cj2','cj3','cj4','cj5','ctie','ccount1','ccount2','ctime1','ctime2','csaa','ctest'];
-const CONTESTANT_KEYS=['cc1','cc2','cc3','cc4','cc5','cc6'];
-const SECRET_ROLES=['cj1','cj2','cj3','cj4','cj5','ctie'];
+const CONTEST_OFFICIAL_KEYS=['cchair','cchief','cj1','cj2','cj3','cj4','cj5','cj6','cj7','cj8','ctie','ccount1','ccount2','ctime1','ctime2','csaa','ctest'];
+const CONTESTANT_KEYS=['cc1','cc2','cc3','cc4','cc5','cc6','cc7','cc8'];
+const SECRET_ROLES=['cj1','cj2','cj3','cj4','cj5','cj6','cj7','cj8','ctie'];
+// Judges 6 to 8 are optional: an empty one is not counted as an open role.
+const OPTIONAL_ROLES=['cj6','cj7','cj8'];
+// Custom roles of a meeting (joke of the day, quiz master, a fourth speaker…), kept in its agenda: {id:'x…', name, kind}.
+// kind: 'other', 'speech' (timed and counted as a speech) or 'eval' (timed and counted as an evaluation).
+const isCustomRole=k=>/^x[a-z0-9]{2,12}$/.test(k||'');
+const customRoles=(ag=S.agenda)=>(ag&&Array.isArray(ag.customRoles)?ag.customRoles:[]).filter(r=>r&&isCustomRole(r.id));
+const customKind=k=>{const r=customRoles().find(x=>x.id===k);return r?r.kind||'other':''};
+const customKeys=()=>customRoles().map(r=>r.id);
 const rolesMode=()=>S.agenda&&S.agenda.rolesMode==='contest'?'contest':'meeting';
-const officialKeys=()=>rolesMode()==='contest'?CONTEST_OFFICIAL_KEYS:ROLE_KEYS;
-const activeRoleKeys=()=>rolesMode()==='contest'?[...CONTEST_OFFICIAL_KEYS,...CONTESTANT_KEYS]:ROLE_KEYS;
+const officialKeys=()=>[...(rolesMode()==='contest'?CONTEST_OFFICIAL_KEYS:ROLE_KEYS),...customKeys()];
+const activeRoleKeys=()=>rolesMode()==='contest'?[...CONTEST_OFFICIAL_KEYS,...CONTESTANT_KEYS,...customKeys()]:[...ROLE_KEYS,...customKeys()];
+const roleIsOpen=k=>(!roleName(k)&&!OPTIONAL_ROLES.includes(k))||!!(SH.on&&SH.roles[k]&&SH.roles[k].swap);
 const publicRoleKeys=()=>activeRoleKeys().filter(k=>!SECRET_ROLES.includes(k));
 const CRIT=['open','struct','voice','body','eye','obj'];
 const AGENDA_KEYS=[['doors','saa',10],['welcome','pres',3],['intro','toastmaster',4],['roles','ge',5],['speech1','s1',7],['speech2','s2',7],['speech3','s3',7],
   ['tt','ttm',20],['break','',10],['evals','ge',12],['ttEval','tte',4],['reports','timer',6],['ge','ge',6],['close','toastmaster',4]];
-const roleLabel=k=>t('role.'+k);
+const roleLabel=(k,ag)=>{if(isCustomRole(k)){const r=customRoles(ag||S.agenda).find(x=>x.id===k);return r&&r.name||'…'}return t('role.'+k)};
 // Filler words: built-in per language, plus the club's own words. Kept on this device, apart from meeting data,
 // so "Clear and start fresh" and switching language never lose them.
 const WKEY='gt-words';
@@ -154,7 +163,7 @@ function softRender(){
 document.addEventListener('focusout',()=>{if(!pendingRender)return;setTimeout(()=>{const a=document.activeElement;if(a&&a.matches&&a.matches('input,textarea,select'))return;pendingRender=false;render()},0)});
 function writeFail(e){
   // Refused because of this person's level (visitor, or a code that has changed): say so, but keep the page usable.
-  if(e&&e.code==='permission-denied'&&typeof accessOn==='function'&&accessOn()&&SH.officer!==true){toast(t(deviceOk()?'acc.deniedMember':'acc.denied'));render();return}
+  if(e&&e.code==='permission-denied'&&typeof accessOn==='function'&&SH.officer!==true){toast(t(deviceOk()?'acc.deniedMember':'acc.denied'));render();return}
   if(e&&e.code==='permission-denied'){SH.writable=false;toast(t('live.denied'));render()}
   else toast(t('live.saveFail'));
 }
@@ -288,8 +297,8 @@ async function castShared(i,name){
 }
 
 // ---------- tabs and language ----------
-const TABS=['club','guestbook','directory','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','speeches','pathways','mentoring','contest','cofficials','cdocs','cvideos','cpro','feedback','me','office','members','stats','kit'];
-let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'timer');
+const TABS=['home','club','guestbook','directory','timer','ah','gram','topics','vote','agenda','roles','draw','guides','eval','speeches','pathways','mentoring','contest','cofficials','cdocs','cvideos','cpro','feedback','me','office','members','stats','kit'];
+let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):(clubFromUrl()?'club':'home');
 function setTab(x){if(typeof isOn==='function'&&!isOn(x))x=firstOnTab();if(typeof MEDIA!=='undefined')MEDIA.playing={};if(typeof CON!=='undefined')CON.playing={};tab=x;try{history.replaceState(null,'',location.pathname+location.search+'#'+x)}catch(e){}render()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 function setLang(l){
@@ -346,9 +355,9 @@ function render(){
 // ---------- TIMER ----------
 const T={running:false,start:0,elapsed:0,raf:0,lock:null};
 function preset(){const p=PRESETS.find(p=>p.id===S.timer.preset)||PRESETS[3];if(p.id!=='custom')return p;
-  return {id:'custom',g:S.timer.cg*60,a:S.timer.ca*60,r:S.timer.cr*60}}
+  return {id:'custom',g:S.timer.cg*60,a:S.timer.ca*60,r:S.timer.cr*60,...(S.timer.cseg?{lo:0}:{})}}
 const presetLabel=p=>p.id==='custom'&&p.g!=null?t('preset.customN',{a:p.g/60,b:p.r/60}):t('preset.'+p.id);
-const logType=l=>l.pid?(l.pid==='custom'?t('preset.customN',{a:l.cg,b:l.cr}):t('preset.'+l.pid)):(l.type||'');
+const logType=l=>l.pid?(l.pid==='custom'?(l.seg&&typeof AGL==='function'?AGL().minN.replace('{a}',fmtMin(l.cg)).replace('{b}',fmtMin(l.cr)):t('preset.customN',{a:l.cg,b:l.cr})):t('preset.'+l.pid)):(l.type||'');
 // Timer display (colors and time, or colors only) is a preference of this device, kept apart from meeting data.
 const timerDisplay=()=>{try{return localStorage.getItem('gt-timer-display')||'both'}catch(e){return 'both'}};
 const setTimerDisplay=v=>{try{localStorage.setItem('gt-timer-display',v)}catch(e){}};
@@ -365,7 +374,7 @@ function paintTimer(){
 }
 function tick(){paintTimer();if(T.running)T.raf=requestAnimationFrame(tick)}
 const marksHtml=p=>`<span class="g">${mmss(p.g)}</span><span class="a">${mmss(p.a)}</span><span class="r">${mmss(p.r)}</span>`;
-const VIEWS={guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView(),contest:()=>contestView(),cofficials:()=>contestOfficialsView(),cdocs:()=>contestDocsView(),cvideos:()=>contestVideosView(),me:()=>meView(),directory:()=>directoryView(),speeches:()=>speechesView(),pathways:()=>pathwaysView(),mentoring:()=>mentoringView(),stats:()=>statsView(),kit:()=>kitView(),cpro:()=>cproView()};
+const VIEWS={home:()=>landingView(),guestbook:()=>guestbookView(),members:()=>membersView(),office:()=>officeView(),feedback:()=>feedbackView(),eval:()=>evalView(),club:()=>clubView(),draw:()=>drawView(),contest:()=>contestView(),cofficials:()=>contestOfficialsView(),cdocs:()=>contestDocsView(),cvideos:()=>contestVideosView(),me:()=>meView(),directory:()=>directoryView(),speeches:()=>speechesView(),pathways:()=>pathwaysView(),mentoring:()=>mentoringView(),stats:()=>statsView(),kit:()=>kitView(),cpro:()=>cproView()};
 VIEWS.timer=()=>{const p=preset();const tm=S.timer;
   return `<section class="panel">
   <div class="phead"><div><h2>${t('timer.title')}</h2><p class="muted">${t('timer.intro')}</p></div></div>
@@ -536,11 +545,13 @@ VIEWS.agenda=()=>{const a=S.agenda;if(!a.online)a.online=online(a);const o=onlin
     <div class="field"><label class="label" for="a-mid">${t('on.id')}</label><input id="a-mid" data-bind="agenda.online.id" data-live="1" value="${esc(o.id)}"></div>
     <div class="field"><label class="label" for="a-pass">${t('on.pass')}</label><input id="a-pass" data-bind="agenda.online.pass" data-live="1" value="${esc(o.pass)}"></div>
   </div>`:''}</div>
+  ${typeof customRolesBox==='function'?customRolesBox():''}
   <div class="grid2">
-  <div class="box"><h3>${t('ag.order')}</h3>
+  <div class="box"><h3>${t('ag.order')}</h3>${typeof contestCountBox==='function'?contestCountBox():''}
     ${a.items.map((it,i)=>`<div class="arow"><span class="t">${times[i]}</span>
       <input id="ai-t${i}" aria-label="${t('ag.item')}" data-item="${i}" data-k="title" value="${esc(itemTitle(it))}">
       <select class="rolesel" id="ai-r${i}" aria-label="${t('ag.role')}" data-item="${i}" data-k="role"><option value="">${t('ag.noRole')}</option>${[...new Set([...publicRoleKeys(),...(rolesMode()==='contest'?['toastmaster','pres']:[]),...(it.role&&!SECRET_ROLES.includes(it.role)?[it.role]:[])])].map(k=>`<option value="${k}" ${k===it.role?'selected':''}>${roleLabel(k)}</option>`).join('')}</select>
+      ${typeof timingSelect==='function'?timingSelect(it,i):''}
       <input id="ai-d${i}" aria-label="${t('ag.minutes')}" type="number" min="0" data-item="${i}" data-k="dur" value="${it.dur}">
       <div class="ctrls"><button class="ghost small" data-act="a-up" data-i="${i}" aria-label="${t('ag.up')}">↑</button><button class="ghost small" data-act="a-down" data-i="${i}" aria-label="${t('ag.down')}">↓</button><button class="ghost small" data-act="a-del" data-i="${i}" aria-label="${t('common.remove')}">×</button></div></div>`).join('')}
     <div class="btns"><button data-act="a-add">${t('ag.add')}</button><span class="muted" style="align-self:center">${t('ag.endsAt',{t:times[times.length-1]})}</span></div>
@@ -574,7 +585,7 @@ function rolesModeSwitch(){
     ${m==='contest'?`<p class="muted" style="margin:8px 0 0">${t('roles.contestIntro')}</p>`:''}</div>`;
 }
 const roleRow=k=>`<tr><td>${roleLabel(k)}${SECRET_ROLES.includes(k)?` <span class="muted" title="${esc(t('roles.secretHint'))}">🔒</span>`:''}</td><td>${roleCell(k)}</td><td id="rs-${k}">${filledChip(roleName(k))}</td></tr>`;
-VIEWS.roles=()=>{const open=officialKeys().filter(k=>!roleName(k)||(SH.on&&SH.roles[k]&&SH.roles[k].swap));const contest=rolesMode()==='contest';
+VIEWS.roles=()=>{const open=officialKeys().filter(roleIsOpen);const contest=rolesMode()==='contest';
   return `<section class="panel">
   <div class="phead"><div><h2>${t('roles.title')}</h2><p class="muted">${t(SH.on?'roles.introShared':'roles.introLocal')}</p></div>
   <span class="chip ${open.length?'warn':'ok'}">${open.length?t('roles.openN',{n:open.length}):t('roles.allFilled')}</span></div>
@@ -610,7 +621,7 @@ document.addEventListener('input',ev=>{const el=ev.target;
 });
 document.addEventListener('change',ev=>{const el=ev.target;const a=el.dataset.act;
   if(a==='a-format'){S.agenda.online=online(S.agenda);S.agenda.online.format=el.value;save();pushAgenda();render()}
-  if(a==='preset'){S.timer.preset=el.value;save();render()}
+  if(a==='preset'){S.timer.preset=el.value;S.timer.cseg=false;save();render()}
   if(a==='t-display'){setTimerDisplay(el.value);paintTimer()}
   if(a==='tt-theme'){S.topics.theme=el.value;S.topics.cur=null;save();render()}
   if(a==='v-cands'){if(SH.on&&!canControlVote()){render();return}const c=S.vote.cats[S.vote.cat];c.cands=[...new Set(el.value.split(',').map(s=>s.trim()).filter(Boolean))].slice(0,20);save();pushVote();render()}
@@ -639,7 +650,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 't-reset':resetTimer();paintTimer();break;
   case 't-log':{const s=elapsed();if(s<1){toast(t('timer.startFirst'));break}const p=preset();
     const entry={name:S.timer.name||t('timer.speakerN',{n:S.timer.log.length+1}),pid:p.id,secs:Math.round(s),q:qualified(s,p)};
-    if(p.id==='custom'){entry.cg=S.timer.cg;entry.cr=S.timer.cr}
+    if(p.id==='custom'){entry.cg=S.timer.cg;entry.cr=S.timer.cr;if(S.timer.cseg)entry.seg=true}
     S.timer.log.push(entry);resetTimer();S.timer.name='';
     // Running order loaded from the agenda: mark this one done and get the next speaker ready.
     const q=S.timer.queue||[];if(q.length&&S.timer.qi!=null&&q[S.timer.qi]){q[S.timer.qi].done=true;const nx=q.findIndex((x,j)=>j>S.timer.qi&&!x.done);if(nx>=0)flowApply(nx);else S.timer.qi=null}
@@ -688,7 +699,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   // roles
   case 'r-swap':case 'r-swap-off':{const e=SH.roles[b.dataset.k];if(!e||e.u!==SH.uid)break;writeRole(b.dataset.k,{n:e.n,u:e.u,...(b.dataset.act==='r-swap'?{swap:true}:{})});render();
     if(b.dataset.act==='r-swap')toast(t('swap.asked'));break}
-  case 'r-copy':{const open=officialKeys().filter(k=>!roleName(k)||(SH.on&&SH.roles[k]&&SH.roles[k].swap)).map(k=>'• '+roleLabel(k)+(roleName(k)?' ('+t('swap.wanted')+')':''));const ag=S.agenda;
+  case 'r-copy':{const open=officialKeys().filter(roleIsOpen).map(k=>'• '+roleLabel(k)+(roleName(k)?' ('+t('swap.wanted')+')':''));const ag=S.agenda;
     copyText(open.length?t('roles.msgOpen',{date:ag.date?t('roles.msgDate',{d:fmtDate(ag.date)}):'',theme:ag.theme?t('roles.msgTheme',{t:ag.theme}):'',list:open.join('\n')}):t('roles.msgFull'));break}
   case 'r-mode':if(SH.on&&!canManage())break;S.agenda.rolesMode=b.dataset.v;save();pushAgenda();render();break;
   case 'r-ask':confirmClear=true;render();break;
@@ -696,7 +707,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');i
   case 'r-clear':confirmClear=false;
     if(SH.on){if(!canManage())break;SH.roles={};render();(typeof MTG!=='undefined'&&MTG.sel?planRef(MTG.sel).update({roles:{},edit:''}):SH.ref.roles.set({roles:{}})).catch(writeFail);break}
     Object.keys(S.roles).forEach(k=>S.roles[k]='');save();render();break;
-  case 'r-take':{if(!canAct())break;const n=myName().trim();if(!n){toast(t('roles.nameFirst'));const f=$('#my-name');if(f)f.focus();break}writeRole(b.dataset.k,{n:n.slice(0,60),u:SH.uid});render();break}
+  case 'r-take':{if(!canAct())break;const n=(myName()||(typeof myProfile==='function'&&myProfile()&&myProfile().name)||'').trim();if(!n){toast(t('roles.nameFirst'));const f=$('#my-name');if(f)f.focus();break}writeRole(b.dataset.k,{n:n.slice(0,60),u:SH.uid});render();break}
   case 'r-release':case 'r-unassign':writeRole(b.dataset.k,null);render();break;
   case 'copy-link':copyText(shareLink());break;
   case 'a-pdf':currentAgendaPdf();break;

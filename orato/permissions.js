@@ -29,13 +29,13 @@ function newCode(){
 const accessOn=()=>SH.on&&!!(ACC.pub&&ACC.pub.on);
 // A device unlocked with the current code, or an active member profile (profiles.js).
 const deviceOk=()=>!!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v)||(typeof profileMember==='function'&&profileMember());
-// Edit the agenda, nominees, draw, other people's roles.
-const canManage=()=>!SH.on||!accessOn()||SH.officer===true;
+// Edit the agenda, nominees, draw, planned meetings, other people's roles: signed-in officers only in a club space.
+const canManage=()=>!SH.on||SH.officer===true;
 // Take your own role, send reports.
 const canAct=()=>canManage()||deviceOk();
 // Cast a ballot.
 const canBallot=()=>canAct()||!(ACC.pub&&ACC.pub.guestsVote===false);
-const accessLevel=()=>!SH.on?'local':SH.officer===true?'officer':!accessOn()?'open':deviceOk()?'member':'visitor';
+const accessLevel=()=>!SH.on?'local':SH.officer===true?'officer':deviceOk()?'member':'visitor';
 
 // ---------- live data ----------
 function accessLive(){
@@ -93,8 +93,10 @@ function memberLink(){const u=new URL(shareLink());if(ACC.cfg)u.searchParams.set
 // ---------- what visitors and members see ----------
 // Shown inside the "live" notice on shared pages (roles, agenda, voting, draw).
 function accessStrip(){
-  if(!accessOn()||SH.officer===true)return '';
+  if(SH.officer===true)return '';
   if(typeof profileMember==='function'&&profileMember()&&!(ACC.dev&&ACC.pub&&ACC.dev.v===ACC.pub.v))return `<div class="notice"><span>✓ ${t('me.memberText')}</span></div>`;
+  // Without a member code, members take roles with their confirmed member profile.
+  if(!accessOn())return `<div class="notice"><span>${t('acc.visitorNoCode')}</span><button class="small" data-act="go-me">${t('tab.me')}</button></div>`;
   if(deviceOk())return `<div class="notice"><span>${t('acc.isMember')}</span><button class="small ghost" data-act="acc-forget">${t('acc.forget')}</button></div>`;
   return unlockForm();
 }

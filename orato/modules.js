@@ -11,7 +11,7 @@ const MODULE_SECTIONS=[
   {id:'contests',label:'nav.contests',tabs:['contest','cofficials','cdocs','cvideos','cpro'],                              subs:[]},
   {id:'after',   label:'nav.after',  tabs:['feedback'],                                 subs:[]}
 ];
-const ALWAYS_ON=['office','me'];
+const ALWAYS_ON=['office','me','home'];
 const MODS={disabled:[],unsub:null,saving:false};
 
 function modulesLive(){

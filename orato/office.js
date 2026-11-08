@@ -243,6 +243,7 @@ function currentSnapshot(){
   const votes=S.vote.cats.map((c,i)=>{const {votes,total}=tally(i);return {key:c.key||null,name:c.name||null,cands:c.cands||[],results:votes,total}});
   return {date:a.date||todayISO(),club:a.club||'',theme:a.theme||'',venue:a.venue||'',start:a.start||'19:00',online:online(a),
     items:(a.items||[]).map(it=>({k:it.k||null,title:it.title||null,role:it.role||'',dur:Number(it.dur)||0})),
+    customRoles:customRoles().map(r=>({id:r.id,name:r.name,kind:r.kind||'other'})),
     roles,votes,reports:clone(SH.reports||{}),attendance:typeof attendanceSnapshot==='function'?attendanceSnapshot():null,closedAt:new Date().toISOString(),closedBy:SH.user.email};
 }
 async function closeMeeting(){

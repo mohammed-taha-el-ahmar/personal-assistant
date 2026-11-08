@@ -21,7 +21,7 @@ function paintNav(){
   const cur=navSectionOf(tab);
   snav.innerHTML=NAV_SECTIONS.filter(s=>s.tabs.some(navVisible)).map(s=>
     `<button type="button" data-nav="${s.id}" ${cur===s?'aria-current="page"':''} title="${esc(t(s.label))}">${navIcon(s.icon)}<span>${esc(t(s.short))}</span></button>`).join('');
-  const tabs=(cur?cur.tabs:NAV_OFFICE).filter(navVisible);
+  const tabs=tab==='home'?[]:(cur?cur.tabs:NAV_OFFICE).filter(navVisible);
   sub.innerHTML=tabs.length>1?`<div class="subnav" role="tablist" aria-label="${esc(cur?t(cur.label):t('tab.me'))}">${tabs.map(x=>
     `<button type="button" role="tab" data-tab="${x}" aria-selected="${x===tab}">${esc(t('tab.'+x))}</button>`).join('')}</div>`:'';
   if(off){const u=typeof myProfile==='function'&&myProfile();const label=u&&u.name?firstName(u.name):isMember()?t('tab.me'):t('me.signInShort');

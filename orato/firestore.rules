@@ -38,11 +38,11 @@ rules_version = '2';
 //   clubs/{club}/members/{id}     member list and renewals; officers only
 //   clubs/{club}/devices/{uid}    one per device unlocked with the club code; valid while its v matches the config
 //
-// Permission levels, once officers have turned on member access (private/config exists):
+// Permission levels:
 //   visitor (link only)          read, vote (unless guestsVote is false), feedback, interest form
-//   member  (device unlocked)    + take a free role or give up their own, send reports
-//   officer (on the officer list) + agenda, nominees and results, draw, anyone's roles, everything else
-// Without private/config the club stays open as before: everyone with the link can edit the meeting.
+//   member  (active member profile, or device unlocked with the member code)
+//                                + take a free role or give up their own, send reports, launch a vote
+//   officer (on the officer list) + agenda, planned meetings, nominees and results, draw, anyone's roles, everything else
 //
 // Members are signed in anonymously. Officers sign in with Google and are recognised by their verified email.
 //
@@ -107,11 +107,11 @@ service cloud.firestore {
     }
     // A device unlocked with the current code (changing the code raises v and revokes older devices).
     function memberDevice(club) {
-      return exists(devPath(club)) && get(devPath(club)).data.v == get(cfgPath(club)).data.v;
+      return protectedClub(club) && exists(devPath(club)) && get(devPath(club)).data.v == get(cfgPath(club)).data.v;
     }
-    // Officer level: edit the meeting. Everyone, while the club has not turned on member access.
+    // Officer level: edit the meeting, plan meetings, assign roles to others. Signed-in officers only.
     function canManage(club) {
-      return request.auth != null && (!protectedClub(club) || isOfficer(club));
+      return request.auth != null && isOfficer(club);
     }
     // Member level: take your own role, send reports. A device unlocked with the code, or an active member profile.
     function memberLevel(club) {
@@ -562,7 +562,8 @@ service cloud.firestore {
       allow read: if open(club) || purging(club);
       allow delete: if validClub(club) && isOfficer(club);
       allow create, update: if open(club) && isOfficer(club)
-        && request.resource.data.keys().hasOnly(['name', 'items', 'start', 'updatedAt', 'updatedBy'])
+        && request.resource.data.keys().hasOnly(['name', 'items', 'customRoles', 'start', 'updatedAt', 'updatedBy'])
+        && request.resource.data.get('customRoles', []) is list && request.resource.data.get('customRoles', []).size() <= 12
         && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
         && request.resource.data.items is list && request.resource.data.items.size() <= 40;
     }

@@ -138,16 +138,22 @@ const ROLE_GROUPS=[['toastmaster',['toastmaster']],['speaker',['s1','s2','s3']],
   ['timer',['timer']],['ah',['ah']],['gram',['gram']],['saa',['saa']],['pres',['pres']]];
 function roleStatsBox(s){
   const L=STL();if(!s.hist.length)return '';
-  const label=g=>g==='speaker'?L.grpSpeaker:g==='evaluator'?L.grpEval:roleLabel(g);
+  const label=g=>g==='speaker'?L.grpSpeaker:g==='evaluator'?L.grpEval:g.startsWith('c:')?custom[g]:roleLabel(g);
   const people={};const norm=n=>String(n||'').trim();const key=n=>norm(n).toLocaleLowerCase();
   const P=n=>{const k=key(n);return people[k]||(people[k]={name:norm(n),g:{},total:0,present:0})};
-  const cover={};
+  const cover={},custom={};
   s.hist.forEach(m=>{const r=m.roles||{};
-    ROLE_GROUPS.forEach(([g,keys])=>{let filled=false;keys.forEach(k=>{if(r[k]){filled=true;const p=P(r[k]);p.g[g]=(p.g[g]||0)+1;p.total++}});if(filled)cover[g]=(cover[g]||0)+1});
+    const seen=new Set();
+    ROLE_GROUPS.forEach(([g,keys])=>{keys.forEach(k=>{if(r[k]){seen.add(g);const p=P(r[k]);p.g[g]=(p.g[g]||0)+1;p.total++}})});
+    // Custom roles of that meeting: speeches and evaluations join their group, the others get a column of their own (by name).
+    (m.customRoles||[]).forEach(cr=>{const n=r[cr.id];if(!n||!cr.name)return;
+      const g=cr.kind==='speech'?'speaker':cr.kind==='eval'?'evaluator':'c:'+String(cr.name).trim().toLocaleLowerCase();
+      if(g.startsWith('c:')&&!custom[g])custom[g]=String(cr.name).trim();seen.add(g);const p=P(n);p.g[g]=(p.g[g]||0)+1;p.total++});
+    seen.forEach(g=>cover[g]=(cover[g]||0)+1);
     if(m.attendance)[...(m.attendance.onsite||[]),...(m.attendance.online||[])].forEach(n=>{if(norm(n))P(n).present++});
   });
   const rows=Object.values(people).filter(p=>p.name).sort((a,b)=>b.total-a.total||b.present-a.present||a.name.localeCompare(b.name));
-  const groups=ROLE_GROUPS.map(x=>x[0]).filter(g=>cover[g]);
+  const groups=[...ROLE_GROUPS.map(x=>x[0]),...Object.keys(custom).sort((a,b)=>custom[a].localeCompare(custom[b]))].filter(g=>cover[g]);
   const max=Math.max(1,...rows.flatMap(p=>groups.map(g=>p.g[g]||0)));
   const cell=n=>n?`<td class="num heat" style="--h:${(n/max).toFixed(2)}">${n}</td>`:'<td class="num"></td>';
   return `<div class="box"><div><h3>${esc(L.roleTitle)}</h3><p class="muted">${esc(L.roleIntro)}</p></div>

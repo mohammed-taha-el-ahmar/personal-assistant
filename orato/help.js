@@ -152,7 +152,7 @@ function decorateHelp(){
   }
   let seen=false;try{seen=localStorage.getItem(HELP_SEEN_KEY)==='1'}catch(e){seen=true}
   const main=document.getElementById('main');
-  if(!seen&&main&&!main.querySelector('.welcome'))main.insertAdjacentHTML('afterbegin',`<div class="welcome"><div><b>${L.ui.welcomeTitle}</b><p>${L.ui.welcomeText}</p></div>
+  if(!seen&&tab!=='home'&&main&&!main.querySelector('.welcome'))main.insertAdjacentHTML('afterbegin',`<div class="welcome"><div><b>${L.ui.welcomeTitle}</b><p>${L.ui.welcomeText}</p></div>
     <div class="btns"><button class="primary small" data-act="help-guide">${L.ui.welcomeGo}</button><button class="small ghost" data-act="help-dismiss">${L.ui.welcomeLater}</button></div></div>`);
   const hb=document.getElementById('helpbtn');if(hb){hb.setAttribute('aria-label',L.ui.guide);hb.title=L.ui.guide;const s=hb.querySelector('.themelabel');if(s)s.textContent=L.ui.guideBtn}
 }

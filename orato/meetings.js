@@ -164,13 +164,13 @@ function planAgendaFor(d){const cur=MTG.curAgenda||S.agenda;const ag=normAgenda(
 
 // Open roles of a meeting (its agenda decides between the meeting and the contest list).
 function openRolesOf(agenda,roles){
-  const keys=agenda&&agenda.rolesMode==='contest'?CONTEST_OFFICIAL_KEYS:ROLE_KEYS;
-  return keys.filter(k=>{const e=(roles||{})[k];return !(e&&e.n)||(e&&e.swap)});
+  const keys=[...(agenda&&agenda.rolesMode==='contest'?CONTEST_OFFICIAL_KEYS:ROLE_KEYS),...customRoles(agenda).map(r=>r.id)];
+  return keys.filter(k=>{const e=(roles||{})[k];return (!(e&&e.n)&&!OPTIONAL_ROLES.includes(k))||(e&&e.swap)});
 }
 function upcomingMeetings(n=5){
   const cur=MTG.curAgenda||(MTG.sel?null:S.agenda);const list=[];
-  if(cur&&cur.date)list.push({id:'',date:cur.date,theme:cur.theme||'',open:openRolesOf(cur,MTG.curRoles||SH.roles)});
-  MTG.plans.forEach(p=>list.push({id:p.id,date:p.date,theme:(p.agenda&&p.agenda.theme)||'',open:openRolesOf(p.agenda,p.roles)}));
+  if(cur&&cur.date)list.push({id:'',date:cur.date,theme:cur.theme||'',ag:cur,open:openRolesOf(cur,MTG.curRoles||SH.roles)});
+  MTG.plans.forEach(p=>list.push({id:p.id,date:p.date,theme:(p.agenda&&p.agenda.theme)||'',ag:p.agenda,open:openRolesOf(p.agenda,p.roles)}));
   return list.slice(0,n);
 }
 function upcomingBox(){
@@ -182,7 +182,7 @@ function upcomingBox(){
 function multiOpenMessage(){
   const L=MGL2();const ms=upcomingMeetings(5).filter(m=>m.open.length);if(!ms.length)return L.msgNone;
   const u=new URL(shareLink());u.hash='roles';
-  return `${L.msgHead}\n\n`+ms.map(m=>`${fmtDate(m.date)}${m.theme?' – '+m.theme:''}\n`+m.open.map(k=>'• '+roleLabel(k)).join('\n')).join('\n\n')+`\n\n${L.msgFoot.replace('{link}',u.toString())}`;
+  return `${L.msgHead}\n\n`+ms.map(m=>`${fmtDate(m.date)}${m.theme?' – '+m.theme:''}\n`+m.open.map(k=>'• '+roleLabel(k,m.ag)).join('\n')).join('\n\n')+`\n\n${L.msgFoot.replace('{link}',u.toString())}`;
 }
 
 document.addEventListener('click',ev=>{
