@@ -69,9 +69,14 @@ jobs:
           cp -r css js assets docs articles _site/
           mkdir _site/bayanat
           cp -r bayanat/site/dist/. _site/bayanat/
-          mkdir _site/orato
-          cp -r orato _site/orato
-          cp -r quizlive _site/quizlive/
+          # Static apps, each served under its own folder name.
+          # Copy the folder's CONTENTS (the trailing /.), otherwise you get /orato/orato/.
+          # Their own CNAME files are dropped: only the root CNAME counts.
+          for app in orato quizlive parley; do
+            mkdir -p "_site/$app"
+            cp -r "$app/." "_site/$app/"
+            rm -f "_site/$app/CNAME"
+          done
           touch _site/.nojekyll
 
       - uses: actions/upload-pages-artifact@v3
