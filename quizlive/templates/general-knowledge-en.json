@@ -1,0 +1,133 @@
+{
+ "id": "general-knowledge-en",
+ "lang": "en",
+ "theme": "general",
+ "title": "General knowledge warm-up",
+ "description": "A mixed warm-up to start any session.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "How many continents are there in the most widely taught model?",
+   "answers": [
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "Lightning never strikes the same place twice.",
+   "answers": [],
+   "correct": [
+    1
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Which language has the most native speakers?",
+   "answers": [
+    "Spanish",
+    "English",
+    "Mandarin Chinese",
+    "Hindi"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "What is the chemical symbol for gold?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Au"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Who painted the Mona Lisa?",
+   "answers": [
+    "Michelangelo",
+    "Leonardo da Vinci",
+    "Raphael",
+    "Botticelli"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "A year on Mercury is shorter than a year on Earth.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "How many players does each football (soccer) team have on the pitch?",
+   "answers": [
+    "9",
+    "10",
+    "11",
+    "12"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "In which city is the Eiffel Tower?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Paris"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Which superpower would you rather have?",
+   "answers": [
+    "Flying",
+    "Invisibility",
+    "Teleportation",
+    "Time travel"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  }
+ ]
+}

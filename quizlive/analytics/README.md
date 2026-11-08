@@ -28,6 +28,8 @@
 | `timeLimitMs`, `pointsValue` | int | |
 | `playerId`, `nickname` | string | Anonymous auth uid; the nickname is player-chosen |
 | `answered`, `choice`, `correct` | bool, int\|null, bool | |
+| `questionType` | string | quiz, truefalse, typeAnswer, poll or images. Polls are left out of accuracy figures |
+| `textAnswer`, `acceptedAnswers` | string\|null, string[] | Typed answers |
 | `responseMs` | int\|null | Server-timestamp based (RTDB), not the device clock |
 | `pointsEarned`, `streakBonus`, `streakAfter`, `rankAfter`, `scoreAfter` | int | |
 | `questionStartedAt` | int (ms) | RTDB server time |
@@ -35,6 +37,10 @@
 
 The document ID is **deterministic**, so a retry overwrites the same row instead of creating a duplicate.
 The writes are idempotent by design, and `firestore.rules` enforces the ID format.
+
+**`upgradeSignals/{sessionId}_player_cap`** is written when a lobby reaches the free player cap.
+It holds `limit`, `playerCount`, `playerCountAtStart` and `createdAt`. Join it with `gameSessions` to find hosts who regularly
+run big games. To stream it to BigQuery, install another instance of the export extension.
 
 **`gameSessions/{sessionId}`** holds one document per game: `status` (`running` or `completed`),
 `startedAt`, `endedAt`, `playerCount`, `questionCount`, and the final `leaderboard`.

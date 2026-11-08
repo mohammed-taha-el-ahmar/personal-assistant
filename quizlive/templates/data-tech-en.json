@@ -1,0 +1,123 @@
+{
+ "id": "data-tech-en",
+ "lang": "en",
+ "theme": "tech",
+ "title": "Data & tech trivia",
+ "description": "For engineers, analysts and the curious.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "What does SQL stand for?",
+   "answers": [
+    "Structured Query Language",
+    "Simple Question Language",
+    "Sequential Query Logic",
+    "Standard Quick Lookup"
+   ],
+   "correct": [
+    0
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "The Python language is named after the snake.",
+   "answers": [],
+   "correct": [
+    1
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Which file format stores data by column?",
+   "answers": [
+    "CSV",
+    "JSON",
+    "Parquet",
+    "XML"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "In CRUD, what does the D stand for?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Delete"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "How many bits are in a byte?",
+   "answers": [
+    "4",
+    "8",
+    "16",
+    "32"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Which SQL clause filters rows after GROUP BY?",
+   "answers": [
+    "WHERE",
+    "HAVING",
+    "ORDER BY",
+    "LIMIT"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "HTTP status code 404 means \"Not Found\".",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Which company created JavaScript?",
+   "answers": [
+    "Netscape",
+    "Microsoft",
+    "Sun Microsystems",
+    "Google"
+   ],
+   "correct": [
+    0
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  }
+ ]
+}

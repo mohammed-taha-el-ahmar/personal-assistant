@@ -1,0 +1,141 @@
+{
+ "id": "world-geography-en",
+ "lang": "en",
+ "theme": "geography",
+ "title": "World geography",
+ "description": "Capitals, rivers, oceans and flags.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "What is the capital of Australia?",
+   "answers": [
+    "Sydney",
+    "Canberra",
+    "Melbourne",
+    "Perth"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "images",
+   "text": "Which is the flag of Japan?",
+   "answers": [
+    "",
+    "",
+    "",
+    ""
+   ],
+   "answerImages": [
+    "https://flagcdn.com/w320/kr.png",
+    "https://flagcdn.com/w320/jp.png",
+    "https://flagcdn.com/w320/bd.png",
+    "https://flagcdn.com/w320/cn.png"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Which is the longest river in Africa?",
+   "answers": [
+    "Congo",
+    "Niger",
+    "Nile",
+    "Zambezi"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "Morocco has coastlines on both the Atlantic Ocean and the Mediterranean Sea.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "What is the largest ocean on Earth?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Pacific",
+    "Pacific Ocean"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Mount Everest sits on the border between Nepal and which country?",
+   "answers": [
+    "India",
+    "China",
+    "Bhutan",
+    "Pakistan"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "images",
+   "text": "Which is the flag of Brazil?",
+   "answers": [
+    "",
+    "",
+    "",
+    ""
+   ],
+   "answerImages": [
+    "https://flagcdn.com/w320/pt.png",
+    "https://flagcdn.com/w320/co.png",
+    "https://flagcdn.com/w320/br.png",
+    "https://flagcdn.com/w320/ar.png"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Which country is both in Europe and in Asia?",
+   "answers": [
+    "Turkey",
+    "Greece",
+    "Egypt",
+    "Iran"
+   ],
+   "correct": [
+    0
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  }
+ ]
+}

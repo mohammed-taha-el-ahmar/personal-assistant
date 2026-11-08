@@ -1,0 +1,140 @@
+{
+ "id": "jughrafia-ar",
+ "lang": "ar",
+ "theme": "geography",
+ "title": "جغرافيا العالم العربي",
+ "description": "عواصم ومعالم وأعلام من المحيط إلى الخليج.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "ما عاصمة المغرب؟",
+   "answers": [
+    "الدار البيضاء",
+    "الرباط",
+    "فاس",
+    "مراكش"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "images",
+   "text": "أي علم هو علم الجزائر؟",
+   "answers": [
+    "",
+    "",
+    "",
+    ""
+   ],
+   "answerImages": [
+    "https://flagcdn.com/w320/ma.png",
+    "https://flagcdn.com/w320/dz.png",
+    "https://flagcdn.com/w320/tn.png",
+    "https://flagcdn.com/w320/pk.png"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "ما أكبر دولة عربية من حيث المساحة؟",
+   "answers": [
+    "السعودية",
+    "السودان",
+    "الجزائر",
+    "ليبيا"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "يطل المغرب على البحر الأبيض المتوسط والمحيط الأطلسي.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "ما عاصمة تونس؟",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "تونس"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "في أي دولة تقع مدينة البتراء الأثرية؟",
+   "answers": [
+    "مصر",
+    "لبنان",
+    "الأردن",
+    "سوريا"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "images",
+   "text": "أي علم هو علم لبنان؟",
+   "answers": [
+    "",
+    "",
+    "",
+    ""
+   ],
+   "answerImages": [
+    "https://flagcdn.com/w320/ca.png",
+    "https://flagcdn.com/w320/pe.png",
+    "https://flagcdn.com/w320/lb.png",
+    "https://flagcdn.com/w320/at.png"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "تمتد جبال الأطلس عبر المغرب والجزائر و…",
+   "answers": [
+    "ليبيا",
+    "تونس",
+    "مصر",
+    "موريتانيا"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  }
+ ]
+}

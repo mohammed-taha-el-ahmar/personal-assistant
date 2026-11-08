@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive</title>
+  <meta name="description" content="Ready-made live quizzes in English, French and Arabic: general knowledge, geography, science, football, team icebreakers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html" style="text-decoration:none">Quiz<span>Live</span></a>
+    <div class="row">
+      <a class="btn ghost small" href="dashboard.html" data-i18n="lib.myQuizzes"></a>
+      <div class="float-controls" id="controls"></div>
+    </div>
+  </header>
+
+  <main class="container stack">
+    <div>
+      <h1 data-i18n="lib.title"></h1>
+      <p class="muted lib-lede" data-i18n="lib.lede"></p>
+    </div>
+
+    <div class="tabs lib-tabs" role="tablist">
+      <button role="tab" id="tab-templates" data-tab="templates" aria-selected="true" data-i18n="lib.tabTemplates"></button>
+      <button role="tab" id="tab-community" data-tab="community" aria-selected="false" data-i18n="lib.tabCommunity"></button>
+    </div>
+
+    <form class="community-bar" id="community-bar" role="search" hidden>
+      <label class="sr-only" for="c-search" data-i18n="lib.search"></label>
+      <input id="c-search" type="search" maxlength="60" data-i18n-placeholder="lib.searchPh">
+      <label class="sr-only" for="c-sort" data-i18n="lib.sort"></label>
+      <select id="c-sort">
+        <option value="popular" data-i18n="lib.sortPopular"></option>
+        <option value="trending" data-i18n="lib.sortTrending"></option>
+        <option value="new" data-i18n="lib.sortNew"></option>
+      </select>
+      <a class="btn ghost small" href="dashboard.html" data-i18n="lib.shareYours"></a>
+    </form>
+
+    <div class="lib-filters">
+      <div class="seg" role="group" data-i18n-aria="lib.filterLang" id="lib-langs"></div>
+      <div class="chips-filter" role="group" data-i18n-aria="lib.filterTheme" id="lib-themes"></div>
+    </div>
+
+    <div class="lib-list" id="lib-list" aria-live="polite"></div>
+    <p class="muted" id="lib-empty" hidden></p>
+  </main>
+
+  <dialog class="sheet lib-sheet" id="lib-preview" aria-labelledby="lp-title">
+    <div class="sheet-head">
+      <div>
+        <h2 id="lp-title"></h2>
+        <p id="lp-desc" class="lp-desc"></p>
+        <p id="lp-meta" class="lp-meta"></p>
+      </div>
+      <button type="button" class="btn small ghost" data-close data-i18n="common.close"></button>
+    </div>
+    <ol class="lp-questions" id="lp-questions"></ol>
+    <div class="sheet-foot">
+      <div class="lp-foot-left">
+        <span class="lp-note" id="lp-note"></span>
+        <button type="button" class="linklike" id="lp-report" hidden data-i18n="report.open"></button>
+      </div>
+      <div class="row">
+        <button type="button" class="like-btn big" id="lp-like" hidden></button>
+        <button type="button" class="btn" id="lp-use" data-i18n="lib.use"></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="sheet report-sheet" id="report-dialog" aria-labelledby="rp-title">
+    <form class="stack" id="report-form" novalidate>
+      <div class="sheet-head">
+        <h2 id="rp-title" data-i18n="report.title"></h2>
+        <button type="button" class="btn small ghost" data-close data-i18n="common.close"></button>
+      </div>
+      <p class="muted-ink" data-i18n="report.explain"></p>
+      <fieldset class="report-reasons" id="rp-reasons"></fieldset>
+      <div>
+        <label for="rp-details" data-i18n="report.details"></label>
+        <textarea id="rp-details" rows="3" maxlength="500" data-i18n-placeholder="report.detailsPh"></textarea>
+      </div>
+      <div class="sheet-foot">
+        <span></span>
+        <button type="submit" class="btn danger" data-i18n="report.send"></button>
+      </div>
+      <div id="rp-error" class="error" role="alert"></div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/library.js"></script>
+</body>
+</html>

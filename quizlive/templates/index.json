@@ -1,0 +1,172 @@
+[
+ {
+  "id": "general-knowledge-en",
+  "lang": "en",
+  "theme": "general",
+  "title": "General knowledge warm-up",
+  "description": "A mixed warm-up to start any session.",
+  "questionCount": 9,
+  "types": [
+   "poll",
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "world-geography-en",
+  "lang": "en",
+  "theme": "geography",
+  "title": "World geography",
+  "description": "Capitals, rivers, oceans and flags.",
+  "questionCount": 8,
+  "types": [
+   "images",
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "science-basics-en",
+  "lang": "en",
+  "theme": "science",
+  "title": "Science basics",
+  "description": "Plants, planets, the human body and light.",
+  "questionCount": 8,
+  "types": [
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "team-icebreaker-en",
+  "lang": "en",
+  "theme": "icebreaker",
+  "title": "Team icebreaker",
+  "description": "No right answers: polls to get a team talking.",
+  "questionCount": 6,
+  "types": [
+   "poll"
+  ]
+ },
+ {
+  "id": "data-tech-en",
+  "lang": "en",
+  "theme": "tech",
+  "title": "Data & tech trivia",
+  "description": "For engineers, analysts and the curious.",
+  "questionCount": 8,
+  "types": [
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "culture-generale-fr",
+  "lang": "fr",
+  "theme": "general",
+  "title": "Culture générale",
+  "description": "Un échauffement varié pour lancer la séance.",
+  "questionCount": 9,
+  "types": [
+   "poll",
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "geographie-fr",
+  "lang": "fr",
+  "theme": "geography",
+  "title": "Géographie du monde",
+  "description": "Capitales, fleuves, mers et drapeaux.",
+  "questionCount": 8,
+  "types": [
+   "images",
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "brise-glace-fr",
+  "lang": "fr",
+  "theme": "icebreaker",
+  "title": "Brise-glace d'équipe",
+  "description": "Pas de bonne réponse : des sondages pour lancer la discussion.",
+  "questionCount": 6,
+  "types": [
+   "poll"
+  ]
+ },
+ {
+  "id": "football-fr",
+  "lang": "fr",
+  "theme": "sport",
+  "title": "Football",
+  "description": "Coupes du monde, clubs et règles du jeu.",
+  "questionCount": 8,
+  "types": [
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "thaqafa-amma-ar",
+  "lang": "ar",
+  "theme": "general",
+  "title": "ثقافة عامة",
+  "description": "أسئلة متنوعة لبداية أي جلسة.",
+  "questionCount": 9,
+  "types": [
+   "poll",
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "jughrafia-ar",
+  "lang": "ar",
+  "theme": "geography",
+  "title": "جغرافيا العالم العربي",
+  "description": "عواصم ومعالم وأعلام من المحيط إلى الخليج.",
+  "questionCount": 8,
+  "types": [
+   "images",
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "ramadan-eid-ar",
+  "lang": "ar",
+  "theme": "culture",
+  "title": "رمضان والعيد",
+  "description": "عادات وتقاليد رمضان والعيد في أجواء عائلية.",
+  "questionCount": 8,
+  "types": [
+   "poll",
+   "quiz",
+   "truefalse",
+   "typeAnswer"
+  ]
+ },
+ {
+  "id": "kasr-aljalid-ar",
+  "lang": "ar",
+  "theme": "icebreaker",
+  "title": "كسر الجليد للفريق",
+  "description": "لا توجد إجابة صحيحة: استطلاعات لبدء الحديث.",
+  "questionCount": 6,
+  "types": [
+   "poll"
+  ]
+ }
+]

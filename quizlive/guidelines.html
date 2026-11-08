@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive</title>
+  <meta name="description" content="Rules for publishing quizzes in the QuizLive community, the licence of shared quizzes, and how reports are handled.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html" style="text-decoration:none">Quiz<span>Live</span></a>
+    <div class="row">
+      <a class="btn ghost small" href="library.html?tab=community" data-i18n="lib.tabCommunity"></a>
+      <div class="float-controls" id="controls"></div>
+    </div>
+  </header>
+
+  <main class="page-paper guidelines">
+    <article class="section">
+      <h1 data-i18n="gl.title"></h1>
+      <p class="section-lede" data-i18n="gl.lede"></p>
+
+      <h2 data-i18n="gl.allowedTitle"></h2>
+      <ul>
+        <li data-i18n="gl.allowed1"></li>
+        <li data-i18n="gl.allowed2"></li>
+        <li data-i18n="gl.allowed3"></li>
+      </ul>
+
+      <h2 data-i18n="gl.notTitle"></h2>
+      <ul>
+        <li data-i18n="gl.not1"></li>
+        <li data-i18n="gl.not2"></li>
+        <li data-i18n="gl.not3"></li>
+        <li data-i18n="gl.not4"></li>
+        <li data-i18n="gl.not5"></li>
+        <li data-i18n="gl.not6"></li>
+      </ul>
+
+      <h2 id="licence" data-i18n="gl.licenceTitle"></h2>
+      <p data-i18n="gl.licence1"></p>
+      <p><span data-i18n="gl.licence2"></span> <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></p>
+
+      <h2 data-i18n="gl.checkTitle"></h2>
+      <p data-i18n="gl.check1"></p>
+
+      <h2 data-i18n="gl.reportTitle"></h2>
+      <p data-i18n="gl.report1"></p>
+      <p data-i18n="gl.report2"></p>
+      <p><span data-i18n="gl.report3"></span> <a href="mentions-legales.html" data-i18n="legal.notice"></a></p>
+    </article>
+  </main>
+
+  <script type="module">
+    import { initI18n, mountLangToggle } from "./js/i18n.js";
+    initI18n();
+    mountLangToggle(document.querySelector("#controls"));
+  </script>
+</body>
+</html>

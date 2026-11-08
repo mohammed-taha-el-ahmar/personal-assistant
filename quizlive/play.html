@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QuizLive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
 </head>
 <body>
   <div class="player-shell">
@@ -42,6 +43,11 @@
       <section data-view="question" class="player-main" hidden>
         <p id="p-qtext" class="p-question" hidden></p>
         <div class="tiles player-tiles" id="p-tiles" role="group"></div>
+        <form id="p-type-form" class="type-form" autocomplete="off" hidden>
+          <label for="p-type-input" class="sr-only" data-i18n="play.typeLabel"></label>
+          <input id="p-type-input" class="big" maxlength="60" data-i18n-placeholder="play.typePlaceholder" enterkeyhint="send" autocapitalize="off" spellcheck="false">
+          <button class="btn block" type="submit" data-i18n="play.typeSubmit"></button>
+        </form>
       </section>
 
       <section data-view="answered" class="result" hidden>
@@ -55,6 +61,7 @@
         <div class="stack">
           <div class="big" id="p-verdict"></div>
           <div class="pill" id="p-points"></div>
+          <p id="p-accepted"></p>
           <p id="p-streak"></p>
           <p id="p-rank"></p>
           <p id="p-gap"></p>
@@ -68,6 +75,12 @@
             <div><strong id="p-sum-score">0</strong><span data-i18n="play.sumScore"></span></div>
             <div><strong id="p-sum-correct">0</strong><span data-i18n="play.sumCorrect"></span></div>
             <div><strong id="p-sum-streak">0</strong><span data-i18n="play.sumStreak"></span></div>
+          </div>
+          <button type="button" class="btn block" id="p-share" data-i18n="share.button"></button>
+          <div class="host-invite">
+            <strong data-i18n="share.inviteTitle"></strong>
+            <span data-i18n="share.inviteText"></span>
+            <a class="btn ghost block" id="p-host-cta" href="index.html?utm_source=player_final" data-i18n="share.inviteButton"></a>
           </div>
           <p><a href="index.html" data-i18n="play.again"></a></p>
         </div>

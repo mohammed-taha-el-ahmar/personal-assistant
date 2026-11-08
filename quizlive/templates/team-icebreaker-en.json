@@ -1,0 +1,93 @@
+{
+ "id": "team-icebreaker-en",
+ "lang": "en",
+ "theme": "icebreaker",
+ "title": "Team icebreaker",
+ "description": "No right answers: polls to get a team talking.",
+ "questions": [
+  {
+   "type": "poll",
+   "text": "Coffee or tea?",
+   "answers": [
+    "Coffee",
+    "Tea",
+    "Both",
+    "Neither"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "When do you do your best work?",
+   "answers": [
+    "Early morning",
+    "Late morning",
+    "Afternoon",
+    "Night"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Pick a holiday.",
+   "answers": [
+    "Beach",
+    "Mountains",
+    "City trip",
+    "Staying home"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Your superpower at work?",
+   "answers": [
+    "Organising",
+    "Ideas",
+    "Calming people down",
+    "Fixing things"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Cats or dogs?",
+   "answers": [
+    "Cats",
+    "Dogs",
+    "Both",
+    "Neither"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "How do you take notes?",
+   "answers": [
+    "Paper notebook",
+    "Notes app",
+    "I remember everything",
+    "What notes?"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  }
+ ]
+}

@@ -1,0 +1,93 @@
+{
+ "id": "kasr-aljalid-ar",
+ "lang": "ar",
+ "theme": "icebreaker",
+ "title": "كسر الجليد للفريق",
+ "description": "لا توجد إجابة صحيحة: استطلاعات لبدء الحديث.",
+ "questions": [
+  {
+   "type": "poll",
+   "text": "قهوة أم شاي؟",
+   "answers": [
+    "قهوة",
+    "شاي",
+    "كلاهما",
+    "لا هذا ولا ذاك"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "متى تعمل بأفضل تركيز؟",
+   "answers": [
+    "في الصباح الباكر",
+    "قبل الظهر",
+    "بعد الظهر",
+    "في الليل"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "عطلتك المثالية؟",
+   "answers": [
+    "الشاطئ",
+    "الجبل",
+    "زيارة مدينة",
+    "البقاء في البيت"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "قوتك الخارقة في العمل؟",
+   "answers": [
+    "التنظيم",
+    "الأفكار",
+    "تهدئة الأجواء",
+    "إصلاح كل شيء"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "القطط أم الكلاب؟",
+   "answers": [
+    "القطط",
+    "الكلاب",
+    "كلاهما",
+    "لا هذا ولا ذاك"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "الاجتماع المثالي يدوم…",
+   "answers": [
+    "15 دقيقة",
+    "30 دقيقة",
+    "ساعة",
+    "كان يكفي بريد إلكتروني"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  }
+ ]
+}

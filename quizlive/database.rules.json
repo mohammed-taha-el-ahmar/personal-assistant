@@ -2,13 +2,11 @@
   "rules": {
     ".read": false,
     ".write": false,
-
     "games": {
       "$pin": {
         ".validate": "$pin.matches(/^[0-9]{6}$/)",
         ".read": "auth != null",
-        ".write": "auth != null && ((data.exists() && data.child('hostUid').val() === auth.uid) || (!data.exists() && newData.child('hostUid').val() === auth.uid && auth.token.firebase.sign_in_provider !== 'anonymous'))",
-
+        ".write": "auth != null && ((data.exists() && data.child('hostUid').val() === auth.uid) || (!data.exists() && newData.child('hostUid').val() === auth.uid && auth.token.firebase.sign_in_provider !== 'anonymous' && newData.parent().parent().child('hostGames/' + auth.uid + '/pin').val() === $pin && newData.parent().parent().child('hostQuota/' + auth.uid + '/lastCreatedAt').val() === now && (!root.child('hostGames/' + auth.uid).exists() || !root.child('games/' + root.child('hostGames/' + auth.uid + '/pin').val()).exists() || root.child('games/' + root.child('hostGames/' + auth.uid + '/pin').val() + '/createdAt').val() < now - 43200000) && (!root.child('hostQuota/' + auth.uid + '/lastCreatedAt').exists() || root.child('hostQuota/' + auth.uid + '/lastCreatedAt').val() < now - 30000)))",
         "players": {
           "$uid": {
             "nickname": {
@@ -23,21 +21,53 @@
         }
       }
     },
-
     "gameAnswers": {
       "$pin": {
         ".read": "auth != null && root.child('games/' + $pin + '/hostUid').val() === auth.uid",
         ".write": "auth != null && root.child('games/' + $pin + '/hostUid').val() === auth.uid",
-
         "$q": {
           "$uid": {
             ".read": "auth != null && auth.uid === $uid",
             ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('games/' + $pin + '/players/' + $uid + '/nickname').exists() && root.child('games/' + $pin + '/state/phase').val() === 'question' && root.child('games/' + $pin + '/state/key').val() === $q && now <= root.child('games/' + $pin + '/state/startedAt').val() + root.child('games/' + $pin + '/state/timeLimit').val() * 1000 + 1500",
-            ".validate": "newData.hasChildren(['choice', 'at']) && newData.child('choice').isNumber() && newData.child('choice').val() >= 0 && newData.child('choice').val() < root.child('games/' + $pin + '/state/answerCount').val() && newData.child('at').val() === now",
-            "choice": { ".validate": true },
-            "at": { ".validate": true },
-            "$other": { ".validate": false }
+            ".validate": "newData.hasChild('at') && newData.child('at').val() === now && ((newData.child('choice').isNumber() && !newData.hasChild('text') && root.child('games/' + $pin + '/state/type').val() !== 'typeAnswer' && newData.child('choice').val() >= 0 && newData.child('choice').val() < root.child('games/' + $pin + '/state/answerCount').val()) || (newData.child('text').isString() && !newData.hasChild('choice') && root.child('games/' + $pin + '/state/type').val() === 'typeAnswer' && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 60))",
+            "choice": {
+              ".validate": true
+            },
+            "text": {
+              ".validate": true
+            },
+            "at": {
+              ".validate": true
+            },
+            "$other": {
+              ".validate": false
+            }
           }
+        }
+      }
+    },
+    "hostGames": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['pin', 'createdAt']) && newData.child('pin').isString() && newData.child('pin').val().matches(/^[0-9]{6}$/) && newData.child('createdAt').val() === now",
+        "pin": {
+          ".validate": true
+        },
+        "createdAt": {
+          ".validate": true
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "hostQuota": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "lastCreatedAt": {
+          ".write": "auth != null && auth.uid === $uid && newData.exists()",
+          ".validate": "newData.val() === now"
         }
       }
     }

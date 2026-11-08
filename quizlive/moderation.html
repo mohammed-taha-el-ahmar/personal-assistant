@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>QuizLive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="dashboard.html" style="text-decoration:none">Quiz<span>Live</span></a>
+    <div class="row"><div class="float-controls" id="controls"></div></div>
+  </header>
+
+  <section data-view="loading" class="center"><div class="pill" data-i18n="common.loading"></div></section>
+
+  <section data-view="denied" class="center" hidden>
+    <div class="card narrow stack">
+      <h2 data-i18n="mod.deniedTitle"></h2>
+      <p style="color:var(--ink-soft)" data-i18n="mod.deniedText"></p>
+      <a class="btn" href="dashboard.html" data-i18n="host.backDash"></a>
+    </div>
+  </section>
+
+  <main data-view="queue" class="container stack" hidden>
+    <div>
+      <h1 data-i18n="mod.title"></h1>
+      <p class="muted" data-i18n="mod.lede"></p>
+    </div>
+    <div class="tabs mod-tabs" role="tablist">
+      <button role="tab" data-mode="queue" aria-selected="true" data-i18n="mod.tabQueue"></button>
+      <button role="tab" data-mode="recent" aria-selected="false" data-i18n="mod.tabRecent"></button>
+    </div>
+    <div id="mod-list" class="stack"></div>
+    <p class="muted" id="mod-empty" hidden></p>
+  </main>
+
+  <script type="module" src="js/moderation.js"></script>
+</body>
+</html>

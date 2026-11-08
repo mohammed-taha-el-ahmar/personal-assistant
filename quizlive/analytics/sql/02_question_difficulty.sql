@@ -1,7 +1,9 @@
 -- Difficulty per question version (index + text, so edited questions stay separate).
 CREATE OR REPLACE VIEW `your-project.quizlive_analytics.question_difficulty` AS
+-- Polls have no right answer, so they are excluded.
 SELECT
   quiz_id,
+  ANY_VALUE(question_type)                                     AS question_type,
   ANY_VALUE(quiz_title)                                        AS quiz_title,
   question_index,
   question_text,
@@ -18,4 +20,5 @@ SELECT
     ELSE 'ok'
   END                                                          AS difficulty_flag
 FROM `your-project.quizlive_analytics.stg_answer_events`
+WHERE question_type != 'poll'
 GROUP BY quiz_id, question_index, question_text;

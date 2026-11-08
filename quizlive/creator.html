@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html" style="text-decoration:none">Quiz<span>Live</span></a>
+    <div class="row">
+      <a class="btn ghost small" href="library.html?tab=community" data-i18n="creator.back"></a>
+      <div class="float-controls" id="controls"></div>
+    </div>
+  </header>
+
+  <main class="container stack">
+    <p class="muted" id="cr-loading" data-i18n="common.loading"></p>
+    <p class="muted" id="cr-missing" hidden data-i18n="creator.notFound"></p>
+    <section id="cr-profile" class="stack" hidden>
+      <div class="creator-head">
+        <span class="creator-avatar" id="cr-avatar" aria-hidden="true"></span>
+        <div>
+          <h1 id="cr-name"></h1>
+          <p class="muted" data-i18n="creator.lede"></p>
+        </div>
+      </div>
+      <ul class="creator-stats" id="cr-stats"></ul>
+      <div class="lib-list" id="cr-list"></div>
+    </section>
+  </main>
+
+  <script type="module" src="js/creator.js"></script>
+</body>
+</html>

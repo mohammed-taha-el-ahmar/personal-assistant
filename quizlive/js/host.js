@@ -13,10 +13,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 import {
   $, $$, params, showView, escapeHTML, SHAPES, qKey, computePoints, streakBonus,
-  rankPlayers, toast, downloadCSV, INTRO_MS,
+  rankPlayers, toast, downloadCSV, INTRO_MS, FREE_PLAYER_LIMIT,
 } from "./utils.js";
 import { t, initI18n, mountLangToggle, onLangChange, shapeName } from "./i18n.js";
 import { sound } from "./sound.js";
+import { typeOf, optionCount, playerView, isCorrect, isScored } from "./questions.js";
 import { mountSoundButton } from "./sound-panel.js";
 
 initI18n();
@@ -226,6 +227,7 @@ function renderLobbyPlayers(fresh) {
   }
   if (newcomers && !fresh) sound.play("join");
 
+  if (list.length >= FREE_PLAYER_LIMIT) capReached(list.length);
   $("#h-count").textContent = t("host.players", { n: list.length });
   $("#h-start").disabled = list.length === 0;
   $("#h-waiting").textContent = list.length ? t("host.clickToRemove") : t("host.waiting");
@@ -244,18 +246,35 @@ function buildIntro() {
   sound.play("intro");
 }
 
+function optionLabel(q, i) {
+  if (typeOf(q) === "truefalse") return t(i === 0 ? "qt.true" : "qt.false");
+  return q.answers?.[i] || "";
+}
+
 function tileHTML(q, i, extraClass = "") {
-  return `<div class="tile c${i} ${extraClass}" aria-label="${shapeName(i)}: ${escapeHTML(q.answers[i])}">
-    ${SHAPES[i]}<span>${escapeHTML(q.answers[i])}</span></div>`;
+  const label = optionLabel(q, i);
+  const img = typeOf(q) === "images"
+    ? `<img class="tile-img" src="${escapeHTML(q.answerImages[i])}" alt="${escapeHTML(label)}">` : "";
+  return `<div class="tile c${i}${img ? " has-img" : ""} ${extraClass}" aria-label="${shapeName(i)}${label ? `: ${escapeHTML(label)}` : ""}">
+    ${SHAPES[i]}${img}${label ? `<span>${escapeHTML(label)}</span>` : ""}</div>`;
+}
+
+function tilesFor(q, classFor = () => "") {
+  return Array.from({ length: optionCount(q) }, (_, i) => tileHTML(q, i, classFor(i))).join("");
 }
 
 function buildQuestion() {
   const q = quiz.questions[state.index];
-  $("#h-qprogress").textContent = t("common.questionOf", { n: state.index + 1, total: state.total });
+  const type = typeOf(q);
+  $("#h-qprogress").textContent = `${t("common.questionOf", { n: state.index + 1, total: state.total })} · ${t(`qt.${type}`)}`;
   $("#h-qtext").textContent = q.text;
   $("#h-qimage").innerHTML = q.imageUrl && /^https:\/\//.test(q.imageUrl)
     ? `<img src="${escapeHTML(q.imageUrl)}" alt="">` : "";
-  $("#h-tiles").innerHTML = q.answers.map((_, i) => tileHTML(q, i)).join("");
+  const tiles = $("#h-tiles");
+  tiles.className = `tiles${type === "images" ? " image-tiles" : ""}`;
+  tiles.innerHTML = type === "typeAnswer"
+    ? `<div class="type-prompt"><span aria-hidden="true">⌨</span> ${t("host.typePrompt")}</div>`
+    : tilesFor(q);
 }
 
 function connectedPlayers() {
@@ -272,22 +291,43 @@ function updateAnswerCount() {
 
 function buildReveal() {
   const q = quiz.questions[state.index];
-  const dist = reveal.distribution || [];
-  const max = Math.max(1, ...dist);
+  const type = typeOf(q);
+  const bars = $("#h-bars");
+  const tiles = $("#h-rtiles");
   $("#h-rtext").textContent = q.text;
-  $("#h-bars").innerHTML = q.answers.map((_, i) => {
-    const n = dist[i] || 0;
-    const ok = reveal.correct.includes(i);
-    return `<div class="bar c${i} ${ok ? "" : "dim"}" aria-label="${shapeName(i)}: ${n}${ok ? `, ${t("host.correctAnswer")}` : ""}">
-      <div class="n">${ok ? "✓ " : ""}${n}</div>
-      <div class="fill" style="height:0%" data-h="${(n / max) * 85}"></div>
+  $("#h-rlabel").textContent = type === "poll" ? t("host.pollResults") : "";
+
+  if (type === "typeAnswer") {
+    // Only the accepted answer and the count: wrong typed answers are never projected.
+    bars.hidden = true;
+    tiles.className = "typed-reveal";
+    tiles.innerHTML = `
+      <small>${t("host.acceptedAnswer")}</small>
+      <strong>${escapeHTML((q.accepted || [])[0] || "")}</strong>
+      <p>${t("host.typedCorrect", { n: reveal.correctCount || 0, total: reveal.answered || 0 })}</p>`;
+    return;
+  }
+
+  const isPoll = type === "poll";
+  // Realtime Database drops empty arrays and may return sparse ones as objects: normalise both.
+  const n = optionCount(q);
+  const dist = Array.from({ length: n }, (_, i) => Number(reveal.distribution?.[i]) || 0);
+  const correctSet = new Set(Object.values(reveal.correct || {}).map(Number));
+  const max = Math.max(1, ...dist);
+  bars.hidden = false;
+  bars.innerHTML = dist.map((count, i) => {
+    const ok = !isPoll && correctSet.has(i);
+    const dim = !isPoll && !ok;
+    return `<div class="bar c${i} ${dim ? "dim" : ""}" aria-label="${shapeName(i)}: ${count}${ok ? `, ${t("host.correctAnswer")}` : ""}">
+      <div class="n">${ok ? "✓ " : ""}${count}</div>
+      <div class="fill" style="height:0%" data-h="${(count / max) * 85}"></div>
     </div>`;
   }).join("");
   requestAnimationFrame(() => requestAnimationFrame(() => {
     $$("#h-bars .fill").forEach((el) => { el.style.height = `${el.dataset.h}%`; });
   }));
-  $("#h-rtiles").innerHTML = q.answers
-    .map((_, i) => tileHTML(q, i, reveal.correct.includes(i) ? "correct" : "dim")).join("");
+  tiles.className = `tiles${type === "images" ? " image-tiles" : ""}`;
+  tiles.innerHTML = tilesFor(q, (i) => (isPoll ? "" : correctSet.has(i) ? "correct" : "dim"));
 }
 
 function buildBoard() {
@@ -346,7 +386,7 @@ function stopTimer() {
 
 async function startQuestion(index) {
   const q = quiz.questions[index];
-  if (index === 0) logSessionStart();
+  if (index === 0) { logSessionStart(); logCapAtStart(); }
   await set(ref(db, `${base}/state`), {
     phase: "intro",
     index,
@@ -354,9 +394,10 @@ async function startQuestion(index) {
     total: quiz.questions.length,
     introEndsAt: serverNow() + INTRO_MS,
     timeLimit: q.timeLimit,
-    answerCount: q.answers.length,
-    // Text only, never the correct answers: lets players read on their own device.
-    question: { text: q.text, answers: q.answers },
+    type: typeOf(q),
+    answerCount: optionCount(q),
+    // Never the correct answers: lets players read the question on their own device.
+    question: playerView(q),
   });
 }
 
@@ -378,15 +419,18 @@ async function endQuestion() {
     // Re-read answers from the server so late writes are not missed.
     const given = (await get(ref(db, `${answersBase}/${key}`))).val() || {};
 
-    const distribution = q.answers.map(() => 0);
+    const type = typeOf(q);
+    const scored = isScored(q);
+    const distribution = Array(optionCount(q)).fill(0);
     Object.values(given).forEach((a) => {
       if (Number.isInteger(a.choice) && a.choice < distribution.length) distribution[a.choice]++;
     });
 
     const results = rankPlayers(players).map((p) => {
       const a = given[p.uid];
-      const correct = !!a && q.correct.includes(a.choice);
-      const streak = correct ? (p.streak || 0) + 1 : 0;
+      const correct = isCorrect(q, a);
+      // Polls don't count: streaks carry over unchanged.
+      const streak = !scored ? (p.streak || 0) : correct ? (p.streak || 0) + 1 : 0;
       const points = computePoints(q, a, startedAt);
       const bonus = correct && q.points > 0 ? streakBonus(streak) : 0;
       return {
@@ -422,7 +466,15 @@ async function endQuestion() {
       updates[p + "gap"] = above ? above.score - r.score : 0;
       updates[p + "ahead"] = above ? above.nickname : null;
     });
-    updates.reveal = { key, correct: q.correct, distribution, answered: Object.keys(given).length };
+    updates.reveal = {
+      key,
+      type,
+      correct: q.correct || [],
+      distribution,
+      answered: Object.keys(given).length,
+      correctCount: results.filter((r) => r.correct).length,
+      ...(type === "typeAnswer" ? { accepted: (q.accepted || []).slice(0, 1) } : {}),
+    };
     updates["state/phase"] = "reveal";
 
     // One atomic multi-path write: scores, reveal and phase change land together.
@@ -436,6 +488,41 @@ async function endQuestion() {
   } finally {
     ending = false;
   }
+}
+
+// ---------------------------------------------------------------- upgrade signal
+// The lobby reached the free plan's player cap: this host is a likely event-pass customer.
+// Logged once per game to upgradeSignals/{sessionId}_player_cap (read them in the console or BigQuery).
+let capLogged = false;
+
+function capReached(count) {
+  $("#h-cap").hidden = false;
+  $("#h-cap-text").textContent = t("host.cap.text", { n: FREE_PLAYER_LIMIT });
+  const link = new URL("index.html", location.href);
+  link.searchParams.set("plan", "event");
+  link.searchParams.set("utm_source", "player_cap");
+  link.hash = "waitlist";
+  $("#h-cap-link").href = link.href;
+  if (capLogged) return;
+  capLogged = true;
+  setDoc(doc(fs, "upgradeSignals", `${sessionId}_player_cap`), {
+    schemaVersion: SCHEMA_VERSION,
+    ownerUid: user.uid,
+    sessionId,
+    quizId,
+    signal: "player_cap_reached",
+    limit: FREE_PLAYER_LIMIT,
+    playerCount: count,
+    createdAt: fsTimestamp(),
+  }).catch((err) => console.warn("upgrade signal", err));
+}
+
+// Record how big the lobby finally was when the game started.
+function logCapAtStart() {
+  if (!capLogged) return;
+  setDoc(doc(fs, "upgradeSignals", `${sessionId}_player_cap`), {
+    playerCountAtStart: rankPlayers(players).length,
+  }, { merge: true }).catch((err) => console.warn("upgrade signal", err));
 }
 
 // ---------------------------------------------------------------- analytics (Firestore)
@@ -471,14 +558,18 @@ async function logAnswerEvents(index, q, startedAt, results) {
       quizTitle: quiz.title,
       questionIndex: index,
       questionText: q.text,
-      answerOptions: q.answers,
-      correctChoices: q.correct,
+      questionType: typeOf(q),
+      answerOptions: typeOf(q) === "truefalse" ? ["true", "false"] : (q.answers || []),
+      answerImages: q.answerImages || [],
+      acceptedAnswers: q.accepted || [],
+      correctChoices: q.correct || [],
       timeLimitMs: q.timeLimit * 1000,
       pointsValue: q.points,
       playerId: r.uid,
       nickname: r.nickname,
       answered: !!a,
-      choice: a ? a.choice : null,
+      choice: Number.isInteger(a?.choice) ? a.choice : null,
+      textAnswer: typeof a?.text === "string" ? a.text : null,
       correct: r.correct,
       responseMs: a ? Math.max(0, a.at - startedAt) : null,
       pointsEarned: r.earned,
@@ -536,6 +627,6 @@ $("#h-end").addEventListener("click", async () => {
   sound.stopLoop();
   await onDisconnect(presenceRef).cancel().catch(() => {});
   // Rules are evaluated against the data before the write, so both deletes pass together.
-  await update(ref(db), { [base]: null, [answersBase]: null });
+  await update(ref(db), { [base]: null, [answersBase]: null, [`hostGames/${user.uid}`]: null });
   location.href = "dashboard.html";
 });

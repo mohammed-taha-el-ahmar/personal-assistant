@@ -1,0 +1,133 @@
+{
+ "id": "culture-generale-fr",
+ "lang": "fr",
+ "theme": "general",
+ "title": "Culture générale",
+ "description": "Un échauffement varié pour lancer la séance.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "Combien de côtés a un hexagone ?",
+   "answers": [
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "La Grande Muraille de Chine est visible à l'œil nu depuis la Lune.",
+   "answers": [],
+   "correct": [
+    1
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Qui a écrit « Les Misérables » ?",
+   "answers": [
+    "Émile Zola",
+    "Victor Hugo",
+    "Gustave Flaubert",
+    "Alexandre Dumas"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "Quelle est la capitale de l'Italie ?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Rome"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Quel est le plus grand animal du monde ?",
+   "answers": [
+    "L'éléphant d'Afrique",
+    "La baleine bleue",
+    "La girafe",
+    "Le cachalot"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "Le Soleil est une étoile.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "En quelle année les pièces et billets en euros sont-ils entrés en circulation ?",
+   "answers": [
+    "1999",
+    "2000",
+    "2002",
+    "2004"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "Quel est le symbole chimique de l'oxygène ?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "O"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Votre fromage préféré ?",
+   "answers": [
+    "Comté",
+    "Camembert",
+    "Roquefort",
+    "Chèvre"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  }
+ ]
+}

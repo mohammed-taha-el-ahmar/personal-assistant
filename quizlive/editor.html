@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QuizLive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
 </head>
 <body>
   <header class="topbar">
@@ -21,6 +22,7 @@
   <section data-view="loading" class="center"><div class="pill" data-i18n="common.loading"></div></section>
 
   <main data-view="editor" class="container stack" hidden>
+    <p class="notice-inline" id="ai-notice" role="note" hidden data-i18n="edit.aiNotice"></p>
     <div class="card stack">
       <div>
         <label for="title" data-i18n="edit.title"></label>

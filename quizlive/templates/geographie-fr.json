@@ -1,0 +1,140 @@
+{
+ "id": "geographie-fr",
+ "lang": "fr",
+ "theme": "geography",
+ "title": "Géographie du monde",
+ "description": "Capitales, fleuves, mers et drapeaux.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "Quelle est la capitale du Canada ?",
+   "answers": [
+    "Toronto",
+    "Ottawa",
+    "Montréal",
+    "Vancouver"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "images",
+   "text": "Quel est le drapeau du Maroc ?",
+   "answers": [
+    "",
+    "",
+    "",
+    ""
+   ],
+   "answerImages": [
+    "https://flagcdn.com/w320/tn.png",
+    "https://flagcdn.com/w320/tr.png",
+    "https://flagcdn.com/w320/ma.png",
+    "https://flagcdn.com/w320/vn.png"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Quel est le plus long fleuve de France ?",
+   "answers": [
+    "La Seine",
+    "La Loire",
+    "Le Rhône",
+    "La Garonne"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "Le Sahara est le plus grand désert chaud du monde.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "Sur quel continent se trouve le Pérou ?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Amérique du Sud"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Quelle mer borde l'Égypte au nord ?",
+   "answers": [
+    "La mer Rouge",
+    "La mer Méditerranée",
+    "La mer Noire",
+    "La mer Caspienne"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "images",
+   "text": "Quel est le drapeau de l'Italie ?",
+   "answers": [
+    "",
+    "",
+    "",
+    ""
+   ],
+   "answerImages": [
+    "https://flagcdn.com/w320/ie.png",
+    "https://flagcdn.com/w320/mx.png",
+    "https://flagcdn.com/w320/it.png",
+    "https://flagcdn.com/w320/hu.png"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Quel pays a la plus grande superficie ?",
+   "answers": [
+    "Canada",
+    "Chine",
+    "États-Unis",
+    "Russie"
+   ],
+   "correct": [
+    3
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  }
+ ]
+}

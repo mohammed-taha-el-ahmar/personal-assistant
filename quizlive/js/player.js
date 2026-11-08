@@ -5,7 +5,9 @@ import {
   ref, onValue, get, set, onDisconnect, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 import { $, params, showView, SHAPES, qKey, toast, announce, vibrate } from "./utils.js";
-import { t, initI18n, mountLangToggle, onLangChange, ordinal, shapeName } from "./i18n.js";
+import { TYPE_ANSWER_MAX } from "./questions.js";
+import { drawResultCard, shareResult } from "./share-card.js";
+import { t, initI18n, mountLangToggle, onLangChange, ordinal, shapeName, getDir } from "./i18n.js";
 
 initI18n();
 const controls = $("#controls");
@@ -140,31 +142,66 @@ function render() {
   }
 }
 
+function optionText(q, i) {
+  if (q.type === "truefalse") return t(i === 0 ? "qt.true" : "qt.false");
+  return q.answers?.[i] || "";
+}
+
 function renderQuestion() {
   const tiles = $("#p-tiles");
+  const form = $("#p-type-form");
   const key = state.key;
   const q = state.question || {};
+  const type = q.type || "quiz";
   const qText = $("#p-qtext");
-  qText.hidden = !textMode;
+  // Typed answers need the question on screen; other types follow the "Aa" setting.
+  qText.hidden = !(textMode || type === "typeAnswer");
   qText.textContent = q.text || "";
+  tiles.hidden = type === "typeAnswer";
+  form.hidden = type !== "typeAnswer";
   if (tiles.dataset.key === key) return; // already built for this question
   tiles.dataset.key = key;
-  tiles.className = `tiles player-tiles n${state.answerCount}${textMode ? " text-mode" : ""}`;
+
+  if (type === "typeAnswer") {
+    $("#p-type-input").value = "";
+    setTimeout(() => $("#p-type-input").focus(), 50);
+    return;
+  }
+
+  const showText = textMode || type === "truefalse";
+  tiles.className = `tiles player-tiles n${state.answerCount}${showText ? " text-mode" : ""}`;
   tiles.setAttribute("aria-label", t("play.chooseAnswer"));
   tiles.innerHTML = "";
   for (let i = 0; i < state.answerCount; i++) {
     const b = document.createElement("button");
-    const answerText = q.answers?.[i] || "";
+    const label = optionText(q, i);
     b.className = `tile c${i}`;
-    b.innerHTML = SHAPES[i] + (textMode ? `<span></span>` : "");
-    if (textMode) b.querySelector("span").textContent = answerText;
-    b.setAttribute("aria-label", `${shapeName(i)}${answerText ? `: ${answerText}` : ""}`);
-    b.addEventListener("click", () => sendAnswer(i));
+    b.innerHTML = SHAPES[i];
+    if (textMode && type === "images" && /^https:\/\//.test(q.images?.[i] || "")) {
+      const img = document.createElement("img");
+      img.className = "tile-thumb";
+      img.src = q.images[i];
+      img.alt = label;
+      b.append(img);
+    }
+    if (showText && label) {
+      const span = document.createElement("span");
+      span.textContent = label;
+      b.append(span);
+    }
+    b.setAttribute("aria-label", `${shapeName(i)}${label ? `: ${label}` : ""}`);
+    b.addEventListener("click", () => sendAnswer({ choice: i }));
     tiles.append(b);
   }
 }
 
-async function sendAnswer(choice) {
+$("#p-type-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const text = $("#p-type-input").value.trim().replace(/\s+/g, " ").slice(0, TYPE_ANSWER_MAX);
+  if (text) sendAnswer({ text });
+});
+
+async function sendAnswer(payload) {
   const key = state.key;
   if (answered.has(key)) return;
   answered.add(key);
@@ -172,7 +209,7 @@ async function sendAnswer(choice) {
   showView("answered");
   announce(t("play.locked"));
   try {
-    await set(ref(db, `gameAnswers/${pin}/${key}/${uid}`), { choice, at: serverTimestamp() });
+    await set(ref(db, `gameAnswers/${pin}/${key}/${uid}`), { ...payload, at: serverTimestamp() });
   } catch (err) {
     console.error(err);
     toast(t("play.tooLate"));
@@ -180,14 +217,22 @@ async function sendAnswer(choice) {
 }
 
 function renderResult() {
-  const ok = !!me.lastCorrect;
+  const isPoll = reveal?.type === "poll";
+  const ok = !isPoll && !!me.lastCorrect;
   const didAnswer = answered.has(state.key) || me.lastAnswered;
   const box = $("#p-result");
   box.classList.toggle("ok", ok);
-  box.classList.toggle("bad", !ok);
-  const verdict = ok ? t("play.correct") : (didAnswer ? t("play.incorrect") : t("play.timeUp"));
+  box.classList.toggle("bad", !ok && !isPoll);
+  box.classList.toggle("neutral", isPoll);
+  const verdict = isPoll
+    ? (didAnswer ? t("play.voted") : t("play.timeUp"))
+    : ok ? t("play.correct") : (didAnswer ? t("play.incorrect") : t("play.timeUp"));
   $("#p-verdict").textContent = verdict;
+  $("#p-points").hidden = isPoll;
   $("#p-points").textContent = `+ ${ok ? me.lastPoints || 0 : 0}`;
+  // Typed answers: show what was accepted, so players learn the answer on their phone too.
+  $("#p-accepted").textContent = reveal?.type === "typeAnswer" && !ok && reveal.accepted?.[0]
+    ? t("play.answerWas", { answer: reveal.accepted[0] }) : "";
   $("#p-streak").textContent = me.streak >= 2 ? `🔥 ${t("play.streak", { n: me.streak })}` : "";
   $("#p-rank").textContent = me.rank ? t("play.rank", { place: ordinal(me.rank) }) : "";
   $("#p-gap").textContent = me.rank === 1
@@ -209,6 +254,56 @@ function renderFinal() {
   $("#p-sum-streak").textContent = me.bestStreak || 0;
   say("final", $("#p-final-rank").textContent);
   showView("final");
+  loadFinalContext();
+}
+
+// Total players and quiz title, read once for the share card.
+let finalContext = null;
+async function loadFinalContext() {
+  if (finalContext) return finalContext;
+  const [playersSnap, titleSnap] = await Promise.all([
+    get(ref(db, `${base}/players`)).catch(() => null),
+    get(ref(db, `${base}/title`)).catch(() => null),
+  ]);
+  finalContext = {
+    total: Object.values(playersSnap?.val() || {}).filter((p) => p?.nickname).length,
+    title: titleSnap?.val() || "QuizLive",
+  };
+  return finalContext;
+}
+
+$("#p-share").addEventListener("click", async (e) => {
+  const button = e.currentTarget;
+  button.disabled = true;
+  try {
+    const ctx = await loadFinalContext();
+    const place = me.rank ? ordinal(me.rank) : "–";
+    const blob = await drawResultCard({
+      dir: getDir(),
+      place,
+      outOf: t("share.outOf", { n: ctx.total || me.rank || 1 }),
+      score: me.score || 0,
+      scoreLabel: t("play.sumScore"),
+      correct: `${me.correctCount || 0}/${state.total}`,
+      correctLabel: t("play.sumCorrect"),
+      nickname: me.nickname,
+      quizTitle: ctx.title,
+      footer: t("share.footer", { site: location.host || "QuizLive" }),
+    });
+    const result = await shareResult(blob, t("share.text", { place, title: ctx.title, url: hostInviteUrl() }));
+    if (result === "downloaded") toast(t("share.downloaded"));
+  } catch (err) {
+    console.error(err);
+    toast(t("share.error"));
+  } finally {
+    button.disabled = false;
+  }
+});
+
+function hostInviteUrl() {
+  const url = new URL("index.html", location.href);
+  url.searchParams.set("utm_source", "player_share");
+  return url.href;
 }
 
 function startTimer() {

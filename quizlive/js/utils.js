@@ -16,6 +16,10 @@ export const genPin = () => String(Math.floor(100000 + Math.random() * 900000));
 // Answer key used in RTDB paths: gameAnswers/{pin}/q0, q1 …
 export const qKey = (index) => `q${index}`;
 
+// Free plan player cap shown on the pricing page. Not enforced yet: reaching it logs an
+// upgrade signal (Firestore upgradeSignals) and shows the host a note about paid plans.
+export const FREE_PLAYER_LIMIT = 25;
+
 // How long the question is shown alone before answers open.
 export const INTRO_MS = 4000;
 
@@ -49,22 +53,17 @@ export function announce(message) {
 
 export const vibrate = (pattern) => { try { navigator.vibrate?.(pattern); } catch { /* unsupported */ } };
 
-// Answer shapes, one per slot: hexagon, star, moon, cross. Colour is never the only cue.
+// Answer shapes, one per slot: drop, star, moon, bolt. Colour is never the only cue.
 const svg = (d) => `<svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="${d}" fill="#fff"/></svg>`;
 export const SHAPES = [
-  svg("M20 3 35 11.5v17L20 37 5 28.5v-17z"),
+  svg("M20 3C16 9 8 17.5 8 25a12 12 0 0 0 24 0C32 17.5 24 9 20 3z"),
   svg("M20 3.5 24.5 14.9 36.6 15.6 27.2 23.3 30.3 35.2 20 28.6 9.7 35.2 12.8 23.3 3.4 15.6 15.5 14.9z"),
   svg("M25.5 4.5A16 16 0 1 0 35.5 27 13 13 0 0 1 25.5 4.5z"),
-  svg("M15 4h10v11h11v10H25v11H15V25H4V15h11z"),
+  svg("M24 3 8 23h10l-4 14 18-21H21.5z"),
 ];
 
-// Points: full value for an instant answer, half value at the buzzer.
-export function computePoints(question, answer, startedAt) {
-  if (!answer || !question.correct.includes(answer.choice)) return 0;
-  const limit = question.timeLimit;
-  const seconds = Math.min(Math.max((answer.at - startedAt) / 1000, 0), limit);
-  return Math.round(question.points * (1 - (seconds / limit) / 2));
-}
+// Scoring lives with the question types.
+export { computePoints } from "./questions.js";
 
 // Streak bonus: +100 per consecutive correct answer after the first, capped at +500.
 export const streakBonus = (streak) => (streak >= 2 ? Math.min((streak - 1) * 100, 500) : 0);

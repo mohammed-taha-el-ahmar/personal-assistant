@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QuizLive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
 </head>
 <body>
   <a class="skip-link btn" href="#main" data-i18n="common.skip"></a>
@@ -55,6 +56,7 @@
         <small id="pw-hint" style="color:var(--ink-soft)" data-i18n="auth.pwHint"></small>
         <div><label for="su-confirm" data-i18n="auth.confirm"></label><input id="su-confirm" type="password" autocomplete="new-password" required></div>
         <button class="btn block" type="submit" data-i18n="auth.createAccount"></button>
+        <small class="auth-legal"><span data-i18n="auth.accept"></span> <a href="terms.html" data-i18n="legal.terms"></a> · <a href="privacy.html" data-i18n="legal.privacy"></a></small>
       </form>
 
       <form id="panel-link" role="tabpanel" aria-labelledby="tab-link" class="stack" novalidate hidden>
@@ -70,12 +72,22 @@
 
   <!-- Quiz list -->
   <main data-view="list" class="container" hidden>
+    <div class="live-banner" id="live-banner" role="status" hidden>
+      <span id="live-text"></span>
+      <div class="row">
+        <a class="btn small" id="live-resume" data-i18n="dash.live.resume"></a>
+        <button class="btn small ghost" id="live-end" data-i18n="dash.live.end"></button>
+      </div>
+    </div>
     <div class="row spread" style="margin-bottom:20px">
       <h1 data-i18n="dash.title"></h1>
-      <a class="btn" href="editor.html" data-i18n="dash.new"></a>
+      <div class="row" id="new-actions">
+        <a class="btn ghost" href="library.html" data-i18n="dash.library"></a>
+        <a class="btn" href="editor.html" data-i18n="dash.new"></a>
+      </div>
     </div>
     <div id="quiz-list" class="quiz-list"></div>
-    <p id="empty" class="muted" hidden data-i18n="dash.empty"></p>
+    <p id="empty" class="muted" hidden><span data-i18n="dash.empty"></span> <a href="library.html" data-i18n="dash.emptyLibrary"></a></p>
   </main>
   </div>
 

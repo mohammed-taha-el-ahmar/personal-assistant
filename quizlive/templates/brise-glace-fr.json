@@ -1,0 +1,93 @@
+{
+ "id": "brise-glace-fr",
+ "lang": "fr",
+ "theme": "icebreaker",
+ "title": "Brise-glace d'équipe",
+ "description": "Pas de bonne réponse : des sondages pour lancer la discussion.",
+ "questions": [
+  {
+   "type": "poll",
+   "text": "Café ou thé ?",
+   "answers": [
+    "Café",
+    "Thé",
+    "Les deux",
+    "Aucun"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Plutôt du matin ou du soir ?",
+   "answers": [
+    "Très tôt",
+    "Matinée",
+    "Après-midi",
+    "Soirée"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Vos vacances idéales ?",
+   "answers": [
+    "Plage",
+    "Montagne",
+    "Ville",
+    "À la maison"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Votre super-pouvoir au travail ?",
+   "answers": [
+    "Organiser",
+    "Les idées",
+    "Apaiser les tensions",
+    "Tout réparer"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "Chats ou chiens ?",
+   "answers": [
+    "Chats",
+    "Chiens",
+    "Les deux",
+    "Aucun"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "La réunion idéale dure…",
+   "answers": [
+    "15 minutes",
+    "30 minutes",
+    "1 heure",
+    "Un e-mail aurait suffi"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  }
+ ]
+}

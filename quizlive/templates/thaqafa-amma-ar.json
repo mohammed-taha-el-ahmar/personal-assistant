@@ -1,0 +1,133 @@
+{
+ "id": "thaqafa-amma-ar",
+ "lang": "ar",
+ "theme": "general",
+ "title": "ثقافة عامة",
+ "description": "أسئلة متنوعة لبداية أي جلسة.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "كم عدد القارات وفق التقسيم الأكثر شيوعًا؟",
+   "answers": [
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "الشمس نجم.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "ما أطول نهر في العالم العربي؟",
+   "answers": [
+    "الفرات",
+    "النيل",
+    "دجلة",
+    "نهر الأردن"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "ما عاصمة مصر؟",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "القاهرة"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "من صاحب كتاب «المقدمة» الشهير؟",
+   "answers": [
+    "ابن بطوطة",
+    "ابن خلدون",
+    "ابن سينا",
+    "الفارابي"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "الحوت الأزرق من الأسماك.",
+   "answers": [],
+   "correct": [
+    1
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "كم يومًا في السنة الكبيسة؟",
+   "answers": [
+    "364",
+    "365",
+    "366",
+    "360"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "ما الصيغة الكيميائية للماء؟",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "H2O"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "poll",
+   "text": "مشروبك المفضل؟",
+   "answers": [
+    "القهوة",
+    "الشاي بالنعناع",
+    "العصير",
+    "الماء"
+   ],
+   "correct": [],
+   "timeLimit": 20,
+   "points": 0,
+   "imageUrl": ""
+  }
+ ]
+}

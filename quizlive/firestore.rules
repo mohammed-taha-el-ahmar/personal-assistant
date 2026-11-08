@@ -7,6 +7,8 @@ service cloud.firestore {
       return request.auth != null
         && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
+    // Moderators: custom claim admin: true (set with the Admin SDK).
+    function isAdmin() { return request.auth != null && request.auth.token.admin == true; }
     function ownsExisting() { return isHost() && resource.data.ownerUid == request.auth.uid; }
     function ownsIncoming() { return isHost() && request.resource.data.ownerUid == request.auth.uid; }
 
@@ -43,6 +45,97 @@ service cloud.firestore {
         && request.resource.data.correct is bool
         && eventId == request.resource.data.sessionId + '_q' + string(request.resource.data.questionIndex) + '_' + request.resource.data.playerId;
       allow delete: if ownsExisting();
+    }
+    // ---------- upgrade signals ----------
+    // Moments that suggest a host needs a paid plan (e.g. the lobby hit the free player cap).
+    match /upgradeSignals/{signalId} {
+      allow read: if ownsExisting();
+      allow create: if ownsIncoming()
+        && request.resource.data.schemaVersion is int
+        && request.resource.data.signal in ['player_cap_reached']
+        && signalId == request.resource.data.sessionId + '_player_cap';
+      allow update: if ownsExisting() && ownsIncoming()
+        && request.resource.data.signal == resource.data.signal
+        && request.resource.data.sessionId == resource.data.sessionId;
+      allow delete: if false;
+    }
+
+    // ---------- AI generation allowance ----------
+    // Written only by the generateQuiz Cloud Function (Admin SDK); hosts can read their own usage.
+    match /aiUsage/{uid} {
+      allow read: if isHost() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // ---------- community market ----------
+    // Public snapshots are written only by the publishQuiz Cloud Function, after an automatic content check.
+    match /publicQuizzes/{publicId} {
+      allow read: if resource.data.status == 'published'
+        || (request.auth != null && resource.data.ownerUid == request.auth.uid)
+        || isAdmin();
+      // Unpublish: the author may delete it, except after a moderator removed it (keeps the record).
+      allow delete: if ownsExisting() && resource.data.status != 'removed';
+      allow create, update: if false;
+      match /{sub=**} { allow read, write: if false; }  // copiedBy / plays markers: server only
+    }
+
+    match /creators/{uid} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // One report per account per quiz. Anyone signed in (players are signed in anonymously) can report.
+    match /reports/{reportId} {
+      allow create: if request.auth != null
+        && reportId == request.resource.data.publicId + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['publicId', 'reporterUid', 'reason', 'details', 'status', 'createdAt'])
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.reason in ['offensive', 'adult', 'wrong', 'copyright', 'spam', 'illegal', 'other']
+        && request.resource.data.details is string && request.resource.data.details.size() <= 500
+        && request.resource.data.status == 'open'
+        && request.resource.data.createdAt == request.time
+        && exists(/databases/$(database)/documents/publicQuizzes/$(request.resource.data.publicId));
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /publishUsage/{uid} { allow read, write: if false; }
+
+    // Likes: one per host account per published quiz, never on your own. Counted by server triggers.
+    // Anonymous (player) accounts can't like: they're free to create, so likes would be easy to farm.
+    match /likes/{likeId} {
+      function target() {
+        return get(/databases/$(database)/documents/publicQuizzes/$(request.resource.data.publicId)).data;
+      }
+      allow create: if isHost()
+        && request.resource.data.publicId is string
+        && likeId == request.resource.data.publicId + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['publicId', 'uid', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && target().status == 'published'
+        && target().ownerUid != request.auth.uid;
+      allow read, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    // ---------- landing page waitlist ----------
+    // Anyone can sign up once; nobody can read, change or delete from the client.
+    // Read sign-ups in the Firebase console (or with the Admin SDK).
+    match /waitlist/{email} {
+      allow create: if request.resource.data.keys().hasOnly(
+            ['email', 'plan', 'useCase', 'groupSize', 'lang', 'source', 'consent', 'createdAt'])
+        && request.resource.data.email == email
+        && email.size() <= 200
+        && email.matches('^[^@\\s/]+@[^@\\s/]+[.][^@\\s/]+$')
+        && request.resource.data.plan in ['event', 'pro', 'teams', 'edu', 'unsure']
+        && request.resource.data.useCase in ['', 'class', 'company', 'events', 'bar', 'other']
+        && request.resource.data.groupSize in ['', 's', 'm', 'l', 'xl']
+        && request.resource.data.lang in ['en', 'fr', 'ar']
+        && request.resource.data.source is string && request.resource.data.source.size() <= 100
+        && request.resource.data.consent == true
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if false;
     }
   }
 }

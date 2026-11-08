@@ -1,0 +1,124 @@
+{
+ "id": "football-fr",
+ "lang": "fr",
+ "theme": "sport",
+ "title": "Football",
+ "description": "Coupes du monde, clubs et règles du jeu.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "Quel pays a remporté la Coupe du monde 2018 ?",
+   "answers": [
+    "Croatie",
+    "France",
+    "Belgique",
+    "Brésil"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Combien de Coupes du monde le Brésil a-t-il remportées ?",
+   "answers": [
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "Un match de football dure 90 minutes, hors temps additionnel et prolongations.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Quel pays a remporté la Coupe du monde 2022 ?",
+   "answers": [
+    "France",
+    "Argentine",
+    "Maroc",
+    "Croatie"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "En 2022, le Maroc est devenu le premier pays africain à atteindre une demi-finale de Coupe du monde.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "Quel club joue au stade Santiago-Bernabéu ?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Real Madrid",
+    "Real"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Combien de joueurs par équipe sur le terrain ?",
+   "answers": [
+    "9",
+    "10",
+    "11",
+    "12"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Quels pays co-organisent principalement la Coupe du monde 2030 ?",
+   "answers": [
+    "Qatar et Émirats",
+    "Maroc, Espagne et Portugal",
+    "États-Unis et Canada",
+    "France et Italie"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  }
+ ]
+}

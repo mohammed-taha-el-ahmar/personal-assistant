@@ -11,6 +11,7 @@ SELECT
   JSON_VALUE(data, '$.quizId')                                        AS quiz_id,
   JSON_VALUE(data, '$.quizTitle')                                     AS quiz_title,
   SAFE_CAST(JSON_VALUE(data, '$.questionIndex') AS INT64)             AS question_index,
+  COALESCE(JSON_VALUE(data, '$.questionType'), 'quiz')                AS question_type,  -- quiz | truefalse | poll | typeAnswer | images
   JSON_VALUE(data, '$.questionText')                                  AS question_text,
   ARRAY(SELECT JSON_VALUE(o) FROM UNNEST(JSON_QUERY_ARRAY(data, '$.answerOptions')) AS o) AS answer_options,
   ARRAY(SELECT SAFE_CAST(JSON_VALUE(c) AS INT64)
@@ -21,6 +22,8 @@ SELECT
   JSON_VALUE(data, '$.nickname')                                      AS nickname,
   SAFE_CAST(JSON_VALUE(data, '$.answered') AS BOOL)                   AS answered,
   SAFE_CAST(JSON_VALUE(data, '$.choice') AS INT64)                    AS choice,
+  JSON_VALUE(data, '$.textAnswer')                                    AS text_answer,
+  ARRAY(SELECT JSON_VALUE(a) FROM UNNEST(JSON_QUERY_ARRAY(data, '$.acceptedAnswers')) AS a) AS accepted_answers,
   SAFE_CAST(JSON_VALUE(data, '$.correct') AS BOOL)                    AS is_correct,
   SAFE_CAST(JSON_VALUE(data, '$.responseMs') AS INT64)                AS response_ms,
   SAFE_CAST(JSON_VALUE(data, '$.pointsEarned') AS INT64)              AS points_earned,

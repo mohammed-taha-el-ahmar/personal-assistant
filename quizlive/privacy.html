@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizLive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
+</head>
+<body>
+  <!-- DRAFT: fill every <mark class="todo"> placeholder, confirm retention periods, have it reviewed, then delete .draft-notice. -->
+  <header class="topbar">
+    <a class="logo" href="index.html" style="text-decoration:none">Quiz<span>Live</span></a>
+    <div class="row"><div class="float-controls" id="controls"></div></div>
+  </header>
+  <main class="page-paper legal">
+    <div class="section">
+      <p class="draft-notice" role="note">Projet / Draft / مسودة — à compléter et à faire relire par un professionnel du droit avant publication.</p>
+
+      <!-- ============================================================ FR -->
+      <article data-lang="fr" lang="fr" dir="ltr">
+        <h1>Politique de confidentialité</h1>
+        <p>Dernière mise à jour : <mark class="todo">[date]</mark></p>
+
+        <h2>Qui est responsable de vos données</h2>
+        <p>Le responsable du traitement est <mark class="todo">[nom de l'éditeur]</mark>, <mark class="todo">[adresse]</mark>. Contact pour toute question sur vos données : <mark class="todo">[adresse e-mail]</mark>.</p>
+        <p>Quand une école, une entreprise ou une association utilise QuizLive avec ses propres participants, elle décide de l'usage du service et doit les en informer. Elle peut nous demander un accord de traitement des données.</p>
+
+        <h2>Ce que nous collectons, et pourquoi</h2>
+        <div class="table-wrap"><table class="table legal-table">
+          <thead><tr><th>Données</th><th>Pourquoi</th><th>Base légale</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Compte animateur</strong> : e-mail, nom affiché, mot de passe (stocké chiffré par Firebase), ou profil Google (nom, e-mail).</td><td>Créer et sécuriser votre compte, vous envoyer les e-mails de connexion et de vérification.</td><td>Exécution du contrat</td></tr>
+            <tr><td><strong>Vos quiz</strong> : questions, réponses, réglages.</td><td>Fournir le service.</td><td>Exécution du contrat</td></tr>
+            <tr><td><strong>Joueurs</strong> : identifiant anonyme, pseudo, réponses, temps de réponse, score. Aucun compte, aucun e-mail.</td><td>Faire fonctionner la partie en direct et le classement.</td><td>Exécution du contrat (avec l'animateur) et intérêt légitime</td></tr>
+            <tr><td><strong>Statistiques de parties</strong> : une ligne par joueur et par question (pseudo, réponse, exactitude, temps), visible uniquement par l'animateur.</td><td>Permettre à l'animateur d'analyser ses quiz.</td><td>Intérêt légitime de l'animateur</td></tr>
+            <tr><td><strong>Communauté</strong> : quiz publiés, nom d'auteur public, « j'aime », signalements (motif, détails).</td><td>Bibliothèque publique, classement, modération.</td><td>Exécution du contrat ; obligation légale pour le traitement des signalements</td></tr>
+            <tr><td><strong>Génération par IA</strong> : le sujet, le texte, le texte extrait d'un PDF ou la page web que vous soumettez ; le contenu des quiz vérifiés avant publication.</td><td>Rédiger un quiz ; vérifier qu'un quiz respecte les règles avant publication.</td><td>Exécution du contrat ; intérêt légitime (sécurité de la bibliothèque)</td></tr>
+            <tr><td><strong>Liste d'attente</strong> : e-mail, offre choisie, usage, taille de groupe, langue, provenance.</td><td>Vous prévenir de l'ouverture des offres payantes.</td><td>Consentement (retirable à tout moment)</td></tr>
+            <tr><td><strong>Compteurs techniques</strong> : utilisation mensuelle de l'IA, publications par jour, partie en cours, signaux d'usage (ex. limite de joueurs atteinte).</td><td>Appliquer les limites des offres, prévenir les abus, améliorer les offres.</td><td>Intérêt légitime</td></tr>
+          </tbody>
+        </table></div>
+        <p>Ne mettez pas de données personnelles dans vos quiz ni dans les contenus envoyés à l'IA. Conseillez aux joueurs d'utiliser un pseudo plutôt que leur nom complet, en particulier avec des élèves.</p>
+
+        <h2>Stockage dans votre navigateur</h2>
+        <p>Nous n'utilisons ni publicité, ni cookies de mesure d'audience. Le site enregistre seulement dans votre navigateur : la langue, le dernier pseudo, les réglages de son et d'affichage, la session de connexion, et les sons que vous importez (ils ne quittent jamais votre appareil). Ces éléments sont nécessaires au fonctionnement du service et ne nécessitent pas de consentement.</p>
+
+        <h2>Qui reçoit vos données</h2>
+        <ul>
+          <li><strong>Google (Firebase)</strong> : authentification, bases de données, fonctions serveur. Google Ireland Limited, Irlande ; certains traitements peuvent avoir lieu aux États-Unis.</li>
+          <li><strong>GitHub (GitHub Pages)</strong> : hébergement des pages du site ; journaux techniques (adresse IP). GitHub, Inc., États-Unis.</li>
+          <li><strong>Anthropic</strong> : modèles d'IA Claude pour la génération de quiz et la vérification avant publication, uniquement pour les contenus concernés. Anthropic PBC, États-Unis.</li>
+          <li><strong>Ressources externes</strong> chargées par votre navigateur, qui reçoivent votre adresse IP : Google Fonts (polices), cdnjs (code QR sur l'écran animateur), jsDelivr (lecture des PDF, seulement si vous importez un PDF), flagcdn.com et Wikimedia (images de drapeaux et d'illustrations). <mark class="todo">[Envisager d'héberger les polices sur le site pour éviter l'envoi de l'IP à Google.]</mark></li>
+        </ul>
+        <p>Nous ne vendons pas vos données. Pour les transferts hors de l'Union européenne, nous nous appuyons sur la décision d'adéquation relative au cadre de protection des données UE–États-Unis lorsque le prestataire y est certifié, ou à défaut sur les clauses contractuelles types de la Commission européenne. <mark class="todo">[Vérifier la certification de chaque prestataire.]</mark></p>
+
+        <h2>Combien de temps nous les gardons</h2>
+        <ul>
+          <li>Données d'une partie en direct : supprimées quand l'animateur termine la partie. <mark class="todo">[À confirmer : suppression automatique des parties abandonnées après 24 h, à mettre en place.]</mark></li>
+          <li>Statistiques de parties : <mark class="todo">[12 mois]</mark>, puis supprimées.</li>
+          <li>Compte et quiz : jusqu'à la suppression du compte.</li>
+          <li>Quiz publiés : jusqu'à leur retrait par l'auteur ou un modérateur ; les copies faites par d'autres animateurs leur appartiennent.</li>
+          <li>Signalements : <mark class="todo">[12 mois]</mark> après leur examen.</li>
+          <li>Liste d'attente : jusqu'à l'ouverture des offres payantes et <mark class="todo">[6 mois]</mark> au plus, ou jusqu'à votre demande de suppression.</li>
+        </ul>
+
+        <h2>Vos droits</h2>
+        <p>Vous pouvez demander l'accès à vos données, leur rectification, leur effacement, leur portabilité, la limitation du traitement, vous opposer à un traitement fondé sur l'intérêt légitime, retirer votre consentement, et définir des directives sur le sort de vos données après votre décès. Écrivez à <mark class="todo">[adresse e-mail]</mark> ; nous répondons sous un mois. Vous pouvez aussi saisir la CNIL (www.cnil.fr).</p>
+
+        <h2>Âge</h2>
+        <p>Les comptes animateurs sont réservés aux personnes de 15 ans et plus. Les joueurs n'ont pas de compte ; quand des élèves jouent, c'est l'enseignant ou l'établissement qui organise la partie.</p>
+
+        <h2>Sécurité</h2>
+        <p>Les échanges sont chiffrés (HTTPS). Des règles de sécurité limitent l'accès aux données : par exemple, un joueur ne voit pas les réponses des autres et seul l'animateur voit les statistiques de ses parties.</p>
+      </article>
+
+      <!-- ============================================================ EN -->
+      <article data-lang="en" lang="en" dir="ltr" hidden>
+        <h1>Privacy policy</h1>
+        <p class="legal-prevails">This is a translation. The French version prevails.</p>
+        <p>Last updated: <mark class="todo">[date]</mark></p>
+
+        <h2>Who is responsible for your data</h2>
+        <p>The data controller is <mark class="todo">[publisher name]</mark>, <mark class="todo">[address]</mark>. Questions about your data: <mark class="todo">[email address]</mark>.</p>
+        <p>When a school, company or association uses QuizLive with its own participants, it decides how the service is used and must inform them. It can ask us for a data processing agreement.</p>
+
+        <h2>What we collect, and why</h2>
+        <div class="table-wrap"><table class="table legal-table">
+          <thead><tr><th>Data</th><th>Why</th><th>Legal basis</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Host account</strong>: email, display name, password (stored encrypted by Firebase), or Google profile (name, email).</td><td>Create and secure your account; send sign-in and verification emails.</td><td>Performance of the contract</td></tr>
+            <tr><td><strong>Your quizzes</strong>: questions, answers, settings.</td><td>Provide the service.</td><td>Performance of the contract</td></tr>
+            <tr><td><strong>Players</strong>: anonymous ID, nickname, answers, response times, score. No account, no email.</td><td>Run the live game and scoreboard.</td><td>Performance of the contract (with the host) and legitimate interest</td></tr>
+            <tr><td><strong>Game statistics</strong>: one row per player per question (nickname, answer, correctness, time), visible only to the host.</td><td>Let hosts analyse their quizzes.</td><td>The host's legitimate interest</td></tr>
+            <tr><td><strong>Community</strong>: published quizzes, public author name, likes, reports (reason, details).</td><td>Public library, ranking, moderation.</td><td>Performance of the contract; legal obligation for handling reports</td></tr>
+            <tr><td><strong>AI generation</strong>: the topic, text, text extracted from a PDF, or web page you submit; the content of quizzes checked before publication.</td><td>Write a quiz; check that a quiz follows the rules before publication.</td><td>Performance of the contract; legitimate interest (library safety)</td></tr>
+            <tr><td><strong>Waitlist</strong>: email, chosen plan, use, group size, language, source.</td><td>Tell you when paid plans open.</td><td>Consent (can be withdrawn at any time)</td></tr>
+            <tr><td><strong>Technical counters</strong>: monthly AI use, publications per day, open game, usage signals (e.g. player cap reached).</td><td>Apply plan limits, prevent abuse, improve plans.</td><td>Legitimate interest</td></tr>
+          </tbody>
+        </table></div>
+        <p>Don't put personal data in your quizzes or in content sent to the AI. Encourage players to use a nickname rather than their full name, especially with students.</p>
+
+        <h2>Storage in your browser</h2>
+        <p>We use no advertising and no audience-measurement cookies. The site only stores in your browser: your language, last nickname, sound and display settings, sign-in session, and sounds you upload (they never leave your device). These are needed for the service to work and don't require consent.</p>
+
+        <h2>Who receives your data</h2>
+        <ul>
+          <li><strong>Google (Firebase)</strong>: authentication, databases, server functions. Google Ireland Limited, Ireland; some processing may take place in the United States.</li>
+          <li><strong>GitHub (GitHub Pages)</strong>: hosting of the site's pages; technical logs (IP address). GitHub, Inc., United States.</li>
+          <li><strong>Anthropic</strong>: Claude AI models for quiz generation and the pre-publication check, only for the content concerned. Anthropic PBC, United States.</li>
+          <li><strong>External resources</strong> loaded by your browser, which receive your IP address: Google Fonts (fonts), cdnjs (QR code on the host screen), jsDelivr (PDF reading, only if you upload a PDF), flagcdn.com and Wikimedia (flag and illustration images). <mark class="todo">[Consider self-hosting the fonts so IP addresses aren't sent to Google.]</mark></li>
+        </ul>
+        <p>We don't sell your data. For transfers outside the European Union we rely on the adequacy decision for the EU–US Data Privacy Framework where the provider is certified, otherwise on the European Commission's standard contractual clauses. <mark class="todo">[Check each provider's certification.]</mark></p>
+
+        <h2>How long we keep it</h2>
+        <ul>
+          <li>Live game data: deleted when the host ends the game. <mark class="todo">[To confirm: automatic deletion of abandoned games after 24 h, to be implemented.]</mark></li>
+          <li>Game statistics: <mark class="todo">[12 months]</mark>, then deleted.</li>
+          <li>Account and quizzes: until the account is deleted.</li>
+          <li>Published quizzes: until removed by the author or a moderator; copies made by other hosts belong to them.</li>
+          <li>Reports: <mark class="todo">[12 months]</mark> after review.</li>
+          <li>Waitlist: until paid plans open and <mark class="todo">[6 months]</mark> at most, or until you ask for deletion.</li>
+        </ul>
+
+        <h2>Your rights</h2>
+        <p>You can ask for access to your data, rectification, erasure, portability, restriction of processing; object to processing based on legitimate interest; withdraw consent; and set instructions for your data after your death. Write to <mark class="todo">[email address]</mark>; we reply within one month. You can also complain to the CNIL, the French data protection authority (www.cnil.fr).</p>
+
+        <h2>Age</h2>
+        <p>Host accounts are for people aged 15 and over. Players have no account; when students play, the teacher or school organises the game.</p>
+
+        <h2>Security</h2>
+        <p>Connections are encrypted (HTTPS). Security rules limit access to data: for example, a player can't see other players' answers, and only the host sees their games' statistics.</p>
+      </article>
+
+      <!-- ============================================================ AR -->
+      <article data-lang="ar" lang="ar" dir="rtl" hidden>
+        <h1>سياسة الخصوصية</h1>
+        <p class="legal-prevails">هذه ترجمة. النسخة الفرنسية هي المرجع.</p>
+        <p>آخر تحديث: <mark class="todo">[التاريخ]</mark></p>
+
+        <h2>المسؤول عن بياناتك</h2>
+        <p>المسؤول عن المعالجة هو <mark class="todo">[اسم الناشر]</mark>، <mark class="todo">[العنوان]</mark>. للاستفسار عن بياناتك: <mark class="todo">[البريد الإلكتروني]</mark>.</p>
+        <p>عندما تستخدم مدرسة أو شركة أو جمعية QuizLive مع المشاركين لديها، فهي التي تقرر طريقة الاستخدام وعليها إعلامهم. ويمكنها أن تطلب منا اتفاقية لمعالجة البيانات.</p>
+
+        <h2>ما الذي نجمعه ولماذا</h2>
+        <div class="table-wrap"><table class="table legal-table">
+          <thead><tr><th>البيانات</th><th>الغرض</th><th>الأساس القانوني</th></tr></thead>
+          <tbody>
+            <tr><td><strong>حساب المنظّم</strong>: البريد الإلكتروني، الاسم الظاهر، كلمة المرور (تحفظها Firebase مشفّرة)، أو ملف Google (الاسم والبريد).</td><td>إنشاء حسابك وتأمينه وإرسال رسائل الدخول والتحقق.</td><td>تنفيذ العقد</td></tr>
+            <tr><td><strong>مسابقاتك</strong>: الأسئلة والإجابات والإعدادات.</td><td>تقديم الخدمة.</td><td>تنفيذ العقد</td></tr>
+            <tr><td><strong>اللاعبون</strong>: معرّف مجهول، اسم مستعار، الإجابات، أزمنة الإجابة، النتيجة. لا حساب ولا بريد إلكتروني.</td><td>تشغيل اللعبة المباشرة والترتيب.</td><td>تنفيذ العقد (مع المنظّم) والمصلحة المشروعة</td></tr>
+            <tr><td><strong>إحصاءات الألعاب</strong>: سطر لكل لاعب ولكل سؤال (الاسم المستعار، الإجابة، صحتها، الزمن)، لا يراها إلا المنظّم.</td><td>تمكين المنظّم من تحليل مسابقاته.</td><td>المصلحة المشروعة للمنظّم</td></tr>
+            <tr><td><strong>المجتمع</strong>: المسابقات المنشورة، اسم المؤلف العلني، الإعجابات، البلاغات (السبب والتفاصيل).</td><td>المكتبة العامة والترتيب والإشراف.</td><td>تنفيذ العقد؛ التزام قانوني لمعالجة البلاغات</td></tr>
+            <tr><td><strong>الإنشاء بالذكاء الاصطناعي</strong>: الموضوع أو النص أو نص ملف PDF أو صفحة الويب التي ترسلها؛ ومحتوى المسابقات التي تُفحص قبل النشر.</td><td>كتابة مسابقة؛ التحقق من احترام المسابقة للقواعد قبل نشرها.</td><td>تنفيذ العقد؛ المصلحة المشروعة (سلامة المكتبة)</td></tr>
+            <tr><td><strong>قائمة الانتظار</strong>: البريد الإلكتروني، الخطة المختارة، الاستخدام، حجم المجموعة، اللغة، المصدر.</td><td>إبلاغك بإطلاق الخطط المدفوعة.</td><td>الموافقة (يمكن سحبها في أي وقت)</td></tr>
+            <tr><td><strong>عدّادات تقنية</strong>: الاستخدام الشهري للذكاء الاصطناعي، عدد مرات النشر اليومية، اللعبة الجارية، مؤشرات الاستخدام (مثل بلوغ حد اللاعبين).</td><td>تطبيق حدود الخطط، ومنع إساءة الاستخدام، وتحسين الخطط.</td><td>المصلحة المشروعة</td></tr>
+          </tbody>
+        </table></div>
+        <p>لا تضع بيانات شخصية في مسابقاتك ولا في المحتوى المرسل إلى الذكاء الاصطناعي. انصح اللاعبين باستخدام اسم مستعار بدل اسمهم الكامل، خاصة مع التلاميذ.</p>
+
+        <h2>التخزين في متصفحك</h2>
+        <p>لا نستخدم الإعلانات ولا ملفات تعريف الارتباط لقياس الجمهور. لا يحفظ الموقع في متصفحك إلا: اللغة، وآخر اسم مستعار، وإعدادات الصوت والعرض، وجلسة الدخول، والأصوات التي ترفعها (لا تغادر جهازك أبدًا). هذه العناصر ضرورية لعمل الخدمة ولا تتطلب موافقة.</p>
+
+        <h2>من يتلقى بياناتك</h2>
+        <ul>
+          <li><strong>Google ‏(Firebase)</strong>: المصادقة وقواعد البيانات ووظائف الخادم. Google Ireland Limited، أيرلندا؛ وقد تجري بعض المعالجات في الولايات المتحدة.</li>
+          <li><strong>GitHub ‏(GitHub Pages)</strong>: استضافة صفحات الموقع؛ سجلات تقنية (عنوان IP). GitHub, Inc.، الولايات المتحدة.</li>
+          <li><strong>Anthropic</strong>: نماذج Claude للذكاء الاصطناعي لإنشاء المسابقات وفحصها قبل النشر، للمحتوى المعني فقط. Anthropic PBC، الولايات المتحدة.</li>
+          <li><strong>موارد خارجية</strong> يحمّلها متصفحك وتتلقى عنوان IP الخاص بك: Google Fonts (الخطوط)، cdnjs (رمز QR على شاشة المنظّم)، jsDelivr (قراءة ملفات PDF، فقط عند رفع ملف PDF)، flagcdn.com وويكيميديا (صور الأعلام والرسوم). <mark class="todo">[يُنظر في استضافة الخطوط على الموقع نفسه لتجنب إرسال عنوان IP إلى Google.]</mark></li>
+        </ul>
+        <p>لا نبيع بياناتك. في عمليات النقل خارج الاتحاد الأوروبي نعتمد على قرار الكفاية الخاص بإطار خصوصية البيانات بين الاتحاد الأوروبي والولايات المتحدة إذا كان المزوّد معتمدًا فيه، وإلا فعلى البنود التعاقدية النموذجية للمفوضية الأوروبية. <mark class="todo">[يُتحقق من اعتماد كل مزوّد.]</mark></p>
+
+        <h2>مدة الاحتفاظ</h2>
+        <ul>
+          <li>بيانات اللعبة المباشرة: تُحذف عندما ينهي المنظّم اللعبة. <mark class="todo">[يُؤكَّد: حذف تلقائي للألعاب المهجورة بعد 24 ساعة، يُنفَّذ لاحقًا.]</mark></li>
+          <li>إحصاءات الألعاب: <mark class="todo">[12 شهرًا]</mark> ثم تُحذف.</li>
+          <li>الحساب والمسابقات: حتى حذف الحساب.</li>
+          <li>المسابقات المنشورة: حتى يزيلها المؤلف أو أحد المشرفين؛ والنسخ التي صنعها منظّمون آخرون ملك لهم.</li>
+          <li>البلاغات: <mark class="todo">[12 شهرًا]</mark> بعد مراجعتها.</li>
+          <li>قائمة الانتظار: حتى إطلاق الخطط المدفوعة و<mark class="todo">[6 أشهر]</mark> كحد أقصى، أو حتى طلبك الحذف.</li>
+        </ul>
+
+        <h2>حقوقك</h2>
+        <p>يمكنك طلب الاطلاع على بياناتك أو تصحيحها أو حذفها أو نقلها أو تقييد معالجتها، والاعتراض على المعالجة القائمة على المصلحة المشروعة، وسحب موافقتك، وتحديد توجيهات بشأن بياناتك بعد وفاتك. راسل <mark class="todo">[البريد الإلكتروني]</mark>؛ نرد خلال شهر. ويمكنك أيضًا تقديم شكوى إلى CNIL، الهيئة الفرنسية لحماية البيانات (www.cnil.fr).</p>
+
+        <h2>السن</h2>
+        <p>حسابات المنظّمين مخصصة لمن بلغوا 15 عامًا فأكثر. لا يملك اللاعبون حسابات؛ وعندما يلعب التلاميذ، فالمعلّم أو المؤسسة هو من ينظّم اللعبة.</p>
+
+        <h2>الأمان</h2>
+        <p>الاتصالات مشفّرة (HTTPS). وتحدّ قواعد أمان من الوصول إلى البيانات: مثلًا، لا يرى اللاعب إجابات غيره، ولا يرى إحصاءات الألعاب إلا منظّمها.</p>
+      </article>
+    </div>
+  </main>
+  <script type="module" src="js/legal.js"></script>
+</body>
+</html>

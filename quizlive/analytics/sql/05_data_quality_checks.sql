@@ -10,8 +10,8 @@ SELECT 'required fields not null',
                OR question_index IS NULL OR answered IS NULL OR is_correct IS NULL)
 FROM e
 UNION ALL
-SELECT 'answered rows have choice and response time',
-       COUNTIF(answered AND (choice IS NULL OR response_ms IS NULL))
+SELECT 'answered rows have exactly one of choice / text, and a response time',
+       COUNTIF(answered AND ((choice IS NULL) = (text_answer IS NULL) OR response_ms IS NULL))
 FROM e
 UNION ALL
 SELECT 'unanswered rows have no choice and are not correct',
@@ -19,11 +19,15 @@ SELECT 'unanswered rows have no choice and are not correct',
 FROM e
 UNION ALL
 SELECT 'choice within answer options',
-       COUNTIF(answered AND (choice < 0 OR choice >= ARRAY_LENGTH(answer_options)))
+       COUNTIF(answered AND choice IS NOT NULL AND (choice < 0 OR choice >= ARRAY_LENGTH(answer_options)))
 FROM e
 UNION ALL
 SELECT 'is_correct consistent with correct_choices',
-       COUNTIF(answered AND is_correct != (choice IN UNNEST(correct_choices)))
+       COUNTIF(answered AND question_type IN ('quiz', 'images', 'truefalse') AND is_correct != (choice IN UNNEST(correct_choices)))
+FROM e
+UNION ALL
+SELECT 'polls are never correct and never score',
+       COUNTIF(question_type = 'poll' AND (is_correct OR points_earned > 0))
 FROM e
 UNION ALL
 SELECT 'response time within limit (+1.5 s grace)',

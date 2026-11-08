@@ -1,0 +1,120 @@
+{
+ "id": "science-basics-en",
+ "lang": "en",
+ "theme": "science",
+ "title": "Science basics",
+ "description": "Plants, planets, the human body and light.",
+ "questions": [
+  {
+   "type": "quiz",
+   "text": "Which gas do plants take from the air for photosynthesis?",
+   "answers": [
+    "Oxygen",
+    "Carbon dioxide",
+    "Nitrogen",
+    "Hydrogen"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "Sound travels faster in water than in air.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "What is H₂O more commonly called?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Water"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "How many bones does an adult human have?",
+   "answers": [
+    "186",
+    "206",
+    "226",
+    "306"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Which planet is known as the Red Planet?",
+   "answers": [
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Mercury"
+   ],
+   "correct": [
+    1
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "truefalse",
+   "text": "The Sun is a star.",
+   "answers": [],
+   "correct": [
+    0
+   ],
+   "timeLimit": 10,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "quiz",
+   "text": "Roughly how fast does light travel in a vacuum?",
+   "answers": [
+    "300 km/s",
+    "3,000 km/s",
+    "300,000 km/s",
+    "3,000,000 km/s"
+   ],
+   "correct": [
+    2
+   ],
+   "timeLimit": 20,
+   "points": 1000,
+   "imageUrl": ""
+  },
+  {
+   "type": "typeAnswer",
+   "text": "Which organ pumps blood around the body?",
+   "answers": [],
+   "correct": [],
+   "accepted": [
+    "Heart",
+    "The heart"
+   ],
+   "timeLimit": 30,
+   "points": 1000,
+   "imageUrl": ""
+  }
+ ]
+}

@@ -7,8 +7,9 @@
   <meta name="description" content="Live quiz games: questions on the big screen, answers from every phone.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <script>try{var l=localStorage.getItem("quizlive:lang")||(navigator.language||"").slice(0,2).toLowerCase();if(l==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar";}}catch(e){}</script>
   <script>
     // Arriving from a QR code (?pin=…): show only the join form, before first paint.
     if (new URLSearchParams(location.search).has("pin")) document.documentElement.classList.add("pre-joining");
@@ -21,6 +22,8 @@
   <header class="site-nav">
     <a class="logo" href="index.html">Quiz<span>Live</span></a>
     <div class="row">
+      <a class="nav-link marketing" href="library.html" data-i18n="lib.nav"></a>
+      <a class="nav-link marketing" href="#pricing" data-i18n="price.nav"></a>
       <a class="btn small ghost marketing" href="dashboard.html" data-i18n="land.navHost"></a>
       <div class="float-controls" id="controls"></div>
     </div>
@@ -81,6 +84,52 @@
       </section>
     </div>
 
+    <section class="page-paper marketing" id="pricing" aria-labelledby="price-title">
+      <div class="section">
+        <h2 id="price-title" data-i18n="price.title"></h2>
+        <p class="section-lede" data-i18n="price.lede"></p>
+        <div class="plans" id="plans"></div>
+        <p class="plans-note" data-i18n="price.note"></p>
+      </div>
+    </section>
+
+    <section class="waitlist-band marketing" id="waitlist" aria-labelledby="wl-title">
+      <div class="section waitlist">
+        <div>
+          <h2 id="wl-title" data-i18n="wl.title"></h2>
+          <p data-i18n="wl.lede"></p>
+          <p class="wl-privacy"><span data-i18n="wl.privacy"></span> <a href="privacy.html" data-i18n="legal.privacy"></a></p>
+        </div>
+        <form id="wl-form" class="card stack" novalidate>
+          <div>
+            <label for="wl-email" data-i18n="auth.email"></label>
+            <input id="wl-email" type="email" autocomplete="email" maxlength="200" required>
+          </div>
+          <div class="wl-grid">
+            <div>
+              <label for="wl-plan" data-i18n="wl.plan"></label>
+              <select id="wl-plan"></select>
+            </div>
+            <div>
+              <label for="wl-use" data-i18n="wl.use"></label>
+              <select id="wl-use"></select>
+            </div>
+          </div>
+          <div>
+            <label for="wl-size" data-i18n="wl.size"></label>
+            <select id="wl-size"></select>
+          </div>
+          <label class="check">
+            <input type="checkbox" id="wl-consent" required>
+            <span data-i18n="wl.consent"></span>
+          </label>
+          <button class="btn block" type="submit" data-i18n="wl.submit"></button>
+          <div id="wl-error" class="error" role="alert"></div>
+          <div id="wl-ok" class="success" role="status"></div>
+        </form>
+      </div>
+    </section>
+
     <section class="cta-band marketing">
       <div class="section">
         <h2 data-i18n="land.ctaTitle"></h2>
@@ -93,10 +142,16 @@
     <div class="site-foot">
       <span>QuizLive</span>
       <span data-i18n="land.footer"></span>
+      <a href="library.html?tab=community" data-i18n="lib.tabCommunity"></a>
+      <a href="guidelines.html" data-i18n="gl.title"></a>
+      <a href="terms.html" data-i18n="legal.terms"></a>
+      <a href="privacy.html" data-i18n="legal.privacy"></a>
+      <a href="mentions-legales.html" data-i18n="legal.notice"></a>
     </div>
   </footer>
 
   <script type="module" src="js/join.js"></script>
   <script type="module" src="js/landing.js"></script>
+  <script type="module" src="js/waitlist.js"></script>
 </body>
 </html>

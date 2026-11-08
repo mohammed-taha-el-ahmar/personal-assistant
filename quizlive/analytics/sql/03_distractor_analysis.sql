@@ -4,7 +4,7 @@ CREATE OR REPLACE VIEW `your-project.quizlive_analytics.distractor_analysis` AS
 WITH picks AS (
   SELECT quiz_id, question_index, question_text, answer_options, correct_choices, choice
   FROM `your-project.quizlive_analytics.stg_answer_events`
-  WHERE answered
+  WHERE answered AND question_type IN ('quiz', 'images', 'truefalse')  -- types with fixed options and a right answer
 ),
 counts AS (
   SELECT
