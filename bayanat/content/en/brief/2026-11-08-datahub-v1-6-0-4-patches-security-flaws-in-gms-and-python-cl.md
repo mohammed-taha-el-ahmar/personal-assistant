@@ -2,7 +2,7 @@
 title: DataHub v1.6.0.4 patches security flaws in GMS and Python client
 date: '2026-11-08'
 pillar: security
-status: draft
+status: approved
 relevance: 70
 source_name: DataHub releases
 source_url: https://github.com/datahub-project/datahub/releases/tag/v1.6.0.4
