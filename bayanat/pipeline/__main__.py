@@ -76,6 +76,14 @@ def main(argv: list[str] | None = None) -> int:
                          indent=2))
         return 0
 
+    if args.command in ("run", "triage", "draft", "watch"):
+        providers = cfg.settings.get("providers", {})
+        if not any(os.environ.get(p.get("api_key_env", "")) for p in providers.values()):
+            names = ", ".join(p["api_key_env"] for p in providers.values() if p.get("api_key_env"))
+            print(f"::error::No LLM API key found. Set at least one of: {names} "
+                  "(GitHub: Settings → Secrets and variables → Actions → Repository secrets).")
+            return 1
+
     router = LLMRouter(cfg.settings, conn)
     fetch = collect.http_fetcher(cfg)
     steps = {
@@ -86,10 +94,27 @@ def main(argv: list[str] | None = None) -> int:
         "watch": lambda: watch.run(cfg, conn, router, fetch),
     }
     order = list(steps) if args.command == "run" else [args.command]
+    results = {}
     for name in order:
-        result = steps[name]()
-        print(f"{name}: {json.dumps(result)}")
+        results[name] = steps[name]()
+        print(f"{name}: {json.dumps(results[name])}")
+    write_summary(results)
     return 0
+
+
+def write_summary(results: dict) -> None:
+    """On GitHub Actions, show what each step did on the run's summary page."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path:
+        return
+    lines = ["### Bayanat pipeline", "", "| Step | Result |", "|---|---|"]
+    lines += [f"| {name} | `{json.dumps(r)}` |" for name, r in results.items()]
+    if results.get("draft", {}).get("drafts") == 0:
+        lines += ["", "No new drafts this run, so no pull request is opened or updated. "
+                  "Check the counts above: nothing collected, nothing passing the prefilter, "
+                  "or nothing scored high enough in triage (`min_relevance_for_draft`)."]
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write("\n".join(lines) + "\n")
 
 
 if __name__ == "__main__":
