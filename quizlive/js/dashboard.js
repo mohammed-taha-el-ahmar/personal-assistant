@@ -14,8 +14,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 import { $, $$, showView, escapeHTML, genPin, toast } from "./utils.js";
 import { t, initI18n, mountLangToggle, onLangChange, getLang } from "./i18n.js";
+import { mountSoundButton } from "./sound-panel.js";
 
 initI18n();
+mountSoundButton($("#controls"));
 mountLangToggle($("#controls"));
 
 let user = null;

@@ -17,6 +17,7 @@ import {
 } from "./utils.js";
 import { t, initI18n, mountLangToggle, onLangChange, shapeName } from "./i18n.js";
 import { sound } from "./sound.js";
+import { mountSoundButton } from "./sound-panel.js";
 
 initI18n();
 
@@ -75,6 +76,9 @@ fsBtn.addEventListener("click", () => {
 document.addEventListener("fullscreenchange", syncFsBtn);
 syncFsBtn();
 controls.prepend(soundBtn, fsBtn);
+mountSoundButton(controls);
+// Restart the background loop when the host picks another sound.
+sound.onChange(() => playLoopForPhase());
 
 // Audio can only start after a user gesture.
 document.addEventListener("pointerdown", async () => {
@@ -154,7 +158,7 @@ function render() {
 
     case "reveal":
       if (!reveal || reveal.key !== state.key) return; // wait for reveal data
-      if (fresh) { buildReveal(); sound.reveal(); }
+      if (fresh) { buildReveal(); sound.play("reveal"); }
       break;
 
     case "leaderboard":
@@ -162,7 +166,7 @@ function render() {
       break;
 
     case "podium":
-      if (fresh) { buildPodium(); sound.fanfare(); }
+      if (fresh) { buildPodium(); sound.play("podium"); }
       break;
   }
   if (fresh) {
@@ -185,7 +189,10 @@ function joinUrl() {
 
 function buildLobby() {
   $("#h-title").textContent = quiz.title;
-  $("#h-pin").textContent = pin;
+  // Split-flap PIN: one tile per digit, flipping in one after the other.
+  $("#h-pin").setAttribute("aria-label", pin);
+  $("#h-pin").innerHTML = [...pin].map((d, i) =>
+    `<span class="flap" style="--i:${i}" aria-hidden="true">${d}</span>`).join("");
   $("#h-url").textContent = new URL("index.html", location.href).href.replace(/^https?:\/\//, "");
   const qr = $("#h-qr");
   if (!qr.dataset.done && window.QRCode) {
@@ -217,7 +224,7 @@ function renderLobbyPlayers(fresh) {
     chip.setAttribute("aria-label", t("host.removePlayer", { name: p.nickname }));
     chip.classList.toggle("off", p.connected === false);
   }
-  if (newcomers && !fresh) sound.join();
+  if (newcomers && !fresh) sound.play("join");
 
   $("#h-count").textContent = t("host.players", { n: list.length });
   $("#h-start").disabled = list.length === 0;
@@ -234,7 +241,7 @@ function buildIntro() {
   void bar.offsetWidth; // restart the CSS animation
   bar.firstElementChild.style.animationDuration = `${left}ms`;
   bar.classList.add("run");
-  sound.intro();
+  sound.play("intro");
 }
 
 function tileHTML(q, i, extraClass = "") {
@@ -321,7 +328,7 @@ function startTimer() {
     const secs = Math.max(0, Math.ceil(left / 1000));
     $("#h-timer").textContent = secs;
     if (secs !== lastSecond) {
-      if (secs > 0 && secs <= 5) sound.urgent();
+      if (secs > 0 && secs <= 5) sound.play("tick");
       lastSecond = secs;
     }
     if (left <= 0) endQuestion();
@@ -363,7 +370,7 @@ async function endQuestion() {
   ending = true;
   stopTimer();
   sound.stopLoop();
-  sound.gong();
+  sound.play("timeUp");
   try {
     const q = quiz.questions[state.index];
     const key = state.key;

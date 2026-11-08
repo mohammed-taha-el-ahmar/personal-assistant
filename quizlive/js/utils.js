@@ -49,12 +49,13 @@ export function announce(message) {
 
 export const vibrate = (pattern) => { try { navigator.vibrate?.(pattern); } catch { /* unsupported */ } };
 
-// Kahoot-style shapes, one per answer slot. Colour is never the only cue.
+// Answer shapes, one per slot: hexagon, star, moon, cross. Colour is never the only cue.
+const svg = (d) => `<svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="${d}" fill="#fff"/></svg>`;
 export const SHAPES = [
-  '<svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M20 4 37 34H3z" fill="#fff"/></svg>',
-  '<svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M20 2 38 20 20 38 2 20z" fill="#fff"/></svg>',
-  '<svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><circle cx="20" cy="20" r="17" fill="#fff"/></svg>',
-  '<svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><rect x="4" y="4" width="32" height="32" rx="3" fill="#fff"/></svg>',
+  svg("M20 3 35 11.5v17L20 37 5 28.5v-17z"),
+  svg("M20 3.5 24.5 14.9 36.6 15.6 27.2 23.3 30.3 35.2 20 28.6 9.7 35.2 12.8 23.3 3.4 15.6 15.5 14.9z"),
+  svg("M25.5 4.5A16 16 0 1 0 35.5 27 13 13 0 0 1 25.5 4.5z"),
+  svg("M15 4h10v11h11v10H25v11H15V25H4V15h11z"),
 ];
 
 // Points: full value for an instant answer, half value at the buzzer.

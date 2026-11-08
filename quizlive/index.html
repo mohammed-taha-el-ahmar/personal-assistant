@@ -4,26 +4,99 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QuizLive</title>
+  <meta name="description" content="Live quiz games: questions on the big screen, answers from every phone.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <script>
+    // Arriving from a QR code (?pin=…): show only the join form, before first paint.
+    if (new URLSearchParams(location.search).has("pin")) document.documentElement.classList.add("pre-joining");
+  </script>
+  <style>.pre-joining .marketing { display: none; }</style>
 </head>
 <body>
-  <div class="float-controls" id="controls"></div>
-  <main class="center">
-    <div class="stack" style="width:100%;max-width:380px">
-      <h1 class="logo">Quiz<span>Live</span></h1>
-      <form id="join-form" class="card narrow stack" autocomplete="off" novalidate>
-        <label class="sr-only" for="pin" data-i18n="join.pin"></label>
-        <input id="pin" class="big" inputmode="numeric" maxlength="6" data-i18n-placeholder="join.pin" required>
-        <label class="sr-only" for="nickname" data-i18n="join.nickname"></label>
-        <input id="nickname" class="big" maxlength="15" data-i18n-placeholder="join.nickname" required>
-        <button class="btn block dark" type="submit" data-i18n="join.enter"></button>
-        <div id="error" class="error" role="alert"></div>
-      </form>
-      <p class="muted"><span data-i18n="join.hosting"></span> <a href="dashboard.html" data-i18n="join.toDashboard"></a></p>
+  <a class="skip-link btn" href="#join" data-i18n="common.skip"></a>
+
+  <header class="site-nav">
+    <a class="logo" href="index.html">Quiz<span>Live</span></a>
+    <div class="row">
+      <a class="btn small ghost marketing" href="dashboard.html" data-i18n="land.navHost"></a>
+      <div class="float-controls" id="controls"></div>
     </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <h1 data-i18n="land.title"></h1>
+        <p class="lede marketing" data-i18n="land.lede"></p>
+
+        <form id="join-form" class="card join-card stack" autocomplete="off" novalidate>
+          <h2 id="join" style="font-size:1.2rem;margin:0" data-i18n="land.joinTitle"></h2>
+          <div class="row">
+            <label class="sr-only" for="pin" data-i18n="join.pin"></label>
+            <input id="pin" class="big" inputmode="numeric" maxlength="6" data-i18n-placeholder="join.pin" required>
+            <label class="sr-only" for="nickname" data-i18n="join.nickname"></label>
+            <input id="nickname" class="big" maxlength="15" data-i18n-placeholder="join.nickname" required>
+          </div>
+          <button class="btn block" type="submit" data-i18n="land.joinButton"></button>
+          <div id="error" class="error" role="alert"></div>
+        </form>
+
+        <p class="hero-host marketing">
+          <span data-i18n="join.hosting"></span>
+          <a href="dashboard.html" data-i18n="land.hostLink"></a>
+        </p>
+      </div>
+
+      <!-- Playable demo of the host screen -->
+      <div class="demo marketing" aria-labelledby="demo-label">
+        <div class="demo-top">
+          <span id="demo-label" data-i18n="land.demoLabel"></span>
+          <span class="demo-timer" id="demo-timer" role="timer" aria-live="off">20</span>
+        </div>
+        <div class="question-head" id="demo-q"></div>
+        <div class="tiles" id="demo-tiles" role="group"></div>
+        <div class="demo-result" aria-live="polite">
+          <span id="demo-msg"></span>
+          <span class="demo-points" id="demo-points"></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-paper marketing">
+      <section class="section" aria-labelledby="how-title">
+        <h2 id="how-title" data-i18n="land.howTitle"></h2>
+        <ol class="steps">
+          <li><h3 data-i18n="land.step1"></h3><p data-i18n="land.step1Text"></p></li>
+          <li><h3 data-i18n="land.step2"></h3><p data-i18n="land.step2Text"></p></li>
+          <li><h3 data-i18n="land.step3"></h3><p data-i18n="land.step3Text"></p></li>
+        </ol>
+      </section>
+
+      <section class="section" style="padding-top:0" aria-labelledby="feat-title">
+        <h2 id="feat-title" data-i18n="land.featTitle"></h2>
+        <div class="features" id="features"></div>
+      </section>
+    </div>
+
+    <section class="cta-band marketing">
+      <div class="section">
+        <h2 data-i18n="land.ctaTitle"></h2>
+        <a class="btn" href="dashboard.html" data-i18n="land.ctaButton"></a>
+      </div>
+    </section>
   </main>
+
+  <footer class="page-paper marketing">
+    <div class="site-foot">
+      <span>QuizLive</span>
+      <span data-i18n="land.footer"></span>
+    </div>
+  </footer>
+
   <script type="module" src="js/join.js"></script>
+  <script type="module" src="js/landing.js"></script>
 </body>
 </html>

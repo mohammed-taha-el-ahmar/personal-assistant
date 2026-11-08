@@ -6,7 +6,7 @@ The UI is in English and French.
 
 | Page | Who | What |
 |---|---|---|
-| `index.html` | Player | Enter the game PIN and a nickname |
+| `index.html` | Everyone | Landing page with a playable demo question and the join form. Opened from a QR code (`?pin=`), it shows only the join form |
 | `play.html` | Player | Answer buttons, feedback, rank and gap to the next player, final summary |
 | `dashboard.html` | Host | Sign in (Google, email + password, or email link); list, duplicate and delete quizzes; launch a game |
 | `editor.html` | Host | Create or edit a quiz (2–4 answers, time limit, points) |
@@ -25,10 +25,15 @@ The UI is in English and French.
 - **Lobby:** player names pop in with a join sound, plus a QR code, full-screen mode, and click-to-remove.
 - **Player screen:** vibration on answer and result, "N points behind X", a final summary
   (score, correct answers, best streak), and an optional **Aa** mode that shows the question and answers on the phone.
-- **Sound:** lobby music, "thinking" loop, countdown ticks, gong, reveal sting, and podium fanfare.
-  All of it is synthesised with the Web Audio API (no files). There's a mute toggle.
+- **Sounds you choose:** the **♪ Sounds** panel (host screen and dashboard) sets the sound for each moment:
+  lobby music, thinking music, question intro, countdown, time's up, reveal, player joins, and podium.
+  Pick from 2 or 3 built-in sounds (synthesised with Web Audio, no files), turn a moment off, or **upload your own
+  audio file** (MP3/WAV/OGG, up to 8 MB). Uploads are stored in the host's browser (IndexedDB), so they work on the
+  free Firebase plan, but they don't follow you to another computer. There's also a volume slider and a mute toggle.
+- **Look:** its own identity: cobalt stage, Bricolage Grotesque type, a split-flap PIN board, and four answer pieces
+  (orange hexagon, teal star, purple moon, pink cross).
 - **Accessibility:** shape and colour on every answer, screen-reader labels and live announcements,
-  visible focus, `prefers-reduced-motion` support, darker yellow for text contrast, and a `lang` attribute
+  visible focus, `prefers-reduced-motion` support, and a `lang` attribute
   that follows the language toggle.
 - **Analytics:** one event per player per question goes to Firestore, feeding an in-app stats page and an
   optional BigQuery pipeline with SQL models and data quality checks. See [`analytics/README.md`](analytics/README.md).
@@ -95,7 +100,9 @@ index.html  play.html  dashboard.html  editor.html  host.html  analytics.html
 css/styles.css
 js/firebase.js    Firebase init and server clock (the only file to edit)
 js/i18n.js        English and French strings, language toggle
-js/sound.js       Web Audio sound effects
+js/sound.js       sound engine: built-in synth sounds, custom uploads, per-moment choices
+js/sound-panel.js sound settings dialog
+js/landing.js     landing page demo and feature list
 js/utils.js       helpers: scoring, shapes, views, CSV, accessibility
 js/join.js  js/player.js  js/dashboard.js  js/editor.js  js/host.js  js/analytics.js
 database.rules.json  firestore.rules  firebase.json

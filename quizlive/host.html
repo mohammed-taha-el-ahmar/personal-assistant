@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QuizLive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 </head>
@@ -16,32 +16,28 @@
 
   <!-- Lobby -->
   <main data-view="lobby" class="container stack" style="text-align:center" hidden>
-    <h1 id="h-title"></h1>
-    <div class="row" style="justify-content:center;gap:24px">
-      <div class="stack">
-        <div class="muted"><span data-i18n="host.joinAt"></span> <strong id="h-url"></strong></div>
-        <div class="pin-box">
-          <div style="color:var(--ink-soft)" data-i18n="host.pin"></div>
-          <div class="pin" id="h-pin"></div>
-        </div>
+    <h1 id="h-title" style="margin-top:28px"></h1>
+    <p class="muted"><span data-i18n="host.joinAt"></span> <strong id="h-url"></strong></p>
+    <div class="lobby-grid">
+      <div class="pin-board">
+        <div class="label" data-i18n="host.pin"></div>
+        <div class="pin" id="h-pin" role="img"></div>
       </div>
       <div class="qr" id="h-qr" role="img" data-i18n-aria="host.qr"></div>
     </div>
-    <div class="row spread">
+    <div class="lobby-bar">
       <span class="lobby-count" id="h-count" aria-live="polite"></span>
       <button class="btn" id="h-start" disabled data-i18n="host.start"></button>
     </div>
-    <div class="chips" id="h-players" aria-label="Players"></div>
+    <div class="chips" id="h-players" data-i18n-aria="host.playerList"></div>
     <p class="muted" id="h-waiting"></p>
   </main>
 
   <!-- Intro: question alone before answers open -->
   <main data-view="intro" class="intro" hidden>
-    <div style="width:100%">
-      <div class="pill" id="h-intro-num"></div>
-      <div class="question-head" id="h-intro-text" style="margin-top:20px"></div>
-      <div class="intro-bar" id="h-intro-bar"><div></div></div>
-    </div>
+    <div class="pill" id="h-intro-num"></div>
+    <div class="question-head" id="h-intro-text"></div>
+    <div class="intro-bar" id="h-intro-bar"><div></div></div>
   </main>
 
   <!-- Question -->
@@ -78,7 +74,7 @@
   <main data-view="podium" class="container" style="text-align:center" hidden>
     <h1 id="h-ptitle"></h1>
     <div class="podium" id="h-podium"></div>
-    <div class="row" style="justify-content:center">
+    <div class="host-footer">
       <button class="btn dark" id="h-csv" data-i18n="host.csv"></button>
       <button class="btn danger" id="h-end" data-i18n="host.end"></button>
     </div>

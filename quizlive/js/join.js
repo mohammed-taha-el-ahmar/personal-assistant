@@ -14,7 +14,8 @@ const errorEl = $("#error");
 
 pinInput.value = params().get("pin") || "";
 nickInput.value = localStorage.getItem("quizlive:nickname") || "";
-(pinInput.value ? nickInput : pinInput).focus();
+// Focus only when arriving from a QR code; on the landing page it would pop up phone keyboards.
+if (pinInput.value) nickInput.focus();
 
 class JoinError extends Error {}
 
