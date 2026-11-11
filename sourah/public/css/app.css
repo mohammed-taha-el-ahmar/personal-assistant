@@ -1,0 +1,286 @@
+/* ============ Sourah — design system ============ */
+@font-face{font-family:'Amiri Quran';font-weight:400;font-display:block;src:url(../fonts/amiri-quran.woff2) format('woff2')}
+@font-face{font-family:'Manrope';font-weight:400;font-display:swap;src:url(../fonts/manrope-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Manrope';font-weight:600;font-display:swap;src:url(../fonts/manrope-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Manrope';font-weight:800;font-display:swap;src:url(../fonts/manrope-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Plex Arabic';font-weight:400;font-display:swap;src:url(../fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Plex Arabic';font-weight:600;font-display:swap;src:url(../fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Plex Arabic';font-weight:700 800;font-display:swap;src:url(../fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format('woff2')}
+
+:root{
+  --bg:#F5EFE2; --paper:#FFFCF5; --paper-2:#FBF6EA; --ink:#13302B; --muted:#6B7A73; --line:#E7DDC9;
+  --brand:#0F4C45; --brand-2:#17695F; --brand-ink:#FFFCF5; --brand-soft:#E2EEE9;
+  --gold:#C49A3F; --gold-2:#E2C27A; --gold-soft:#F5EACB; --gold-ink:#3A2A06;
+  --sabqi:#3B6EA5; --sabqi-soft:#E3ECF6; --manzil:#17695F; --manzil-soft:#DDEDE7; --sabaq:#C0782A; --sabaq-soft:#F8EAD7;
+  --good:#2F8A5B; --warn:#D3901F; --bad:#C2453A; --empty:#ECE4D3;
+  --veil:#EDE3CF; --err-bg:#FBE1DC;
+  --r-lg:22px; --r:16px; --r-sm:12px;
+  --shadow:0 1px 1px rgba(19,48,43,.04),0 6px 20px rgba(19,48,43,.07);
+  --shadow-lg:0 10px 40px rgba(15,76,69,.25);
+  --star:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23E2C27A' stroke-opacity='.22' stroke-width='1'%3E%3Crect x='17' y='17' width='22' height='22'/%3E%3Crect x='17' y='17' width='22' height='22' transform='rotate(45 28 28)'/%3E%3Ccircle cx='28' cy='28' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  --star-soft:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23E2C27A' stroke-opacity='.10' stroke-width='1'%3E%3Crect x='17' y='17' width='22' height='22'/%3E%3Crect x='17' y='17' width='22' height='22' transform='rotate(45 28 28)'/%3E%3C/g%3E%3C/svg%3E");
+  --font:'Manrope','Plex Arabic',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+:root[data-theme=dark]{
+  --bg:#0A1C19; --paper:#11292500; --paper:#112925; --paper-2:#14302B; --ink:#EEE7D6; --muted:#9AB0A7; --line:#21433D;
+  --brand:#0E3E38; --brand-2:#4FB59C; --brand-ink:#EEE7D6; --brand-soft:#173A34;
+  --gold:#D8B460; --gold-2:#E9CD8A; --gold-soft:#3A3220; --gold-ink:#1A1405;
+  --sabqi:#7FA8D8; --sabqi-soft:#1A2D40; --manzil:#5CC2A7; --manzil-soft:#173A34; --sabaq:#E3A55E; --sabaq-soft:#3A2A18;
+  --good:#5CC28A; --warn:#E7B04F; --bad:#E36E61; --empty:#1B3832; --veil:#1F3D37; --err-bg:#3D2420;
+  --shadow:0 1px 1px rgba(0,0,0,.2),0 6px 20px rgba(0,0,0,.25); --shadow-lg:0 10px 40px rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+[dir=rtl]{--font:'Plex Arabic','Manrope',system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--brand-2)}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding:0 18px 110px}
+h1{font-size:26px;line-height:1.2;margin:6px 0 4px;font-weight:800;letter-spacing:-.01em}
+h2{font-size:17px;margin:26px 0 10px;font-weight:800}
+.sub{color:var(--muted);font-size:14px;margin:0}
+.page-head{padding:22px 0 6px}
+.center{text-align:center}
+.row{display:flex;gap:10px;align-items:center}
+.spread{justify-content:space-between}
+.loading{display:grid;place-items:center;min-height:80vh;color:var(--muted)}
+.fade-in{animation:fade .35s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- buttons, chips ---------- */
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:14px;padding:11px 16px;font-weight:700;transition:transform .08s,background .2s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+:root[data-theme=dark] .btn.primary{background:var(--brand-2);color:#06201B;border-color:var(--brand-2)}
+.btn.gold{background:linear-gradient(180deg,var(--gold-2),var(--gold));color:var(--gold-ink);border:0;box-shadow:0 6px 18px rgba(196,154,63,.35)}
+.btn.block{display:block;width:100%;padding:16px;font-size:17px;border-radius:16px}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted);font-weight:600}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.45}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;font-size:15px;font-weight:600}
+.chip.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+:root[data-theme=dark] .chip.on{background:var(--brand-2);border-color:var(--brand-2);color:#06201B}
+.seg{display:flex;background:var(--empty);border-radius:12px;padding:3px}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 6px;font-size:14px;color:var(--muted);font-weight:600}
+.seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow);margin:12px 0}
+.card.flat{box-shadow:none}
+
+/* ---------- hero (today) ---------- */
+.hero{position:relative;margin:0 -18px;padding:calc(18px + env(safe-area-inset-top)) 22px 26px;background:var(--star),linear-gradient(160deg,var(--brand-2) 0%,var(--brand) 60%);background-size:56px 56px,auto;color:#FFFCF5;border-radius:0 0 32px 32px;box-shadow:var(--shadow-lg);overflow:hidden}
+:root[data-theme=dark] .hero{background:var(--star),linear-gradient(160deg,#145247 0%,#0B302B 70%);background-size:56px 56px,auto}
+.hero .salam{font-family:'Amiri Quran',serif;font-size:22px;color:var(--gold-2);line-height:1.6}
+.hero .hello{font-size:24px;font-weight:800;margin:0}
+.hero .date{opacity:.75;font-size:14px}
+.streak{display:inline-flex;align-items:center;gap:6px;background:rgba(255,252,245,.12);border:1px solid rgba(226,194,122,.45);color:var(--gold-2);padding:6px 12px;border-radius:999px;font-weight:800;font-size:15px}
+.hero-body{display:flex;align-items:center;gap:18px;margin-top:20px}
+.ring{position:relative;flex:none}
+.ring svg{display:block;transform:rotate(-90deg)}
+[dir=rtl] .ring svg{transform:rotate(-90deg) scaleY(-1)}
+.ring .in{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.1}
+.ring .in b{font-size:26px;font-weight:800;display:block}
+.ring .in span{font-size:12px;opacity:.8}
+.hero-side{flex:1;min-width:0}
+.hero-side .big{font-size:17px;font-weight:700;margin-bottom:4px}
+.hero-side .small{font-size:14px;opacity:.8;margin-bottom:14px}
+.hero .btn.gold{width:100%;padding:13px;font-size:16px}
+
+/* ---------- journey ---------- */
+.journey{position:relative;padding:4px 0}
+.step{display:flex;gap:14px;align-items:center;padding:12px 0;position:relative}
+.step:not(:last-child):after{content:"";position:absolute;inset-inline-start:21px;top:56px;bottom:-12px;width:2px;background:var(--line)}
+.step .dot{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;font-weight:800;position:relative;z-index:1}
+.step.sabqi .dot{background:var(--sabqi-soft);color:var(--sabqi)} .step.manzil .dot{background:var(--manzil-soft);color:var(--manzil)} .step.sabaq .dot{background:var(--sabaq-soft);color:var(--sabaq)}
+.step.done .dot{background:var(--good);color:#fff}
+.step .txt{flex:1;min-width:0}
+.step .txt b{display:block;font-size:15.5px}
+.step .txt span{font-size:13.5px;color:var(--muted)}
+.step .min{font-size:13px;color:var(--muted);font-weight:700;white-space:nowrap}
+.step.off{opacity:.55}
+
+/* ---------- verse of the day ---------- */
+.verse{position:relative;overflow:hidden;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 18px 14px;box-shadow:var(--shadow);margin:12px 0}
+.verse:before{content:"";position:absolute;inset:0;background:var(--star);background-size:56px;opacity:.6;pointer-events:none;mask:linear-gradient(90deg,#000,transparent 60%);-webkit-mask:linear-gradient(90deg,#000,transparent 60%)}
+.verse .lbl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.verse .ar{font-family:'Amiri Quran',serif;direction:rtl;text-align:center;font-size:24px;line-height:2.1;margin:8px 0 6px;position:relative}
+.verse .ref{font-size:13px;color:var(--muted);text-align:center;position:relative}
+
+/* ---------- week & progress ---------- */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.week .d{display:grid;gap:6px;justify-items:center;font-size:12px;color:var(--muted);font-weight:600}
+.week .c{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);background:var(--paper);font-size:14px}
+.week .c.on{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.week .c.now{border-color:var(--brand-2);color:var(--brand-2);font-weight:800}
+.week .c.now.on{color:var(--gold-ink)}
+.khatm .bar{height:12px;border-radius:12px;background:var(--empty);overflow:hidden;margin:10px 0 8px}
+.khatm .bar i{display:block;height:100%;border-radius:12px;background:linear-gradient(90deg,var(--brand-2),var(--gold))}
+[dir=rtl] .khatm .bar i{background:linear-gradient(270deg,var(--brand-2),var(--gold))}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.kpi{background:var(--paper-2);border-radius:14px;padding:10px 6px;text-align:center}
+.kpi b{display:block;font-size:20px;font-weight:800}
+.kpi span{font-size:12px;color:var(--muted)}
+.banner{border-radius:16px;padding:12px 14px;background:var(--gold-soft);color:var(--ink);font-size:14px;margin:14px 0;border:1px solid var(--gold-2)}
+.done-card{text-align:center;padding:22px 16px}
+.done-card .star{width:54px;height:54px;margin:0 auto 6px;display:block}
+.storage{font-size:12px;color:var(--muted);text-align:center;margin-top:20px}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;padding:0 12px calc(10px + env(safe-area-inset-bottom));pointer-events:none}
+.nav .in{display:flex;max-width:500px;width:100%;background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-lg);padding:6px;pointer-events:auto}
+.nav button{flex:1;border:0;background:none;padding:8px 2px;font-size:11.5px;color:var(--muted);border-radius:16px;font-weight:700;min-width:0}
+.nav button svg{display:block;margin:0 auto 2px}
+.nav button.on{background:var(--brand-soft);color:var(--brand-2)}
+:root:not([data-theme=dark]) .nav button.on{color:var(--brand)}
+
+/* ---------- mushaf ---------- */
+.mushaf{font-family:'Amiri Quran',serif;direction:rtl;text-align:justify;text-align-last:center;font-size:25px;line-height:2.3;background:var(--paper);border-radius:var(--r-lg);padding:18px 18px;position:relative;
+  border:1px solid var(--line);box-shadow:var(--shadow),inset 0 0 0 6px var(--paper),inset 0 0 0 7px var(--gold-2)}
+:root[data-theme=dark] .mushaf{box-shadow:var(--shadow),inset 0 0 0 6px var(--paper),inset 0 0 0 7px rgba(216,180,96,.45)}
+.mushaf.big{font-size:28px;padding:22px 20px}
+.w{transition:background .15s}
+.w.veil{color:transparent;background:linear-gradient(var(--veil),var(--veil)) 0 60%/100% .95em no-repeat}
+.w.veil .fl{color:var(--ink)}
+.w.cur{background:linear-gradient(var(--gold),var(--gold)) 0 92%/100% 3px no-repeat,linear-gradient(var(--gold-soft),var(--gold-soft)) 0 58%/100% 1.15em no-repeat;scroll-margin-top:130px}
+.w.ok{color:var(--good)}
+.w.err{background:linear-gradient(var(--err-bg),var(--err-bg)) 0 58%/100% 1.25em no-repeat;color:var(--bad);text-decoration:underline wavy var(--bad) 1px;text-underline-offset:9px}
+.w.tap{cursor:pointer}
+.aya-end{display:inline-grid;place-items:center;min-width:1.55em;height:1.55em;font-size:.6em;line-height:1;border:1.5px solid var(--gold);border-radius:50%;color:var(--brand-2);margin:0 3px;vertical-align:.25em;padding:0 2px;background:var(--gold-soft)}
+.aya.forgot .w{background:linear-gradient(var(--err-bg),var(--err-bg)) 0 58%/100% 1.25em no-repeat}
+.aya.new{scroll-margin-top:130px}
+.aya.playing .w{background:linear-gradient(var(--brand-soft),var(--brand-soft)) 0 58%/100% 1.2em no-repeat}
+.sura-head{display:block;text-align:center;margin:8px 0 4px;padding:6px;border-radius:12px;font-size:.85em;color:var(--brand-2);background:var(--star),var(--gold-soft);background-size:40px,auto;border:1px solid var(--gold-2)}
+.basmala{display:block;text-align:center;font-size:.95em}
+.dim{opacity:.4}
+.deco{color:var(--gold)}
+
+/* ---------- session ---------- */
+.session-top{position:sticky;top:0;z-index:4;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 0 8px;margin:0 0 4px}
+.topbar{display:flex;align-items:center;gap:10px}
+.segs{flex:1;display:flex;gap:4px}
+.segs i{flex:1;height:6px;border-radius:6px;background:var(--empty)}
+.segs i.done{background:var(--gold)} .segs i.cur{background:var(--brand-2)}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;flex:none}
+.item-head{display:flex;align-items:center;gap:10px;margin-top:10px}
+.pill{font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;letter-spacing:.03em}
+.pill.sabqi{background:var(--sabqi-soft);color:var(--sabqi)} .pill.manzil{background:var(--manzil-soft);color:var(--manzil)} .pill.sabaq{background:var(--sabaq-soft);color:var(--sabaq)}
+.item-title{font-weight:800;font-size:16px}
+.help{font-size:14px;color:var(--muted);margin:8px 0 10px}
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.actions .btn{flex:1}
+.sticky{position:sticky;bottom:0;background:var(--bg);box-shadow:0 -14px 14px -8px var(--bg);padding:12px 0 calc(12px + env(safe-area-inset-bottom));margin-top:8px;z-index:3}
+.kbd{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;direction:rtl}
+.kbd button{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:8px 0;font:24px 'Amiri Quran',serif;line-height:1.25;box-shadow:0 1px 0 var(--line)}
+.kbd button.q{background:var(--empty);font:700 13px var(--font)}
+.kbd button:active{background:var(--gold-soft)}
+.grades{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.grade{border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:12px;text-align:start;display:flex;gap:10px;align-items:center}
+.grade .gi{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:18px;flex:none}
+.grade b{display:block;font-size:15px}
+.grade span{font-size:12.5px;color:var(--muted);line-height:1.3;display:block}
+.grade.sug{border:2px solid var(--gold);background:var(--gold-soft)}
+.g1 .gi{background:var(--err-bg)} .g2 .gi{background:var(--sabaq-soft)} .g3 .gi{background:var(--sabqi-soft)} .g4 .gi{background:var(--manzil-soft)}
+.steps{margin:6px 0 0;padding-inline-start:20px;font-size:14px;color:var(--muted)}
+.steps li{margin:4px 0}
+.player{display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:8px 10px}
+.player .pbtn{width:44px;height:44px;border-radius:50%;border:0;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;flex:none}
+:root[data-theme=dark] .player .pbtn{background:var(--brand-2);color:#06201B}
+.player .opt{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700}
+.player .opt.on{background:var(--gold-soft);border-color:var(--gold);color:var(--ink)}
+.player .lbl{font-size:12px;color:var(--muted);font-weight:600}
+
+/* ---------- summary ---------- */
+.celebrate{text-align:center;padding-top:calc(40px + env(safe-area-inset-top))}
+.celebrate .burst{width:150px;height:150px;margin:0 auto;display:block;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(.3) rotate(-30deg);opacity:0}to{transform:none;opacity:1}}
+.celebrate h1{font-size:30px;margin-top:10px}
+.stat-row{display:flex;gap:10px;justify-content:center;margin:18px 0}
+.stat-row .s{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 14px;min-width:96px}
+.stat-row .s b{display:block;font-size:22px;font-weight:800}
+.stat-row .s span{font-size:12px;color:var(--muted)}
+
+/* ---------- my quran ---------- */
+.juzgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.juzcard{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px 8px 10px;text-align:center;box-shadow:var(--shadow)}
+.juzcard .ring{margin:0 auto 6px}
+.juzcard .ring .in b{font-size:15px;font-family:'Amiri Quran',serif;font-weight:400}
+.juzcard small{font-size:11.5px;color:var(--muted);font-weight:600}
+.juzcard.full{border-color:var(--gold-2);background:linear-gradient(180deg,var(--gold-soft),var(--paper))}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:4px;margin-inline-end:5px;vertical-align:-1px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;direction:rtl}
+.cell{aspect-ratio:1;border-radius:10px;background:var(--empty);border:0;padding:0;font-size:12px;font-weight:700;color:rgba(255,255,255,.95)}
+.cell.none{color:var(--muted)}
+.sheet-bg{position:fixed;inset:0;background:rgba(5,20,17,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+.sheet{background:var(--bg);width:100%;max-width:520px;border-radius:26px 26px 0 0;padding:10px 18px calc(26px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .28s cubic-bezier(.2,.9,.3,1)}
+.sheet:before{content:"";display:block;width:42px;height:5px;border-radius:5px;background:var(--line);margin:0 auto 12px}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:15px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:700}
+
+/* ---------- planning ---------- */
+.chart{width:100%;height:auto;display:block}
+.daylist{display:grid;gap:8px}
+.day{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:11px 12px}
+.day .dname{width:96px;font-weight:700;font-size:14px;flex:none}
+.day .dbar{flex:1;display:flex;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.day .dmin{font-weight:800;font-size:14px}
+.tag{border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
+.tag.sabqi{background:var(--sabqi-soft);color:var(--sabqi)} .tag.manzil{background:var(--manzil-soft);color:var(--manzil)} .tag.sabaq{background:var(--sabaq-soft);color:var(--sabaq)}
+.goal{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+.goal:last-child{border-bottom:0}
+.goal .gic{width:36px;height:36px;border-radius:12px;background:var(--gold-soft);display:grid;place-items:center;flex:none}
+
+/* ---------- settings / forms ---------- */
+.group{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:4px 16px;margin:10px 0;box-shadow:var(--shadow)}
+.field{padding:14px 0;border-bottom:1px solid var(--line)}
+.group .field:last-child{border-bottom:0}
+.field>label{display:block;font-weight:700;margin-bottom:8px}
+.field .hint{font-size:13px;color:var(--muted);margin-top:6px}
+.group-title{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:24px 4px 4px}
+input[type=email],input[type=password],input[type=time],input[type=text],select{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);font:inherit;margin:4px 0 10px}
+input:focus,select:focus{outline:none;border-color:var(--brand-2)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);margin:12px 0}
+.check input{margin-top:3px;width:18px;height:18px;flex:none;accent-color:var(--brand-2)}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:16px 0}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--line)}
+.err-msg{color:var(--bad);font-size:14px;margin:6px 0}
+textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);padding:10px;font:13px ui-monospace,monospace}
+.juz-pick{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.juz-pick button{border:1.5px solid var(--line);background:var(--paper);border-radius:12px;padding:9px 0;font-weight:700}
+.juz-pick button.on{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.link{color:var(--brand-2);font-size:14px;text-decoration:none;font-weight:700}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(10px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;z-index:30;opacity:0;transition:all .25s;pointer-events:none;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.shake{animation:shake .25s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* ---------- welcome & onboarding ---------- */
+.welcome{min-height:100vh;margin:0 -18px;padding:calc(20px + env(safe-area-inset-top)) 22px 30px;background:var(--star-soft),linear-gradient(170deg,var(--brand-2),var(--brand) 55%,#0A302B);background-size:56px,auto;color:#FFFCF5;display:flex;flex-direction:column}
+.welcome .lang-switch .chip{background:rgba(255,252,245,.1);border-color:rgba(255,252,245,.25);color:#FFFCF5}
+.welcome .lang-switch .chip.on{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.welcome .logo{width:96px;height:96px;border-radius:24px;margin:30px auto 4px;display:block;filter:drop-shadow(0 10px 24px rgba(0,0,0,.3))}
+.welcome .brand{font-family:'Amiri Quran',serif;font-size:46px;text-align:center;color:var(--gold-2);line-height:1.9}
+.welcome .name{text-align:center;font-weight:800;letter-spacing:.35em;font-size:13px;opacity:.8;margin-top:4px}
+.welcome .tag{text-align:center;font-size:22px;font-weight:800;margin:22px 0 6px;line-height:1.3;background:none;color:inherit;padding:0}
+.feats{margin:18px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+.feats li{display:flex;gap:12px;align-items:center;background:rgba(255,252,245,.08);border:1px solid rgba(255,252,245,.14);border-radius:16px;padding:12px 14px;font-size:15px}
+.feats .fi{width:34px;height:34px;border-radius:10px;background:rgba(226,194,122,.18);display:grid;place-items:center;flex:none;color:var(--gold-2)}
+.welcome .spacer{flex:1;min-height:20px}
+.welcome .btn.ghostlight{background:transparent;border:1.5px solid rgba(255,252,245,.35);color:#FFFCF5}
+.welcome .note{text-align:center;font-size:13px;opacity:.7;margin-top:10px}
+.lang-switch{display:flex;gap:6px;justify-content:center}
+.onb-top{display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 0 4px}
+.onb-top .segs i.done{background:var(--brand-2)}
+.onb h1{margin-top:22px}
+.option-list{display:grid;gap:10px;margin-top:16px}
+.option{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);background:var(--paper);border-radius:18px;padding:14px 16px;text-align:start;width:100%}
+.option.on{border-color:var(--brand-2);background:var(--brand-soft)}
+.option .oi{width:40px;height:40px;border-radius:12px;background:var(--gold-soft);display:grid;place-items:center;flex:none;font-weight:800;color:var(--gold-ink)}
+:root[data-theme=dark] .option .oi{color:var(--gold-2)}
+.option b{display:block}
+.option span{font-size:13px;color:var(--muted)}
+.option .rad{margin-inline-start:auto;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none}
+.option.on .rad{border:7px solid var(--brand-2)}
