@@ -9,6 +9,9 @@ service cloud.firestore {
       allow read, delete: if signedIn() && me() == uid;
       allow create, update: if signedIn() && me() == uid
                             && request.resource.data.keys().hasOnly(['state', 'updatedAt', 'consent']);
+      match /children/{childId} {
+        allow read, write: if signedIn() && me() == uid;
+      }
       match /events/{month} {
         allow read, write: if signedIn() && me() == uid && month.matches('^[0-9]{4}-[0-9]{2}$');
       }

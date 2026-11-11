@@ -5,6 +5,7 @@ import { RECITERS, PRIVACY_URL } from './config.js';
 import { Recorder, canRecord, saveRecording, listRecordings, deleteRecording, fmtDuration, MAX_SECONDS } from './recorder.js';
 import { Social } from './social.js';
 import { buildQuiz } from './quiz.js';
+import { pickMotivation, BADGES, earnedBadges, nextBadge } from './motivation.js';
 
 const P = window.Planner;
 const $app = document.getElementById('app');
@@ -87,7 +88,7 @@ function normalize(st) {
   st.settings = Object.assign({ theme: prefs.theme || 'auto', name: '', minutes: 20, pace: 0.5, direction: 'nas', hide: 'first', mode: 'oral', reciter: RECITERS[0][0], repeat: 1, rate: 1 }, st.settings || {});
   return st;
 }
-function save() { Store.save(S); }
+function save() { if (kidId && children[kidId]) { children[kidId].state = S; saveKid(['state', 'earned']); } else Store.save(S); }
 function recordDuration(kind, secs) { const a = S.durations[kind] || (S.durations[kind] = []); a.push(Math.min(Math.max(secs, 20), 3600)); if (a.length > 30) a.shift(); }
 function markActive() { const d = today(); if (!S.days.includes(d)) { S.days.push(d); if (S.days.length > 400) S.days.shift(); } }
 
@@ -172,7 +173,8 @@ function render() {
   applyTheme();
   const showNav = !!S && !session && !screen;
   $nav.hidden = !showNav;
-  document.querySelectorAll('.nav button').forEach(b => { b.classList.toggle('on', b.dataset.go === view); b.querySelector('span').textContent = t(b.dataset.go); });
+  document.documentElement.dataset.kid = kidId ? '1' : '';
+  document.querySelectorAll('.nav button').forEach(b => { b.classList.toggle('on', b.dataset.go === view); b.querySelector('span').textContent = t(b.dataset.go); b.hidden = kidId ? !['today', 'stars'].includes(b.dataset.go) : b.dataset.go === 'stars'; });
   updateBadge();
   document.title = t('app_name');
   $app.innerHTML = '';
@@ -189,7 +191,8 @@ function render() {
     session.scrollTo = null;
     return;
   }
-  const v = view === 'planning' ? viewPlanning() : view === 'map' ? viewMap() : view === 'settings' ? viewSettings() : view === 'buddy' ? viewBuddy() : viewToday();
+  if (kidId && !['today', 'stars'].includes(view)) view = 'today';
+  const v = kidId ? (view === 'stars' ? viewKidStars() : viewKidToday()) : view === 'planning' ? viewPlanning() : view === 'map' ? viewMap() : view === 'settings' ? viewSettings() : view === 'buddy' ? viewBuddy() : viewToday();
   v.classList.add('fade-in');
   $app.append(v);
 }
@@ -255,7 +258,7 @@ function viewAuth() {
   return h('div', { style: 'padding-top:calc(14px + env(safe-area-inset-top))' },
     h('button', { class: 'btn ghost', style: 'padding-inline:0', onclick: () => { screen = S ? null : 'welcome'; render(); } }, (getLang() === 'ar' ? '→ ' : '← ') + t('back')),
     h('h1', null, t('sign_in_title')), h('p', { class: 'sub' }, t('sign_in_sub')),
-    h('label', { class: 'check' }, consentBox = h('input', { type: 'checkbox', checked: sessionStorage.getItem('hifz-consent') === '1' }),
+    h('label', { class: 'check' }, consentBox = h('input', { type: 'checkbox', checked: sessionStorage.getItem('hifz-consent') === '1', onchange: e => { if (e.target.checked) sessionStorage.setItem('hifz-consent', '1'); else sessionStorage.removeItem('hifz-consent'); } }),
       h('span', null, t('consent'), ' ', h('a', { class: 'link', href: PRIVACY_URL, target: '_blank' }, t('privacy_link')))),
     h('button', { class: 'btn block', style: 'margin-top:4px', onclick: () => consentOk() && run(() => Store.signInGoogle()) }, t('google')),
     h('div', { class: 'divider' }, t('email')),
@@ -289,6 +292,8 @@ async function afterSignIn() {
     if (S) { if (source === 'remote') { Store.saveLocal(S); toast(t('merged_remote')); } else save(); }
     screen = null; view = 'today'; prefs.skipWelcome = true; savePrefs();
     Social.start(Store.user.uid);
+    startWatchingChildren();
+    resumeKid();
   } catch (e) { console.warn(e); toast(t('sync_error')); screen = null; }
   render();
 }
@@ -398,7 +403,9 @@ function viewToday() {
     if (ahead.length) wrap.append(h('button', { class: 'btn block', onclick: () => startSession({ sabqi: [], manzil: ahead, sabaq: null }) }, t('ahead')));
   }
 
+  const fam = familySection(); if (fam) wrap.append(fam);
   const qc = quizCard(d); if (qc) wrap.append(qc);
+  wrap.append(motivationCard(pickMotivation('start', d)));
 
   const [vs, va, vt] = verseOfDay(d);
   wrap.append(h('div', { class: 'verse', style: 'cursor:pointer', onclick: () => openMeaning(vs, va, null) }, h('div', { class: 'lbl' }, t('verse_of_day')),
@@ -417,7 +424,8 @@ function viewToday() {
     h('div', { class: 'kpis' },
       h('div', { class: 'kpi' }, h('b', null, fmtNum(completeJuz())), h('span', null, t('juz_done'))),
       h('div', { class: 'kpi' }, h('b', null, avgR == null ? '–' : fmtNum(avgR) + '%'), h('span', null, t('avg_strength'))),
-      h('div', { class: 'kpi' }, h('b', null, fmtNum(streak)), h('span', null, t('day_streak'))))));
+      h('div', { class: 'kpi' }, h('b', null, fmtNum(streak)), h('span', null, t('day_streak')))),
+    (() => { const nb = nextBadge(progressStats()); return nb ? h('div', { class: 'next-badge' }, h('span', null, nb.icon), t('next_badge', { name: t('badge_' + nb.id) })) : null; })()));
   wrap.append(storageNote());
   return wrap;
 }
@@ -502,7 +510,7 @@ const curItem = () => session.items[session.i];
 function itemAyahs(it) { const all = Q.pages[it.page - 1]; return it.kind !== 'sabaq' ? all : (splitParts(all, it.parts)[it.part] || all); }
 function beginItem() { const it = curItem(); if (!it) return; stopAudio(); session.step = it.kind === 'sabaq' ? 'learn' : 'test'; session.mode = S.settings.mode || 'oral'; resetTest(); session.t0 = Date.now(); }
 function resetTest() { const it = curItem(); recorder.cancel(); session.recording = null; session.recState = null; session.sent = false; session.revealed = 0; session.errors = new Set(); session.ok = new Set(); session.forgot = new Set(); session.cursor = 0; session.learnHide = 'visible'; session.words = passageWords(itemAyahs(it)); }
-function endSession() { stopAudio(); recorder.cancel(); session = { summary: session.results, items: [], i: 0 }; }
+function endSession() { stopAudio(); recorder.cancel(); session = { summary: session.results, stars: session.stars || 0, items: [], i: 0 }; }
 function viewSession() {
   if (session.summary) return viewSummary();
   const it = curItem(), n = session.items.length;
@@ -537,6 +545,7 @@ function viewLearn(it) {
     h('div', { class: 'sticky' }, h('button', { class: 'btn primary block', onclick: () => { stopAudio(); session.step = 'test'; resetTest(); render(); window.scrollTo(0, 0); } }, t('ready'))));
 }
 function viewOralTest(it) {
+  if (kidId) return viewKidTest(it);
   const ayahs = itemAyahs(it), all = session.revealed >= ayahs.length, hide = S.settings.hide || 'first';
   return h('div', null, modeSwitch(), recBar(),
     h('p', { class: 'help' }, (all ? t('oral_help_marked') : t('oral_help')) + ' ' + t('long_press_hint')),
@@ -575,6 +584,7 @@ function viewLetterTest(it) {
             h('button', { class: 'q', style: 'grid-column:span 2', onclick: () => { for (let j = session.cursor; j < words.length; j++) session.errors.add(j); session.cursor = words.length; render(); } }, t('give_up'))))));
 }
 function viewGrade(it) {
+  if (kidId) return viewKidGrade(it);
   const sug = P.gradeFromErrors(session.errors.size, session.words, session.forgot.size > 0);
   const icons = { 1: '↺', 2: '〰', 3: '✓', 4: '★' };
   return h('div', null,
@@ -593,6 +603,7 @@ function gradeItem(g) {
   const before = S.pages[it.page], Rb = P.pageR(before, d);
   if (it.kind === 'sabaq') { S.pages[it.page] = P.applySabaq(before, g, d, it.parts); recordDuration('sabaq', secs); }
   else { S.pages[it.page] = P.applyReview(before, g, d); recordDuration(it.kind, secs); }
+  if (kidId) { const n = it.kind === 'sabaq' ? (g >= 3 ? 3 : 1) : (g >= 4 ? 2 : g >= 2 ? 1 : 0); kid().earned = (kid().earned || 0) + n; session.stars = (session.stars || 0) + n; }
   markActive(); save();
   Store.logEvent({ t: Date.now(), p: it.page, k: it.kind, g, d: secs, e: session.errors.size, w: session.words, m: session.mode, r: Rb == null ? null : Math.round(Rb * 1000) / 1000, part: it.part == null ? null : it.part });
   session.results.push({ ...it, grade: g, errors: session.errors.size, secs, after: S.pages[it.page] });
@@ -603,6 +614,7 @@ function gradeItem(g) {
   render(); window.scrollTo(0, 0);
 }
 function viewSummary() {
+  if (kidId) return viewKidSummary();
   const res = session.summary;
   const lapses = res.filter(r => r.kind !== 'sabaq' && r.grade === 1).length;
   const errs = res.reduce((a, r) => a + r.errors, 0);
@@ -620,6 +632,8 @@ function viewSummary() {
     sab ? h('div', { class: 'card', style: 'text-align:start' }, h('b', null, t('sum_sabaq')),
       sab.grade < 3 ? t('sum_sabaq_redo') : sab.after.status === 'sabqi' ? t('sum_sabaq_page', { p: fmtNum(sab.page) }) : t('sum_sabaq_part')) : null,
     lapses ? h('div', { class: 'card', style: 'text-align:start' }, t.n('to_reinforce', lapses)) : null,
+    newBadgesCard(),
+    motivationCard(pickMotivation(errs > 5 || res.some(r => r.grade <= 2) ? 'struggle' : sab && sab.after.status === 'sabqi' ? 'new' : 'review', today()), { label: t('motivation_lbl') }),
     (() => { const nx = P.forecast(S, today() + 1, 1, Q.juz).days[0]; return h('div', { class: 'card', style: 'text-align:start;display:flex;gap:12px;align-items:center' },
       h('span', { class: 'gic', style: 'width:40px;height:40px;border-radius:12px;background:var(--gold-soft);display:grid;place-items:center;color:var(--gold-ink);flex:none' }, html(SVG.calendar)),
       h('div', null, h('b', { style: 'display:block' }, t('next_session')), h('span', { class: 'sub' }, t('min_left', { n: fmtNum(nx.minutes.total) }) + ' · ' + t.n('pages', nx.sabqi + nx.manzil + (nx.sabaq ? 1 : 0))))); })(),
@@ -642,6 +656,8 @@ function viewMap() {
     (() => { const n = memorizedMutPairs().length; return n ? h('button', { class: 'card mut-cta', onclick: openMutReview }, h('span', { class: 'gic' }, '≈'), h('div', null, h('b', null, t('mut_review')), h('span', { class: 'sub' }, t('mut_pairs', { n: fmtNum(n) }))), h('span', { class: 'chev' }, '›')) : null; })(),
     h('div', { class: 'legend', style: 'margin:6px 0 14px' },
       [['var(--good)', 'solid'], ['var(--warn)', 'watch'], ['var(--bad)', 'weak'], ['var(--sabqi)', 'in_progress']].map(([c, k]) => h('span', null, h('i', { style: `background:${c}` }), t(k)))),
+    h('h2', null, t('badges')), badgesGrid(S),
+    h('h2', null, t('juz_list')),
     h('div', { class: 'juzgrid' }, order.map(j => {
       const pages = juzPages(j);
       const mem = pages.filter(p => S.pages[p] && S.pages[p].status !== 'sabaq');
@@ -719,6 +735,12 @@ function viewSettings() {
         h('div', { class: 'row' }, timeInput = h('input', { type: 'time', value: prefs.reminder || '07:30', style: 'max-width:130px;margin:0' }),
           h('button', { class: 'btn', onclick: () => { prefs.reminder = timeInput.value; savePrefs(); downloadReminder(timeInput.value); } }, t('add_reminder'))),
         h('div', { class: 'hint' }, t('reminder_hint')))),
+    h('div', { class: 'group-title' }, t('family')),
+    h('div', { class: 'group' }, h('div', { class: 'field' },
+      Object.values(children).map(c => h('button', { class: 'li', style: 'margin-bottom:8px', onclick: () => openChildDashboard(c.id) }, h('span', { class: 'kid-av' }, c.avatar), h('div', null, h('b', null, c.name), h('span', null, `${fmtNum(progressStats(c.state).pages)} p. · ⭐ ${fmtNum(starsAvailable(c))}`)), h('span', { class: 'chev' }, '›'))),
+      h('button', { class: 'btn primary block', onclick: openAddChild }, '+ ' + t('add_child')),
+      h('p', { class: 'hint sub', style: 'font-size:13px' }, t('family_hint')),
+      pinHash() ? h('button', { class: 'btn ghost', style: 'padding-inline:0', onclick: () => askPin(t('parent_area'), () => setParentPin()) }, t('change_pin')) : null)),
     h('div', { class: 'group-title' }, t('account')),
     h('div', { class: 'group' }, h('div', { class: 'field' }, accountBlock())),
     h('div', { class: 'group-title' }, t('my_data')),
@@ -740,7 +762,7 @@ function accountBlock() {
   if (!Store.user) return h('button', { class: 'btn primary block', onclick: () => { screen = 'auth'; authMode = 'signup'; authErr = ''; render(); } }, t('with_account'));
   return h('div', null, h('p', { class: 'sub' }, t('signed_in_as', { email: Store.user.email || '' })),
     h('div', { class: 'actions' },
-      h('button', { class: 'btn', onclick: async () => { Social.stop(); await Store.signOut(); S = null; screen = 'welcome'; render(); } }, t('sign_out')),
+      h('button', { class: 'btn', onclick: async () => { Social.stop(); if (unwatchChildren) unwatchChildren(); children = {}; await Store.signOut(); S = null; screen = 'welcome'; render(); } }, t('sign_out')),
       h('button', { class: 'btn ghost', style: 'color:var(--bad)', onclick: confirmDeleteAccount }, t('delete_account'))));
 }
 function confirmDeleteAccount() {
@@ -1211,6 +1233,7 @@ function finishQuiz() {
   S.quizLog = (S.quizLog || []).concat([{ day: d, score: st.score, total: st.qs.length }]).slice(-60);
   const pages = new Set(st.wrong.map(i => st.qs[i].page));
   pages.forEach(p => { const ps = S.pages[p]; if (ps && ps.status === 'manzil' && ps.last + P.interval(ps.S) > d + 1) reviewTomorrow(p); });
+  if (kidId) { kid().earned = (kid().earned || 0) + st.score; }
   markActive(); save();
   Store.logEvent({ t: Date.now(), k: 'quiz', g: st.score, n: st.qs.length, d: Math.round((Date.now() - st.t0) / 1000), wrong: st.wrong.map(i => st.qs[i].key) });
 }
@@ -1225,6 +1248,315 @@ function viewQuizResult() {
         h('span', { class: 'av' }, '!'), h('div', null, h('b', null, `${surahLabel(q.s)} ${fmtNum(q.s)}:${fmtNum(q.a)}`), h('span', null, t({ next: 'q_next', prev: 'q_prev', word: 'q_word', surah: 'q_surah' }[q.type]))), h('span', { class: 'chev' }, '›')); })),
       h('p', { class: 'sub', style: 'font-size:13px;margin-top:10px' }, t('quiz_review_note'))) : null,
     h('button', { class: 'btn primary block', style: 'margin-top:18px', onclick: () => { quizState = null; screen = null; view = 'today'; render(); window.scrollTo(0, 0); } }, t('finish')));
+}
+
+// ================= motivation, badges, children mode, parent tracking =================
+
+// ---------- motivation cards ----------
+function motivationCard(pick, opts) {
+  if (!pick) return null;
+  opts = opts || {};
+  const lang = getLang();
+  const card = h('div', { class: 'motiv' + (opts.kid ? ' kid' : '') });
+  if (pick.type === 'hadith') {
+    const it = pick.item;
+    card.append(h('div', { class: 'lbl' }, opts.label || t('reminder_of_day')));
+    if (opts.kid && it.kid) card.append(h('p', { class: 'kid-line' }, it.kid[lang] || it.kid.fr));
+    card.append(h('p', { class: 'ar', dir: 'rtl', lang: 'ar' }, '« ' + it.ar + ' »'));
+    if (lang !== 'ar' && !(opts.kid && it.kid)) card.append(h('p', { class: 'tr' }, it[lang] || it.fr));
+    card.append(h('div', { class: 'src' }, t('prophet_said') + ' · ' + (it.src[lang] || it.src.fr)));
+  } else {
+    const ix = ayahIndex()[pick.item.key]; if (!ix) return null;
+    card.append(h('div', { class: 'lbl' }, opts.label || t('reminder_of_day')),
+      h('p', { class: 'ar', dir: 'rtl', lang: 'ar' }, '﴿ ' + ix.text + ' ﴾'));
+    const tr = h('p', { class: 'tr' }); card.append(tr);
+    if (lang !== 'ar') loadMeaning(ix.page).then(M => { tr.textContent = (M[pick.item.key] || {})[lang] || ''; }).catch(() => {});
+    card.append(h('div', { class: 'src' }, `${surahLabel(ix.s)} · ${fmtNum(ix.s)}:${fmtNum(ix.a)}`));
+    card.style.cursor = 'pointer'; card.addEventListener('click', () => openMeaning(ix.s, ix.a, null));
+  }
+  return card;
+}
+
+// ---------- badges ----------
+function progressStats(st) {
+  st = st || S;
+  const d = today(), mem = new Set(Object.keys(st.pages).filter(k => st.pages[k].status !== 'sabaq').map(Number));
+  let surahs = 0;
+  for (let s = 1; s <= 114; s++) { let all = true, any = false; Q.pages.forEach((pg, i) => { if (pg.some(x => x[0] === s)) { any = true; if (!mem.has(i + 1)) all = false; } }); if (any && all) surahs++; }
+  let juz = 0; for (let j = 1; j <= 30; j++) { let all = true; for (let p = 1; p <= 604; p++) if (Q.juz[p - 1] === j && !mem.has(p)) { all = false; break; } if (all) juz++; }
+  const reviews = Object.values(st.pages).reduce((a, ps) => a + (ps.reviews || 0), 0);
+  return { pages: mem.size, surahs, juz, streak: P.streak(st.days || [], d), reviews, perfectQuiz: (st.quizLog || []).some(q => q.score === q.total && q.total >= 10) };
+}
+function badgeChip(b, on) { return h('div', { class: 'badge-chip' + (on ? ' on' : '') }, h('span', { class: 'bi' }, b.icon), h('span', { class: 'bn' }, t('badge_' + b.id))); }
+function badgesGrid(st) {
+  const got = new Set(earnedBadges(progressStats(st)));
+  return h('div', { class: 'badges' }, BADGES.map(b => badgeChip(b, got.has(b.id))));
+}
+/** Badges earned since last time they were shown; marks them as seen. */
+function takeNewBadges() {
+  const got = earnedBadges(progressStats());
+  const seen = new Set(S.badgesSeen || []);
+  const fresh = got.filter(id => !seen.has(id));
+  if (fresh.length) { S.badgesSeen = got; save(); }
+  return fresh.map(id => BADGES.find(b => b.id === id));
+}
+
+// ---------- children ----------
+const AVATARS = ['🦁', '🐢', '🐪', '🦉', '🐝', '🐬', '🦋', '🐼', '🌙', '⭐'];
+let children = Store.loadChildrenLocal();
+let kidId = null, mainS = null, unwatchChildren = null;
+const kid = () => (kidId ? children[kidId] : null);
+const sha = async s => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('sourah:' + s)))).map(b => b.toString(16).padStart(2, '0')).join('');
+function pinHash() { return (mainS || S || {}).settings && (mainS || S).settings.pinHash || prefs.pinHash || null; }
+function starsAvailable(c) { const spent = (c.rewards || []).filter(r => c.given && c.given[r.id]).reduce((a, r) => a + r.cost, 0); return Math.max(0, (c.earned || 0) - spent); }
+function saveKid(fields) { const c = kid(); if (c) Store.saveChild(children, c, fields); }
+function childToday(c) {
+  const d = today(), st = c.state || {};
+  return (st.days || []).includes(d);
+}
+function enterKid(id) {
+  if (!children[id]) return;
+  if (!kidId) mainS = S;
+  kidId = id; prefs.kid = id; savePrefs();
+  S = normalize(children[id].state || newState({ minutes: 10, pace: 0.25, direction: 'nas' }));
+  applyPlan(children[id]);
+  session = null; screen = null; view = 'today'; render(); window.scrollTo(0, 0);
+}
+function exitKid() {
+  if (!kidId) return;
+  saveKid(['state', 'earned']);
+  S = mainS || normalize(Store.loadLocal()); mainS = null;
+  kidId = null; prefs.kid = null; savePrefs();
+  session = null; screen = null; view = 'today'; render(); window.scrollTo(0, 0);
+}
+/** The parent's plan changes (minutes, pace) are applied on the child's device. */
+function applyPlan(c) { if (c && c.plan && S) { Object.assign(S.settings, c.plan); } }
+function startWatchingChildren() {
+  if (unwatchChildren) unwatchChildren();
+  unwatchChildren = Store.watchChildren(remote => {
+    let changed = false;
+    for (const id in remote) {
+      const r = remote[id], l = children[id];
+      if (!l || (r.updatedAt || 0) > (l.updatedAt || 0) || JSON.stringify(r.given) !== JSON.stringify(l.given) || JSON.stringify(r.rewards) !== JSON.stringify(l.rewards) || JSON.stringify(r.plan) !== JSON.stringify(l.plan)) {
+        // keep the state this device is currently writing for the active child
+        const keepState = id === kidId && l && (l.updatedAt || 0) > (r.updatedAt || 0);
+        children[id] = Object.assign({}, r, keepState ? { state: l.state, earned: l.earned, requests: l.requests } : {});
+        changed = true;
+      }
+    }
+    for (const id in children) if (!remote[id] && children[id].synced) { delete children[id]; changed = true; }
+    Object.values(children).forEach(c => { if (remote[c.id]) c.synced = true; });
+    if (!changed) return;
+    Store.saveChildrenLocal(children);
+    if (prefs.kid && !kidId && !session) resumeKid();
+    if (kidId && children[kidId] && !session) { if ((children[kidId].updatedAt || 0) >= (S.updatedAt || 0)) S = normalize(children[kidId].state); applyPlan(children[kidId]); }
+    if (!session && !screen && !document.querySelector('.sheet-bg') && !(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) render();
+  });
+}
+
+// ---------- PIN ----------
+function askPin(title, onOk, setNew) {
+  let close, val = '', first = null;
+  const dots = h('div', { class: 'pin-dots' });
+  const msg = h('p', { class: 'sub center' }, setNew ? t('pin_choose') : t('pin_enter'));
+  const draw = () => { dots.innerHTML = ''; for (let i = 0; i < 4; i++) dots.append(h('i', { class: i < val.length ? 'on' : '' })); };
+  const press = async k => {
+    if (k === '⌫') { val = val.slice(0, -1); draw(); return; }
+    if (val.length >= 4) return;
+    val += k; draw();
+    if (val.length < 4) return;
+    if (setNew) {
+      if (first == null) { first = val; val = ''; msg.textContent = t('pin_confirm'); setTimeout(draw, 150); return; }
+      if (first !== val) { first = null; val = ''; msg.textContent = t('pin_mismatch'); setTimeout(draw, 150); return; }
+      const hsh = await sha(val); close(); onOk(hsh); return;
+    }
+    const ok = (await sha(val)) === pinHash();
+    if (ok) { close(); onOk(); } else { val = ''; msg.textContent = t('pin_wrong'); dots.classList.add('shake'); setTimeout(() => { dots.classList.remove('shake'); draw(); }, 300); }
+  };
+  draw();
+  close = sheet(h('div', { class: 'pin' }, h('h2', { class: 'center', style: 'margin-top:4px' }, title), msg, dots,
+    h('div', { class: 'pin-pad' }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'].map(k => k ? h('button', { onclick: () => press(k) }, k) : h('span')))));
+}
+function setParentPin(then) {
+  askPin(t('pin_title_new'), hsh => {
+    prefs.pinHash = hsh; savePrefs();
+    const target = mainS || S; target.settings.pinHash = hsh;
+    if (mainS) Store.save(mainS); else save();
+    toast(t('pin_saved')); if (then) then();
+  }, true);
+}
+
+// ---------- add / edit a child (parent) ----------
+function openAddChild() {
+  if (!pinHash()) return setParentPin(openAddChild);
+  const f = { name: '', avatar: AVATARS[0], minutes: 10, pace: 0.25, known: new Set() };
+  let close;
+  const body = h('div');
+  const draw = () => {
+    body.innerHTML = '';
+    let nameInput;
+    body.append(
+      h('div', { class: 'row spread' }, h('h2', { style: 'margin:0' }, t('add_child')), h('button', { class: 'icon-btn', onclick: () => close() }, html(SVG.close))),
+      h('div', { class: 'field' }, h('label', null, t('child_name')), nameInput = h('input', { type: 'text', value: f.name, placeholder: t('name_ph'), oninput: e => { f.name = e.target.value; } })),
+      h('div', { class: 'field' }, h('label', null, t('avatar')), h('div', { class: 'avatars' }, AVATARS.map(a => h('button', { class: 'av-pick' + (f.avatar === a ? ' on' : ''), onclick: () => { f.avatar = a; draw(); } }, a)))),
+      h('div', { class: 'field' }, h('label', null, t('minutes_short')), h('div', { class: 'chips' }, [5, 10, 15, 20].map(v => h('button', { class: 'chip' + (f.minutes === v ? ' on' : ''), onclick: () => { f.minutes = v; draw(); } }, t('min', { n: fmtNum(v) }))))),
+      h('div', { class: 'field' }, h('label', null, t('pace_short')), h('div', { class: 'chips' }, [[0.25, t('pace_q')], [0.5, t('pace_h')]].map(([v, l]) => h('button', { class: 'chip' + (f.pace === v ? ' on' : ''), onclick: () => { f.pace = v; draw(); } }, l)))),
+      h('div', { class: 'field' }, h('label', null, t('known_label')), h('div', { class: 'juz-pick' }, [30, 29, 28, 27, 26, 1].map(j => h('button', { class: f.known.has(j) ? 'on' : '', onclick: () => { f.known.has(j) ? f.known.delete(j) : f.known.add(j); draw(); } }, fmtNum(j))))),
+      h('button', { class: 'btn primary block', onclick: () => {
+        if (!f.name.trim()) { toast(t('child_name_needed')); return; }
+        const id = 'c' + Date.now().toString(36);
+        const st = normalize(newState({ minutes: f.minutes, pace: f.pace, direction: 'nas', name: f.name.trim(), mode: 'oral' }));
+        st.settings.repeat = 3;
+        const known = []; for (let p = 1; p <= 604; p++) if (f.known.has(Q.juz[p - 1])) known.push(p);
+        Object.assign(st.pages, P.seedKnownPages(known, today(), 14));
+        const c = { id, name: f.name.trim(), avatar: f.avatar, createdAt: Date.now(), state: st, earned: 0, requests: {}, rewards: defaultRewards(), given: {}, plan: { minutes: f.minutes, pace: f.pace } };
+        children[id] = c; Store.saveChild(children, c, Object.keys(c));
+        close(); render(); toast(t('child_added', { name: c.name }));
+      } }, t('add_child')));
+  };
+  draw();
+  close = sheet(body);
+}
+function defaultRewards() { return [{ id: 'r1', title: t('reward_default_1'), cost: 20 }, { id: 'r2', title: t('reward_default_2'), cost: 50 }, { id: 'r3', title: t('reward_default_3'), cost: 120 }]; }
+
+// ---------- parent: family card + child dashboard ----------
+function familySection() {
+  const list = Object.values(children);
+  if (!list.length) return null;
+  return h('div', null, h('h2', null, t('my_family')),
+    h('div', { class: 'family' }, list.map(c => {
+      const st = progressStats(c.state), req = Object.keys(c.requests || {}).filter(r => !(c.given || {})[r]).length;
+      return h('button', { class: 'kid-card', onclick: () => openChildDashboard(c.id) },
+        req ? h('i', { class: 'badge' }, String(req)) : null,
+        h('span', { class: 'kid-av' }, c.avatar), h('b', null, c.name),
+        h('span', { class: 'kid-st ' + (childToday(c) ? 'ok' : '') }, childToday(c) ? '✓ ' + t('done_today_short') : t('not_yet_today')),
+        h('span', { class: 'sub', style: 'font-size:12px' }, `🔥 ${fmtNum(st.streak)} · ⭐ ${fmtNum(starsAvailable(c))} · ${fmtNum(st.pages)} p.`));
+    })));
+}
+function openChildDashboard(id) {
+  let close;
+  const body = h('div');
+  const draw = () => {
+    const c = children[id]; if (!c) { close(); return; }
+    const st = c.state || {}, stats = progressStats(st), d = today();
+    const plan = P.buildSession(normalize(JSON.parse(JSON.stringify(st))), d);
+    const days = new Set(st.days || []);
+    const pending = (c.rewards || []).filter(r => (c.requests || {})[r.id] && !(c.given || {})[r.id]);
+    let newTitle, newCost;
+    body.innerHTML = '';
+    body.append(
+      h('div', { class: 'row spread' }, h('div', { class: 'row' }, h('span', { class: 'kid-av big' }, c.avatar), h('div', null, h('h2', { style: 'margin:0' }, c.name), h('span', { class: 'sub' }, childToday(c) ? '✓ ' + t('child_done_today') : t('child_not_today')))),
+        h('button', { class: 'icon-btn', onclick: () => close() }, html(SVG.close))),
+      pending.length ? h('div', { class: 'card', style: 'border-color:var(--gold)' }, h('b', null, t('reward_requests')), pending.map(r => h('div', { class: 'person' }, h('span', { class: 'av' }, '🎁'), h('b', null, `${r.title} · ${fmtNum(r.cost)} ⭐`),
+        h('button', { class: 'btn primary', onclick: () => { c.given = Object.assign({}, c.given, { [r.id]: Date.now() }); Store.saveChild(children, c, ['given']); toast(t('reward_given')); draw(); } }, t('give_reward'))))) : null,
+      h('div', { class: 'kpis' },
+        h('div', { class: 'kpi' }, h('b', null, fmtNum(stats.pages)), h('span', null, t('pages_of'))),
+        h('div', { class: 'kpi' }, h('b', null, fmtNum(stats.streak)), h('span', null, t('day_streak'))),
+        h('div', { class: 'kpi' }, h('b', null, fmtNum(starsAvailable(c))), h('span', null, t('stars')))),
+      h('h2', null, t('week_activity')),
+      h('div', { class: 'week' }, Array.from({ length: 7 }, (_, i) => d - 6 + i).map(x => h('div', { class: 'd' }, h('div', { class: 'c' + (days.has(x) ? ' on' : '') + (x === d ? ' now' : '') }, days.has(x) ? html(SVG.check) : ''), new Date(x * 864e5).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' })))),
+      h('div', { class: 'card flat' }, h('dl', { class: 'kv', style: 'margin:0' },
+        h('dt', null, t('current_sabaq')), h('dd', null, (() => { const np = plan.sabaq ? plan.sabaq.page : P.nextSabaqPage(st.pages || {}, (st.settings || {}).direction); return np ? t('page_n', { p: fmtNum(np) }) + ' · ' + surahsOnPage(np).map(surahLabel).join(listSep()) : '—'; })()),
+        h('dt', null, t('today_load')), h('dd', null, t('min_left', { n: fmtNum(plan.minutes.total) })),
+        h('dt', null, t('juz_done')), h('dd', null, fmtNum(stats.juz)),
+        st.quiz ? [h('dt', null, t('last_quiz')), h('dd', null, `${fmtNum(st.quiz.score)}/${fmtNum(st.quiz.total)}`)] : null)),
+      h('h2', null, t('badges_word')), badgesGrid(st),
+      h('h2', null, t('rewards')),
+      h('div', { class: 'list' }, (c.rewards || []).map(r => h('div', { class: 'li static' }, h('span', { class: 'av' }, (c.given || {})[r.id] ? '✓' : '🎁'),
+        h('div', null, h('b', null, r.title), h('span', null, `${fmtNum(r.cost)} ⭐` + ((c.given || {})[r.id] ? ' · ' + t('given') : (c.requests || {})[r.id] ? ' · ' + t('requested') : ''))),
+        h('button', { class: 'btn ghost danger', onclick: () => { c.rewards = c.rewards.filter(x => x.id !== r.id); Store.saveChild(children, c, ['rewards']); draw(); } }, '✕')))),
+      h('div', { class: 'row', style: 'margin-top:8px' }, newTitle = h('input', { type: 'text', placeholder: t('reward_ph'), style: 'margin:0' }), newCost = h('input', { type: 'text', inputmode: 'numeric', placeholder: '⭐', style: 'margin:0;max-width:70px' }),
+        h('button', { class: 'btn', onclick: () => { const cost = parseInt(newCost.value, 10); if (!newTitle.value.trim() || !(cost > 0)) return toast(t('reward_invalid')); c.rewards = (c.rewards || []).concat([{ id: 'r' + Date.now().toString(36), title: newTitle.value.trim(), cost }]); Store.saveChild(children, c, ['rewards']); draw(); } }, '+')),
+      h('h2', null, t('plan')),
+      h('div', { class: 'chips' }, [5, 10, 15, 20].map(v => h('button', { class: 'chip' + ((c.plan || {}).minutes === v ? ' on' : ''), onclick: () => { c.plan = Object.assign({}, c.plan, { minutes: v }); Store.saveChild(children, c, ['plan']); draw(); } }, t('min', { n: fmtNum(v) })))),
+      h('div', { class: 'chips', style: 'margin-top:8px' }, [[0.25, t('pace_q')], [0.5, t('pace_h')], [1, t('pace_1')]].map(([v, l]) => h('button', { class: 'chip' + ((c.plan || {}).pace === v ? ' on' : ''), onclick: () => { c.plan = Object.assign({}, c.plan, { pace: v }); Store.saveChild(children, c, ['plan']); draw(); } }, l))),
+      motivationCard(pickMotivation('parent', d), { label: t('for_parents') }),
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn gold', onclick: () => { close(); enterKid(id); } }, t('open_kid_mode')),
+        h('button', { class: 'btn ghost danger', onclick: () => { if (confirmText(t('delete_child_q', { name: c.name }))) { Store.deleteChild(children, id); close(); render(); } } }, t('delete'))));
+  };
+  draw();
+  close = sheet(body);
+}
+function confirmText(msg) { try { return window.confirm(msg); } catch (e) { return true; } }
+
+// ---------- child views ----------
+function viewKidToday() {
+  const c = kid(), d = today(), plan = P.buildSession(S, d);
+  const todo = plan.sabqi.length + plan.manzil.length + (plan.sabaq ? 1 : 0);
+  const stars = starsAvailable(c);
+  const next = (c.rewards || []).filter(r => !(c.given || {})[r.id]).sort((a, b) => a.cost - b.cost)[0];
+  const stats = progressStats();
+  const wrap = h('div', { class: 'kid-today' },
+    h('div', { class: 'hero kid' },
+      h('div', { class: 'row spread' }, h('div', { class: 'streak' }, '⭐ ' + fmtNum(stars)), h('button', { class: 'lock', 'aria-label': t('parent_area'), onclick: () => askPin(t('parent_area'), exitKid) }, '🔒')),
+      h('div', { class: 'kid-hello' }, h('span', { class: 'kid-av xl' }, c.avatar), h('div', null, h('div', { class: 'salam' }, 'ٱلسَّلَامُ عَلَيۡكُمۡ'), h('p', { class: 'hello' }, t('kid_hello', { name: c.name })))),
+      todo ? h('button', { class: 'btn gold block kid-go', onclick: () => startSession(plan) }, t('kid_go'), h('small', null, t('min_left', { n: fmtNum(plan.minutes.total) })))
+        : h('div', { class: 'kid-done' }, '🎉 ' + t('kid_done'))));
+  wrap.append(h('div', { class: 'kid-steps' },
+    h('div', { class: 'kstep' + (plan.sabqi.length + plan.manzil.length ? '' : ' ok') }, h('span', null, plan.sabqi.length + plan.manzil.length ? '🔁' : '✅'), h('b', null, t('kid_review')), h('small', null, plan.sabqi.length + plan.manzil.length ? t.n('pages', plan.sabqi.length + plan.manzil.length) : t('kid_ok'))),
+    h('div', { class: 'kstep' + (plan.sabaq ? '' : ' ok') }, h('span', null, plan.sabaq ? '✨' : '✅'), h('b', null, t('kid_new')), h('small', null, plan.sabaq ? surahsOnPage(plan.sabaq.page).map(surahLabel).join(listSep()) : t('kid_ok')))));
+  const qc = quizCard(d); if (qc) wrap.append(qc);
+  if (next) {
+    const req = (c.requests || {})[next.id];
+    wrap.append(h('div', { class: 'card reward' }, h('div', { class: 'row spread' }, h('b', null, '🎁 ' + next.title), h('span', { class: 'sub' }, `${fmtNum(Math.min(stars, next.cost))}/${fmtNum(next.cost)} ⭐`)),
+      h('div', { class: 'khatm' }, h('div', { class: 'bar' }, h('i', { style: `width:${Math.min(100, 100 * stars / next.cost)}%` }))),
+      req ? h('p', { class: 'sub', style: 'margin:0' }, '⏳ ' + t('reward_waiting')) : stars >= next.cost ? h('button', { class: 'btn gold block', onclick: () => { c.requests = Object.assign({}, c.requests, { [next.id]: Date.now() }); saveKid(['requests']); toast(t('reward_asked')); render(); } }, t('ask_reward')) : h('p', { class: 'sub', style: 'margin:0' }, t('stars_to_go', { n: fmtNum(next.cost - stars) }))));
+  }
+  wrap.append(motivationCard(pickMotivation('kid', d), { kid: true, label: t('kid_hadith') }));
+  const got = new Set(earnedBadges(stats));
+  wrap.append(h('h2', null, t('my_badges')), h('div', { class: 'badges' }, BADGES.slice(0, 8).map(b => badgeChip(b, got.has(b.id)))));
+  return wrap;
+}
+function viewKidStars() {
+  const c = kid(), stars = starsAvailable(c);
+  return h('div', null,
+    h('div', { class: 'page-head center' }, h('div', { style: 'font-size:64px;line-height:1' }, '⭐'), h('h1', null, t('kid_stars_title', { n: fmtNum(stars) })), h('p', { class: 'sub' }, t('kid_stars_sub'))),
+    h('h2', null, t('rewards')),
+    h('div', { class: 'list' }, (c.rewards || []).map(r => { const given = (c.given || {})[r.id], req = (c.requests || {})[r.id]; return h('div', { class: 'li static' + (given ? '' : '') },
+      h('span', { class: 'av' }, given ? '✅' : '🎁'), h('div', null, h('b', null, r.title), h('div', { class: 'khatm' }, h('div', { class: 'bar', style: 'margin:6px 0 0' }, h('i', { style: `width:${given ? 100 : Math.min(100, 100 * stars / r.cost)}%` })))),
+      h('span', { class: 'sub' }, given ? t('given') : req ? '⏳' : `${fmtNum(r.cost)} ⭐`)); })),
+    h('h2', null, t('my_badges')), badgesGrid(S));
+}
+
+function resumeKid() { if (prefs.kid && children[prefs.kid] && !kidId && S) { mainS = S; kidId = prefs.kid; S = normalize(children[kidId].state); applyPlan(children[kidId]); } }
+function newBadgesCard() {
+  const fresh = takeNewBadges();
+  if (!fresh.length) return null;
+  return h('div', { class: 'card new-badges' }, h('b', null, t('new_badge')), h('div', { class: 'badges' }, fresh.map(b => badgeChip(b, true))));
+}
+function viewKidTest(it) {
+  const ayahs = itemAyahs(it), all = session.revealed >= ayahs.length;
+  return h('div', null,
+    h('p', { class: 'help kid-help' }, all ? t('kid_test_done') : t('kid_test_help')),
+    renderPassage(ayahs, { hide: 'first', revealedUpTo: session.revealed, big: true, onMeaning: openMeaning }),
+    h('div', { class: 'sticky' }, all
+      ? h('button', { class: 'btn primary block', onclick: () => { session.step = 'grade'; render(); window.scrollTo(0, 0); } }, t('kid_finished'))
+      : h('div', { class: 'actions' },
+          h('button', { class: 'btn', onclick: () => { session.revealed = ayahs.length; render(); } }, t('reveal_all')),
+          h('button', { class: 'btn primary', onclick: () => { session.revealed++; session.scrollTo = 'aya'; render(); } }, t('next_ayah')))));
+}
+function viewKidGrade(it) {
+  return h('div', null,
+    h('h2', { style: 'margin-top:12px;font-size:22px' }, t('kid_how')),
+    h('p', { class: 'help' }, t('kid_grade_hint')),
+    h('div', { class: 'kid-grades' },
+      h('button', { class: 'kg g4', onclick: () => gradeItem(4) }, h('span', null, '⭐⭐⭐'), t('kid_g4')),
+      h('button', { class: 'kg g3', onclick: () => gradeItem(3) }, h('span', null, '⭐⭐'), t('kid_g3')),
+      h('button', { class: 'kg g2', onclick: () => gradeItem(2) }, h('span', null, '⭐'), t('kid_g2'))),
+    h('button', { class: 'btn ghost block', onclick: () => gradeItem(1) }, t('kid_g1')),
+    renderPassage(itemAyahs(it), { onMeaning: openMeaning }));
+}
+function viewKidSummary() {
+  const res = session.summary, stars = session.stars || 0;
+  return h('div', { class: 'celebrate kid' },
+    h('div', { class: 'kid-stars-burst' }, '⭐'),
+    h('h1', null, t('kid_bravo', { name: kid().name })),
+    h('p', { class: 'big-stars' }, '+' + fmtNum(stars) + ' ⭐'),
+    h('p', { class: 'sub' }, t('kid_total', { n: fmtNum(starsAvailable(kid())) })),
+    newBadgesCard(),
+    motivationCard(pickMotivation(res.some(r => r.grade <= 2) ? 'struggle' : 'kid', today()), { kid: true, label: t('kid_hadith') }),
+    h('button', { class: 'btn gold block', style: 'margin-top:18px', onclick: () => { session = null; view = 'today'; render(); window.scrollTo(0, 0); } }, t('finish')));
 }
 
 // ---------------- boot ----------------
@@ -1242,6 +1574,7 @@ async function boot() {
     S = normalize(Store.loadLocal());
     if (S && S.owner) { S = null; Store.saveLocal(null); } // a signed-out account's copy is not shown
     if (!S && Store.enabled && !prefs.skipWelcome) screen = 'welcome';
+    resumeKid();
     render();
   } catch (e) {
     console.error(e);

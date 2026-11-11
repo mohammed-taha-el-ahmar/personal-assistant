@@ -83,10 +83,25 @@ Toucher un mot ou un numéro de verset (pendant l'apprentissage, à la correctio
 
 Les données sont auto-hébergées dans `public/meaning/{page}.json` (604 fichiers, 12 Mo au total, environ 20 Ko par page) et mises en cache hors ligne par le service worker après la première consultation. Sources : [spa5k/tafsir_api](https://github.com/spa5k/tafsir_api) (données QUL / Tarteel, tag v1.2.2), [quran-json](https://www.npmjs.com/package/quran-json), [@kmaslesa/holy-quran-word-by-word-full-data](https://www.npmjs.com/package/@kmaslesa/holy-quran-word-by-word-full-data). **Avant une diffusion publique, vérifier les conditions d'utilisation de chaque tafsir et traduction** (la plupart autorisent un usage non commercial avec attribution). Script de génération : `tools/build_meaning.py`.
 
+
+## Mode enfant et suivi parent
+
+- **Profils enfants** (Réglages > Famille) : prénom, avatar, plan adapté (5 à 20 min, ¼ ou ½ page), juz déjà connus. Un **code parent** à 4 chiffres protège la sortie du mode enfant.
+- **Interface enfant** : deux onglets seulement (Aujourd'hui, Étoiles), un grand bouton « C'est parti ! », test à voix haute avec indice de première lettre, évaluation simple par le parent (⭐⭐⭐ / ⭐⭐ / ⭐), audio répété 3 fois par défaut.
+- **Étoiles et récompenses** : l'enfant gagne des étoiles (3 par passage appris, 1 à 2 par page révisée, 1 par bonne réponse au quiz). Le parent définit des récompenses (coût en étoiles) ; l'enfant les demande, le parent les accorde.
+- **Suivi parent** : carte « Ma famille » sur l'écran du jour et tableau de bord par enfant (séance du jour faite ou non, série, pages, étoiles, semaine, passage en cours, dernier quiz, badges, demandes de récompense, réglage du plan). Si l'enfant utilise son propre appareil connecté au même compte, le suivi se met à jour en direct (`users/{uid}/children/{id}`). Chaque appareil n'écrit que ses propres champs : l'enfant écrit `state`, `earned`, `requests` ; le parent écrit `rewards`, `given`, `plan`.
+
+## Motivation
+
+- **Rappel du jour** (hadith ou verset) sur l'écran du jour, et un rappel adapté en fin de séance : encouragement si la séance a été difficile, rappel de l'importance de la révision, ou de l'élévation par le Coran après un nouveau passage mémorisé.
+- **11 hadiths authentiques** avec leurs références (Al-Bukhari, Muslim, Abu Dawud, At-Tirmidhi), une version simplifiée pour les enfants, et **10 versets** sur le Coran (`js/motivation.js`). Les traductions sont des traductions du sens : **à faire relire par une personne qualifiée avant publication**.
+- **14 badges** de progression (première page, première sourate, séries de 7, 30 et 100 jours, juz, quiz parfait…), visibles dans « Mon Coran », célébrés en fin de séance, avec le prochain badge à viser sur l'écran du jour.
+
 ## Données dans Firestore
 
 ```
 users/{uid}                     { state, updatedAt, consent: {version, at} }
+users/{uid}/children/{id}      { name, avatar, state, earned, requests, rewards, given, plan }
 users/{uid}/events/{AAAA-MM}    { events: [{t, p, k, g, d, e, w, m, r, part}] }
 ```
 

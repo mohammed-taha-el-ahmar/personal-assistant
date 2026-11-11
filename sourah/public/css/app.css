@@ -371,3 +371,67 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 .segs i.bad{background:var(--bad)}
 .quiz .mushaf{font-size:25px}
 .celebrate .ring{margin:0 auto}
+
+/* ---------- motivation & badges ---------- */
+.motiv{background:var(--paper);border:1px solid var(--gold-2);border-radius:var(--r-lg);padding:16px;margin:12px 0;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.motiv:after{content:"";position:absolute;inset:auto -20px -20px auto;width:110px;height:110px;background:var(--star);background-size:56px;opacity:.7;pointer-events:none}
+.motiv .lbl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.motiv .ar{font-family:'Amiri Quran',serif;font-size:21px;line-height:2;margin:6px 0 4px;text-align:center}
+.motiv .tr{font-size:15px;line-height:1.55;margin:0 0 6px;font-style:italic}
+.motiv .src{font-size:12.5px;color:var(--muted);font-weight:700}
+.motiv .kid-line{font-size:17px;font-weight:700;margin:6px 0 4px;line-height:1.45}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.badge-chip{display:grid;justify-items:center;gap:4px;text-align:center;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:10px 4px;filter:grayscale(1);opacity:.45}
+.badge-chip.on{filter:none;opacity:1;border-color:var(--gold-2);background:linear-gradient(180deg,var(--gold-soft),var(--paper))}
+.badge-chip .bi{font-size:26px;line-height:1}
+.badge-chip .bn{font-size:11px;font-weight:700;line-height:1.2}
+.next-badge{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13.5px;color:var(--muted);font-weight:600}
+.next-badge span{font-size:20px;filter:grayscale(1);opacity:.6}
+.new-badges{border-color:var(--gold);text-align:start}
+.new-badges .badges{margin-top:8px}
+
+/* ---------- family (parent) ---------- */
+.family{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kid-card{position:relative;display:grid;justify-items:center;gap:3px;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:14px 8px;box-shadow:var(--shadow);text-align:center}
+.kid-card .badge{position:absolute;top:8px;inset-inline-end:8px}
+.kid-av{width:44px;height:44px;border-radius:50%;background:var(--gold-soft);display:grid;place-items:center;font-size:24px;flex:none}
+.kid-av.big{width:56px;height:56px;font-size:32px}
+.kid-av.xl{width:76px;height:76px;font-size:44px;background:rgba(255,252,245,.16)}
+.kid-st{font-size:12.5px;font-weight:700;color:var(--warn)}
+.kid-st.ok{color:var(--good)}
+.avatars{display:flex;flex-wrap:wrap;gap:8px}
+.av-pick{width:48px;height:48px;border-radius:50%;border:2px solid var(--line);background:var(--paper);font-size:26px}
+.av-pick.on{border-color:var(--gold);background:var(--gold-soft)}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin:16px 0}
+.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--brand-2)}
+.pin-dots i.on{background:var(--brand-2)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto}
+.pin-pad button{height:58px;border-radius:16px;border:1px solid var(--line);background:var(--paper);font-size:24px;font-weight:700}
+
+/* ---------- kid mode ---------- */
+:root[data-kid="1"]{--brand:#145C7A;--brand-2:#1E7FA6;--brand-soft:#DDEFF6;--gold:#F2B33D;--gold-2:#FFD27A;--gold-soft:#FFF1D2;--bg:#FFF8EC;--r-lg:26px}
+:root[data-kid="1"][data-theme=dark]{--brand:#0E3A4D;--brand-2:#5BB8DB;--brand-soft:#16333F;--bg:#0B1B22;--paper:#112630;--paper-2:#15303B;--line:#21414F}
+:root[data-kid="1"] body{font-size:17px}
+.hero.kid{background:var(--star),linear-gradient(160deg,#2A9BC4,#145C7A 70%);background-size:56px,auto;padding-bottom:22px}
+:root[data-theme=dark] .hero.kid{background:var(--star),linear-gradient(160deg,#16506A,#0B2A37 70%);background-size:56px,auto}
+.hero .lock{width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,252,245,.3);background:rgba(255,252,245,.1);font-size:18px}
+.kid-hello{display:flex;align-items:center;gap:14px;margin:14px 0 16px}
+.kid-hello .hello{font-size:26px}
+.kid-go{display:flex;flex-direction:column;align-items:center;font-size:22px;padding:16px}
+.kid-go small{font-size:13px;font-weight:700;opacity:.75}
+.kid-done{background:rgba(255,252,245,.15);border-radius:18px;padding:16px;text-align:center;font-weight:800;font-size:18px}
+.kid-steps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 4px}
+.kstep{display:grid;justify-items:center;gap:2px;background:var(--paper);border:2px solid var(--line);border-radius:22px;padding:14px 8px;text-align:center}
+.kstep span{font-size:30px}
+.kstep small{color:var(--muted);font-size:13px}
+.kstep.ok{border-color:var(--good)}
+.reward{border:2px solid var(--gold-2)}
+.reward .bar{height:14px}
+.kid-help{font-size:16px;color:var(--ink);font-weight:600}
+.kid-grades{display:grid;gap:10px;margin:8px 0}
+.kg{display:flex;align-items:center;gap:14px;border:2px solid var(--line);background:var(--paper);border-radius:22px;padding:16px 18px;font-size:19px;font-weight:800;text-align:start}
+.kg span{font-size:22px;min-width:84px}
+.kg.g4{border-color:var(--good)} .kg.g3{border-color:var(--gold)} .kg.g2{border-color:var(--sabqi)}
+.celebrate.kid .kid-stars-burst{font-size:96px;line-height:1;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both}
+.big-stars{font-size:40px;font-weight:800;color:var(--gold);margin:4px 0}
+.btn.kid-go{display:flex}
