@@ -284,3 +284,63 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 .option span{font-size:13px;color:var(--muted)}
 .option .rad{margin-inline-start:auto;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none}
 .option.on .rad{border:7px solid var(--brand-2)}
+
+/* ---------- v2: recording, buddy, mutashabihat ---------- */
+.nav button{position:relative}
+.badge{position:absolute;top:4px;inset-inline-end:calc(50% - 22px);min-width:18px;height:18px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-style:normal;font-weight:800;display:grid;place-items:center;padding:0 5px}
+.recbar{display:flex;align-items:center;gap:10px;width:100%;border:1.5px dashed var(--line);background:var(--paper);border-radius:16px;padding:10px 14px;margin:0 0 10px;font-size:14px;color:var(--muted);text-align:start}
+.recbar.idle{cursor:pointer}
+.recbar.on{border-style:solid;border-color:var(--bad);background:var(--err-bg);color:var(--ink)}
+.recbar .btn{margin-inline-start:auto;padding:7px 12px}
+.recdot{width:12px;height:12px;border-radius:50%;background:var(--bad);flex:none}
+.recbar.on .recdot{animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.rectime{font-variant-numeric:tabular-nums;font-weight:800}
+.rec-audio{width:100%;margin:6px 0}
+.rec-card{border-color:var(--gold-2)}
+.list{display:grid;gap:8px}
+.li{display:flex;align-items:center;gap:12px;width:100%;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:10px 12px;text-align:start}
+.li.new{border-color:var(--gold);background:var(--gold-soft)}
+.li b{display:block;font-size:15px}
+.li span{font-size:13px;color:var(--muted)}
+.li>div{flex:1;min-width:0}
+.chev{font-size:22px;color:var(--muted)}
+.av{width:40px;height:40px;border-radius:50%;background:var(--brand-soft);color:var(--brand-2);display:grid;place-items:center;font-weight:800;font-size:14px;flex:none}
+.av.ok{background:var(--good);color:#fff}
+.li .av{font-size:14px}
+.person{display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+.person:last-of-type{border-bottom:0;margin-bottom:8px}
+.person b{flex:1}
+.code-box{text-align:center;background:var(--gold-soft);border:1px dashed var(--gold);border-radius:16px;padding:14px;margin-top:8px}
+.code{font-size:34px;font-weight:800;letter-spacing:.25em;color:var(--ink);margin:4px 0;font-variant-numeric:tabular-nums}
+.comment{margin:12px 0 0;padding:10px 14px;border-inline-start:3px solid var(--gold);background:var(--paper-2);border-radius:8px;font-style:italic}
+.mut-cta{display:flex;align-items:center;gap:12px;width:100%;text-align:start;cursor:pointer}
+.mut-cta .gic{width:40px;height:40px;border-radius:12px;background:var(--gold-soft);display:grid;place-items:center;flex:none;font-size:22px;font-weight:800;color:var(--gold-ink)}
+:root[data-theme=dark] .mut-cta .gic{color:var(--gold-2)}
+.mut-cta>div{flex:1}
+.mut-cta b{display:block}
+.mut-pair{display:grid;gap:8px;margin:10px 0 18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.mut-ref{font-size:12.5px;font-weight:700;color:var(--muted);margin:0 4px 4px}
+.mut-side .mushaf{font-size:22px;padding:12px 14px;line-height:2.1}
+.w.df{background:linear-gradient(var(--gold-soft),var(--gold-soft)) 0 58%/100% 1.2em no-repeat;color:var(--sabaq);font-weight:700}
+
+.voice-box{background:var(--brand-soft);border-radius:14px;padding:10px 12px;margin-top:12px}
+.voice-lbl{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:var(--brand-2)}
+.voice-lbl svg{width:18px;height:18px}
+
+/* ---------- meaning / tafsir ---------- */
+.mn-hint{margin:10px 2px 6px;font-size:13px}
+.mn-word{margin-top:12px;text-align:center}
+.mn-ar{font-family:'Amiri Quran',serif;font-size:34px;line-height:1.8;color:var(--sabaq)}
+.mn-tr{display:flex;flex-direction:column;gap:2px;align-items:center;font-size:16px}
+.mn-tr i{color:var(--muted);font-size:14px}
+.mn-gh{text-align:start;font-family:'Amiri Quran',serif;font-size:19px;line-height:1.9;border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
+.mn-gh p{margin:4px 0}
+.mn-sec{margin-top:16px}
+.mn-lbl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.mn-text{font-size:15.5px;line-height:1.65;margin:6px 0 0}
+.mn-text p{margin:0 0 10px}
+.mn-text[dir=rtl]{font-family:'Plex Arabic',var(--font);font-size:17px;line-height:1.9}
+.seg.mini{padding:2px;border-radius:10px;margin:8px 0 4px}
+.seg.mini button{font-size:11.5px;padding:5px 6px;white-space:nowrap}
+.verse .link{font-size:13px}

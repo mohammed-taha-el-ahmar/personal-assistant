@@ -1,6 +1,6 @@
 // Offline support: the app shell and the mushaf are cached. Audio streams from the network (media range requests are left to the browser).
-const VERSION = 'sourah-v2';
-const SHELL = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/i18n.js', 'js/store.js', 'js/audio.js', 'js/config.js', 'js/planner.js',
+const VERSION = 'sourah-v5';
+const SHELL = ['./', 'index.html', 'css/app.css', 'js/app.js', 'js/i18n.js', 'js/store.js', 'js/audio.js', 'js/recorder.js', 'js/social.js', 'mutashabihat.json', 'js/config.js', 'js/planner.js',
   'quran.json', 'fonts/amiri-quran.woff2', 'fonts/manrope-latin-400-normal.woff2', 'fonts/manrope-latin-600-normal.woff2', 'fonts/manrope-latin-800-normal.woff2',
   'fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2', 'fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2', 'fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2', 'manifest.webmanifest', 'icons/icon-192.png', 'privacy.html'];
 

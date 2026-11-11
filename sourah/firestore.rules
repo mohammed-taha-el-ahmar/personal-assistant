@@ -1,16 +1,76 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Each user reads and writes only their own document and its events.
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+
+    // ---- Personal progress: each user reads and writes only their own document and events.
     match /users/{uid} {
-      allow read, delete: if request.auth != null && request.auth.uid == uid;
-      allow create, update: if request.auth != null && request.auth.uid == uid
+      allow read, delete: if signedIn() && me() == uid;
+      allow create, update: if signedIn() && me() == uid
                             && request.resource.data.keys().hasOnly(['state', 'updatedAt', 'consent']);
       match /events/{month} {
-        allow read, write: if request.auth != null && request.auth.uid == uid
-                           && month.matches('^[0-9]{4}-[0-9]{2}$');
+        allow read, write: if signedIn() && me() == uid && month.matches('^[0-9]{4}-[0-9]{2}$');
       }
     }
+
+    // ---- Invite codes: created by the learner, read one by one by whoever has the code.
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() && request.resource.data.owner == me()
+                    && code.matches('^[A-Z0-9]{6}$')
+                    && request.resource.data.expiresAt is number;
+      allow delete: if signedIn() && resource.data.owner == me();
+    }
+
+    // ---- Pairs learner -> reviewer: created by the reviewer with a valid code, removable by both.
+    match /pairs/{pairId} {
+      allow read: if signedIn() && (resource.data.learner == me() || resource.data.reviewer == me());
+      allow create: if signedIn()
+        && request.resource.data.reviewer == me()
+        && pairId == request.resource.data.learner + '_' + me()
+        && exists(/databases/$(database)/documents/invites/$(request.resource.data.code))
+        && get(/databases/$(database)/documents/invites/$(request.resource.data.code)).data.owner == request.resource.data.learner
+        && get(/databases/$(database)/documents/invites/$(request.resource.data.code)).data.expiresAt > request.time.toMillis();
+      allow delete: if signedIn() && (resource.data.learner == me() || resource.data.reviewer == me());
+    }
+
+    // ---- Recitations shared for review.
+    function isReviewOf(review) { return signedIn() && (review.learner == me() || me() in review.reviewers); }
+    function pairExists(learner, reviewer) { return exists(/databases/$(database)/documents/pairs/$(learner + '_' + reviewer)); }
+    match /reviews/{id} {
+      allow read: if isReviewOf(resource.data);
+      // the learner shares with reviewers they are paired with (up to 5)
+      allow create: if signedIn() && request.resource.data.learner == me()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.reviewers.size() >= 1 && request.resource.data.reviewers.size() <= 5
+        && pairExists(me(), request.resource.data.reviewers[0]);
+      // a reviewer can only add their review; the learner can mark it as seen
+      allow update: if signedIn() && (
+          (me() in resource.data.reviewers
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'review'])
+            && request.resource.data.status == 'done'
+            && request.resource.data.review.by == me())
+          || (resource.data.learner == me()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['seen'])));
+      allow delete: if signedIn() && resource.data.learner == me();
+
+      // the reviewer's spoken comment, same chunked format
+      match /comment/{n} {
+        allow read: if isReviewOf(get(/databases/$(database)/documents/reviews/$(id)).data);
+        allow create: if signedIn() && me() in get(/databases/$(database)/documents/reviews/$(id)).data.reviewers
+                      && get(/databases/$(database)/documents/reviews/$(id)).data.status == 'pending';
+        allow delete: if isReviewOf(get(/databases/$(database)/documents/reviews/$(id)).data);
+      }
+
+      // audio is split into chunks of base64 (max 1 MiB per document)
+      match /audio/{n} {
+        allow read: if isReviewOf(get(/databases/$(database)/documents/reviews/$(id)).data);
+        allow create, delete: if signedIn() && get(/databases/$(database)/documents/reviews/$(id)).data.learner == me();
+      }
+    }
+
     match /{document=**} { allow read, write: if false; }
   }
 }

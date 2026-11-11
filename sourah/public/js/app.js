@@ -2,6 +2,8 @@ import { t, setLang, getLang, detectLang, fmtNum, locale, listSep, LANGS } from 
 import { Store } from './store.js';
 import { Player } from './audio.js';
 import { RECITERS, PRIVACY_URL } from './config.js';
+import { Recorder, canRecord, saveRecording, listRecordings, deleteRecording, fmtDuration, MAX_SECONDS } from './recorder.js';
+import { Social } from './social.js';
 
 const P = window.Planner;
 const $app = document.getElementById('app');
@@ -133,25 +135,31 @@ function renderPassage(ayahs, o) {
     if (o.dimAyahs && o.dimAyahs.has(ai)) cls.push('dim');
     if (o.playable && playingIdx === ai) cls.push('playing');
     const ay = h('span', { class: cls.join(' '), 'data-ai': o.playable ? ai : null });
+    let wi = 0;
     text.split(' ').forEach(w => {
       if (!isWord(w)) { ay.append(h('span', { class: 'deco' }, w), ' '); return; }
-      const i = idx++;
+      const i = idx++, wInAyah = wi++;
       let hide = revealed ? 'visible' : (o.hide || 'hidden');
       if (o.ok && o.ok.has(i)) hide = 'visible';
       if (o.errors && o.errors.has(i) && o.mode === 'letter') hide = 'visible';
       const c = ['w'];
       if (o.errors && o.errors.has(i)) c.push('err'); else if (o.ok && o.ok.has(i)) c.push('ok');
       if (o.cur === i) c.push('cur');
+      if (o.diff && o.diff.has(i)) c.push('df');
       if (o.onWord && revealed) c.push('tap');
       let el;
       if (hide === 'visible') el = h('span', { class: c.join(' ') }, w);
       else if (hide === 'first') { const [f, r] = splitFirst(w); c.push('veil'); el = h('span', { class: c.join(' ') }, h('span', { class: 'fl' }, f + (r ? '‍' : '')), (r ? '‍' : '') + r); }
       else { c.push('veil'); el = h('span', { class: c.join(' ') }, w); }
-      if (o.onWord && revealed) el.addEventListener('click', () => o.onWord(i, ai));
+      if (o.onWord && revealed) {
+        if (o.onMeaning) longPress(el, () => o.onMeaning(s, a, wInAyah));
+        el.addEventListener('click', () => { if (el._lp) { el._lp = false; return; } o.onWord(i, ai); });
+      } else if (o.onMeaning && revealed) { c.push('tap'); el.classList.add('tap'); el.addEventListener('click', () => o.onMeaning(s, a, wInAyah)); }
       ay.append(el, ' ');
     });
     const end = h('span', { class: 'aya-end' }, arNum(a));
-    if (o.onAyahEnd) { end.style.cursor = 'pointer'; end.addEventListener('click', () => o.onAyahEnd(ai)); }
+    if (o.onAyahEnd) { end.style.cursor = 'pointer'; end.addEventListener('click', () => o.onAyahEnd(ai)); if (o.onMeaning) longPress(end, () => o.onMeaning(s, a, null)); }
+    else if (o.onMeaning) { end.style.cursor = 'pointer'; end.addEventListener('click', () => o.onMeaning(s, a, null)); }
     ay.append(end, ' ');
     box.append(ay);
   });
@@ -164,11 +172,13 @@ function render() {
   const showNav = !!S && !session && !screen;
   $nav.hidden = !showNav;
   document.querySelectorAll('.nav button').forEach(b => { b.classList.toggle('on', b.dataset.go === view); b.querySelector('span').textContent = t(b.dataset.go); });
+  updateBadge();
   document.title = t('app_name');
   $app.innerHTML = '';
   if (screen === 'welcome') return $app.append(viewWelcome());
   if (screen === 'auth') return $app.append(viewAuth());
   if (screen === 'consent') return $app.append(viewConsent());
+  if (screen === 'review' && reviewState) return $app.append(viewReview());
   if (!S) return $app.append(viewOnboarding());
   if (session) {
     $app.append(viewSession());
@@ -177,7 +187,7 @@ function render() {
     session.scrollTo = null;
     return;
   }
-  const v = view === 'planning' ? viewPlanning() : view === 'map' ? viewMap() : view === 'settings' ? viewSettings() : viewToday();
+  const v = view === 'planning' ? viewPlanning() : view === 'map' ? viewMap() : view === 'settings' ? viewSettings() : view === 'buddy' ? viewBuddy() : viewToday();
   v.classList.add('fade-in');
   $app.append(v);
 }
@@ -199,6 +209,7 @@ const SVG = {
   repeat: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>',
   mic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg>',
   book: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5c3-1.5 7-1.5 10 1 3-2.5 7-2.5 10-1v14c-3-1.5-7-1.5-10 1-3-2.5-7-2.5-10-1z"/><path d="M12 6v14"/></svg>',
+  people: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.4 1.9 5 4.9"/></svg>',
   target: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>'
 };
 function ring(pct, size, stroke, color, track, inner) {
@@ -275,6 +286,7 @@ async function afterSignIn() {
     S = normalize(state);
     if (S) { if (source === 'remote') { Store.saveLocal(S); toast(t('merged_remote')); } else save(); }
     screen = null; view = 'today'; prefs.skipWelcome = true; savePrefs();
+    Social.start(Store.user.uid);
   } catch (e) { console.warn(e); toast(t('sync_error')); screen = null; }
   render();
 }
@@ -385,9 +397,9 @@ function viewToday() {
   }
 
   const [vs, va, vt] = verseOfDay(d);
-  wrap.append(h('div', { class: 'verse' }, h('div', { class: 'lbl' }, t('verse_of_day')),
+  wrap.append(h('div', { class: 'verse', style: 'cursor:pointer', onclick: () => openMeaning(vs, va, null) }, h('div', { class: 'lbl' }, t('verse_of_day')),
     h('div', { class: 'ar' }, vt + ' ', h('span', { class: 'aya-end' }, arNum(va))),
-    h('div', { class: 'ref' }, `${surahLabel(vs)} · ${fmtNum(vs)}:${fmtNum(va)}`)));
+    h('div', { class: 'ref' }, `${surahLabel(vs)} · ${fmtNum(vs)}:${fmtNum(va)} · `, h('span', { class: 'link' }, t('see_tafsir')))));
 
   const days = new Set(S.days);
   wrap.append(h('h2', null, t('week_activity')), h('div', { class: 'card' }, h('div', { class: 'week' },
@@ -485,8 +497,8 @@ function startSession(plan) {
 const curItem = () => session.items[session.i];
 function itemAyahs(it) { const all = Q.pages[it.page - 1]; return it.kind !== 'sabaq' ? all : (splitParts(all, it.parts)[it.part] || all); }
 function beginItem() { const it = curItem(); if (!it) return; stopAudio(); session.step = it.kind === 'sabaq' ? 'learn' : 'test'; session.mode = S.settings.mode || 'oral'; resetTest(); session.t0 = Date.now(); }
-function resetTest() { const it = curItem(); session.revealed = 0; session.errors = new Set(); session.ok = new Set(); session.forgot = new Set(); session.cursor = 0; session.learnHide = 'visible'; session.words = passageWords(itemAyahs(it)); }
-function endSession() { stopAudio(); session = { summary: session.results, items: [], i: 0 }; }
+function resetTest() { const it = curItem(); recorder.cancel(); session.recording = null; session.recState = null; session.sent = false; session.revealed = 0; session.errors = new Set(); session.ok = new Set(); session.forgot = new Set(); session.cursor = 0; session.learnHide = 'visible'; session.words = passageWords(itemAyahs(it)); }
+function endSession() { stopAudio(); recorder.cancel(); session = { summary: session.results, items: [], i: 0 }; }
 function viewSession() {
   if (session.summary) return viewSummary();
   const it = curItem(), n = session.items.length;
@@ -514,20 +526,20 @@ function viewLearn(it) {
   const passage = prev.concat(ayahs);
   return h('div', null,
     playerBar(passage, `learn-${it.page}-${it.part}`),
-    h('ol', { class: 'steps' }, h('li', null, t('learn_1')), h('li', null, t('learn_2')), h('li', null, t('learn_3')), prev.length ? h('li', null, t('learn_4')) : null),
+    h('ol', { class: 'steps' }, h('li', null, t('learn_1')), h('li', null, t('learn_2')), h('li', null, t('learn_3')), prev.length ? h('li', null, t('learn_4')) : null, h('li', null, t('learn_5'))),
     h('div', { class: 'seg', style: 'margin:10px 0' }, [['visible', t('hide_text')], ['first', t('hide_first')], ['hidden', t('hide_hidden')]].map(([v, l]) =>
       h('button', { class: session.learnHide === v ? 'on' : '', onclick: () => { session.learnHide = v; render(); } }, l))),
-    renderPassage(passage, { hide: session.learnHide, revealedUpTo: session.learnHide === 'visible' ? null : 0, dimAyahs: new Set(prev.length ? [0] : []), big: true, playable: true }),
+    renderPassage(passage, { hide: session.learnHide, revealedUpTo: session.learnHide === 'visible' ? null : 0, dimAyahs: new Set(prev.length ? [0] : []), big: true, playable: true, onMeaning: openMeaning }),
     h('div', { class: 'sticky' }, h('button', { class: 'btn primary block', onclick: () => { stopAudio(); session.step = 'test'; resetTest(); render(); window.scrollTo(0, 0); } }, t('ready'))));
 }
 function viewOralTest(it) {
   const ayahs = itemAyahs(it), all = session.revealed >= ayahs.length, hide = S.settings.hide || 'first';
-  return h('div', null, modeSwitch(),
-    h('p', { class: 'help' }, all ? t('oral_help_marked') : t('oral_help')),
+  return h('div', null, modeSwitch(), recBar(),
+    h('p', { class: 'help' }, (all ? t('oral_help_marked') : t('oral_help')) + ' ' + t('long_press_hint')),
     h('div', { class: 'seg', style: 'margin:0 0 10px' }, [['first', t('hint_first')], ['hidden', t('hint_hidden')]].map(([v, l]) =>
       h('button', { class: hide === v ? 'on' : '', onclick: () => { S.settings.hide = v; save(); render(); } }, l))),
     renderPassage(ayahs, {
-      hide, revealedUpTo: session.revealed, errors: session.errors, forgot: session.forgot, big: true,
+      hide, revealedUpTo: session.revealed, errors: session.errors, forgot: session.forgot, big: true, onMeaning: openMeaning,
       onWord: i => { session.errors.has(i) ? session.errors.delete(i) : session.errors.add(i); render(); },
       onAyahEnd: ai => { if (ai < session.revealed) { session.forgot.has(ai) ? session.forgot.delete(ai) : session.forgot.add(ai); render(); } }
     }),
@@ -567,8 +579,9 @@ function viewGrade(it) {
     h('div', { class: 'grades' }, [4, 3, 2, 1].map(g => h('button', { class: `grade g${g}` + (g === sug ? ' sug' : ''), onclick: () => gradeItem(g) },
       h('span', { class: 'gi' }, icons[g]), h('div', null, h('b', null, t('g' + g)), h('span', null, t('g' + g + 'd')))))),
     h('div', { class: 'actions' }, h('button', { class: 'btn ghost', onclick: () => { session.step = 'test'; resetTest(); render(); } }, t('retry'))),
+    recordingCard(it), mutHint(it),
     playerBar(itemAyahs(it), `grade-${it.page}-${it.part}`),
-    renderPassage(itemAyahs(it), { errors: session.errors, forgot: session.forgot, playable: true }));
+    renderPassage(itemAyahs(it), { errors: session.errors, forgot: session.forgot, playable: true, onMeaning: openMeaning }));
 }
 
 function gradeItem(g) {
@@ -580,6 +593,7 @@ function gradeItem(g) {
   Store.logEvent({ t: Date.now(), p: it.page, k: it.kind, g, d: secs, e: session.errors.size, w: session.words, m: session.mode, r: Rb == null ? null : Math.round(Rb * 1000) / 1000, part: it.part == null ? null : it.part });
   session.results.push({ ...it, grade: g, errors: session.errors.size, secs, after: S.pages[it.page] });
   if (it.kind === 'sabaq' && g < 3) toast(t('redo_tomorrow'));
+  persistRecording(it, g);
   session.i++;
   if (session.i >= session.items.length) endSession(); else beginItem();
   render(); window.scrollTo(0, 0);
@@ -621,6 +635,7 @@ function viewMap() {
   const order = Array.from({ length: 30 }, (_, i) => i + 1); if (S.settings.direction === 'nas') order.reverse();
   return h('div', null,
     h('div', { class: 'page-head' }, h('h1', null, t('map_title')), h('p', { class: 'sub' }, t('map_sub'))),
+    (() => { const n = memorizedMutPairs().length; return n ? h('button', { class: 'card mut-cta', onclick: openMutReview }, h('span', { class: 'gic' }, '≈'), h('div', null, h('b', null, t('mut_review')), h('span', { class: 'sub' }, t('mut_pairs', { n: fmtNum(n) }))), h('span', { class: 'chev' }, '›')) : null; })(),
     h('div', { class: 'legend', style: 'margin:6px 0 14px' },
       [['var(--good)', 'solid'], ['var(--warn)', 'watch'], ['var(--bad)', 'weak'], ['var(--sabqi)', 'in_progress']].map(([c, k]) => h('span', null, h('i', { style: `background:${c}` }), t(k)))),
     h('div', { class: 'juzgrid' }, order.map(j => {
@@ -668,8 +683,11 @@ function openPage(p) {
       ps && ps.status !== 'sabaq' ? h('button', { class: 'btn primary', onclick: () => { close(); startSession({ sabqi: ps.status === 'sabqi' ? [p] : [], manzil: ps.status === 'manzil' ? [p] : [], sabaq: null }); } }, t('review_now')) : null,
       !ps || ps.status === 'sabaq' ? h('button', { class: 'btn', onclick: () => { S.pages[p] = P.seedKnownPages([p], d, 7)[p]; save(); close(); render(); toast(t('marked_known', { p: fmtNum(p) })); } }, t('already_known')) : null,
       ps ? h('button', { class: 'btn ghost', onclick: () => { delete S.pages[p]; save(); close(); render(); toast(t('page_reset', { p: fmtNum(p) })); } }, t('reset_page')) : null),
+    mutCountPage(p) ? h('button', { class: 'btn block', style: 'margin-top:10px', onclick: () => { close(); openMutPage(p); } }, t('mut_on_page', { n: fmtNum(mutCountPage(p)) })) : null,
     playerBar(Q.pages[p - 1], 'sheet-' + p),
-    renderPassage(Q.pages[p - 1], { playable: true }));
+    h('p', { class: 'sub mn-hint' }, t('tap_for_meaning')),
+    renderPassage(Q.pages[p - 1], { playable: true, onMeaning: (s, a, w) => { close(); openMeaning(s, a, w); } }),
+    h('h2', null, t('my_recordings')), recordingsList(p));
   close = sheet(body);
 }
 
@@ -718,7 +736,7 @@ function accountBlock() {
   if (!Store.user) return h('button', { class: 'btn primary block', onclick: () => { screen = 'auth'; authMode = 'signup'; authErr = ''; render(); } }, t('with_account'));
   return h('div', null, h('p', { class: 'sub' }, t('signed_in_as', { email: Store.user.email || '' })),
     h('div', { class: 'actions' },
-      h('button', { class: 'btn', onclick: async () => { await Store.signOut(); S = null; screen = 'welcome'; render(); } }, t('sign_out')),
+      h('button', { class: 'btn', onclick: async () => { Social.stop(); await Store.signOut(); S = null; screen = 'welcome'; render(); } }, t('sign_out')),
       h('button', { class: 'btn ghost', style: 'color:var(--bad)', onclick: confirmDeleteAccount }, t('delete_account'))));
 }
 function confirmDeleteAccount() {
@@ -727,7 +745,7 @@ function confirmDeleteAccount() {
     h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => close() }, t('cancel')),
       h('button', { class: 'btn primary', style: 'background:var(--bad);border-color:var(--bad)', onclick: async () => {
         close();
-        try { await Store.deleteAccount(); S = null; screen = 'welcome'; toast(t('deleted')); render(); }
+        try { await Social.deleteAllMine().catch(() => {}); await Store.deleteAccount(); S = null; screen = 'welcome'; toast(t('deleted')); render(); }
         catch (e) { toast(e && e.code === 'auth/requires-recent-login' ? t('delete_relogin') : t('sync_error')); }
       } }, t('delete')))));
 }
@@ -756,6 +774,375 @@ function downloadReminder(time) {
   download('sourah-rappel.ics', ics, 'text/calendar');
 }
 
+
+function updateBadge() {
+  const b = document.querySelector('.nav button[data-go=buddy] .badge'); if (!b) return;
+  const n = Store.user ? Social.pendingToReview().length + Social.unseenFeedback().length : 0;
+  b.textContent = n ? String(n) : ''; b.hidden = !n;
+}
+Social.onChange(() => {
+  updateBadge();
+  const busy = document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+  if (!session && !screen && view === 'buddy' && !busy && !document.querySelector('.sheet-bg')) render();
+});
+function mutHint(it) {
+  const ayahs = itemAyahs(it); let idx = 0; const hit = new Set();
+  ayahs.forEach(([s, a, x]) => { x.split(' ').forEach(w => { if (!isWord(w)) return; if (session.errors.has(idx) && mutOf(s, a).length) hit.add(s + ':' + a); idx++; }); });
+  ayahs.forEach(([s, a], ai) => { if (session.forgot.has(ai) && mutOf(s, a).length) hit.add(s + ':' + a); });
+  if (!hit.size) return null;
+  return h('button', { class: 'card mut-cta', onclick: () => openMutPage(it.page) }, h('span', { class: 'gic' }, '≈'),
+    h('div', null, h('b', null, t('mut_hint')), h('span', { class: 'sub' }, t('mut_hint_sub'))), h('span', { class: 'chev' }, '›'));
+}
+
+// ================= v2: recording, buddy review, mutashabihat =================
+
+// ---------- recording during the oral test ----------
+const recorder = new Recorder(secs => { const el = document.getElementById('rec-time'); if (el) el.textContent = fmtDuration(secs); if (secs >= MAX_SECONDS) stopRecording(); });
+async function startRecording() {
+  try { await recorder.start(); session.recState = 'on'; render(); }
+  catch (e) { console.warn(e); toast(t('mic_denied')); }
+}
+async function stopRecording() {
+  const r = await recorder.stop();
+  if (session && r) { session.recording = r; session.recState = 'done'; render(); }
+}
+function recBar() {
+  if (!canRecord()) return null;
+  if (session.recState === 'on') return h('div', { class: 'recbar on' }, h('span', { class: 'recdot' }), h('b', null, t('recording')), h('span', { id: 'rec-time', class: 'rectime' }, '0:00'),
+    h('button', { class: 'btn', onclick: stopRecording }, '■ ' + t('stop')));
+  if (session.recState === 'done') return h('div', { class: 'recbar' }, html(SVG.mic), h('span', null, t('recorded', { d: fmtDuration(session.recording.duration) })),
+    h('button', { class: 'btn ghost', onclick: () => { session.recording = null; session.recState = null; render(); } }, t('redo')));
+  return h('button', { class: 'recbar idle', onclick: startRecording }, h('span', { class: 'recdot' }), h('span', null, t('record_hint')));
+}
+function audioEl(blob) {
+  const url = URL.createObjectURL(blob);
+  const a = h('audio', { controls: true, src: url, preload: 'metadata', class: 'rec-audio' });
+  // MediaRecorder webm files carry no duration: seek to the end once so the player shows it
+  a.addEventListener('loadedmetadata', function fix() {
+    if (a.duration === Infinity) { a.addEventListener('timeupdate', function back() { a.removeEventListener('timeupdate', back); a.currentTime = 0; }); a.currentTime = 1e101; }
+  }, { once: true });
+  return a;
+}
+/** Shown in the grade view when the recitation was recorded. */
+function recordingCard(it) {
+  if (!session.recording) return null;
+  const canSend = Store.user && Social.data.asLearner.length;
+  return h('div', { class: 'card rec-card' },
+    h('div', { class: 'row spread' }, h('b', null, t('your_recording')), h('span', { class: 'sub' }, fmtDuration(session.recording.duration))),
+    h('p', { class: 'help', style: 'margin:4px 0 8px' }, t('relisten_hint')),
+    audioEl(session.recording.blob),
+    Store.user ? h('div', { class: 'actions' },
+      canSend
+        ? h('button', { class: 'btn primary', disabled: session.sent, onclick: async e => {
+            e.target.disabled = true; e.target.textContent = t('sending');
+            try { await shareRecording(session.recording, it); session.sent = true; toast(t('sent_ok')); } catch (err) { console.warn(err); toast(t('send_error')); }
+            render(); } }, session.sent ? t('sent_ok') : t('send_review'))
+        : h('p', { class: 'sub', style: 'margin:0' }, t('invite_first'))) : null);
+}
+async function persistRecording(it, g) {
+  if (!session.recording) return null;
+  const rec = Object.assign({ id: 'r' + Date.now(), page: it.page, part: it.part == null ? null : it.part, parts: it.parts || 1, kind: it.kind, createdAt: Date.now(), grade: g, errors: [...session.errors] }, session.recording);
+  try { await saveRecording(rec); } catch (e) { console.warn(e); }
+  return rec;
+}
+function shareRecording(rec, it) {
+  return Social.send(rec, { learnerName: displayName(), page: it.page, part: it.part == null ? null : it.part, parts: it.parts || 1 });
+}
+function displayName() { return (S && S.settings.name) || (Store.user && (Store.user.displayName || (Store.user.email || '').split('@')[0])) || ''; }
+
+// ---------- buddy tab ----------
+let inviteCode = null, codeInput = '';
+function viewBuddy() {
+  const wrap = h('div', null, h('div', { class: 'page-head' }, h('h1', null, t('buddy')), h('p', { class: 'sub' }, t('buddy_sub'))));
+  if (!Store.enabled || !Store.user) {
+    wrap.append(h('div', { class: 'card center', style: 'padding:24px 18px' }, html(SVG.people), h('h2', { style: 'margin:8px 0 6px' }, t('buddy_need_account')), h('p', { class: 'sub' }, t('buddy_need_account_sub')),
+      Store.enabled ? h('button', { class: 'btn primary block', style: 'margin-top:14px', onclick: () => { screen = 'auth'; authMode = 'signup'; authErr = ''; render(); } }, t('with_account')) : h('p', { class: 'sub', style: 'margin-top:10px' }, t('accounts_off'))));
+    wrap.append(h('h2', null, t('my_recordings')), recordingsList(null));
+    return wrap;
+  }
+  const D = Social.data;
+  const pending = Social.pendingToReview();
+  if (pending.length) wrap.append(h('h2', null, t('to_review') + ` (${fmtNum(pending.length)})`), h('div', { class: 'list' }, pending.map(r =>
+    h('button', { class: 'li', onclick: () => openReview(r) }, h('span', { class: 'av' }, initials(r.learnerName)),
+      h('div', null, h('b', null, r.learnerName || '—'), h('span', null, `${pageLabel(r)} · ${fmtDuration(r.duration || 0)}`)), h('span', { class: 'chev' }, '›')))));
+
+  // my reviewers
+  wrap.append(h('h2', null, t('my_reviewers')), h('div', { class: 'card' },
+    D.asLearner.length ? D.asLearner.map(p => h('div', { class: 'person' }, h('span', { class: 'av' }, initials(p.reviewerName)), h('b', null, p.reviewerName || '—'),
+      h('button', { class: 'btn ghost danger', onclick: () => Social.unpair(p.id) }, t('remove')))) : h('p', { class: 'sub', style: 'margin:0 0 10px' }, t('no_reviewer_yet')),
+    inviteCode ? h('div', { class: 'code-box' }, h('span', { class: 'sub' }, t('share_code')), h('div', { class: 'code' }, inviteCode),
+      h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => shareInvite(inviteCode) }, t('share')), h('button', { class: 'btn ghost', onclick: () => { inviteCode = null; render(); } }, t('close'))),
+      h('p', { class: 'hint sub', style: 'font-size:12px;margin-top:6px' }, t('code_valid')))
+      : h('button', { class: 'btn primary block', style: 'margin-top:6px', onclick: async () => { try { inviteCode = await Social.createInvite(displayName()); } catch (e) { toast(t('sync_error')); } render(); } }, t('invite_reviewer'))));
+
+  // people I review
+  let inp;
+  wrap.append(h('h2', null, t('i_review')), h('div', { class: 'card' },
+    D.asReviewer.length ? D.asReviewer.map(p => h('div', { class: 'person' }, h('span', { class: 'av' }, initials(p.learnerName)), h('b', null, p.learnerName || '—'),
+      h('button', { class: 'btn ghost danger', onclick: () => Social.unpair(p.id) }, t('remove')))) : h('p', { class: 'sub', style: 'margin:0 0 10px' }, t('enter_code_hint')),
+    h('div', { class: 'row' }, inp = h('input', { type: 'text', placeholder: 'ABC123', value: codeInput, maxlength: 8, style: 'margin:0;text-transform:uppercase;letter-spacing:.2em;font-weight:800', oninput: e => { codeInput = e.target.value; } }),
+      h('button', { class: 'btn primary', onclick: async () => {
+        try { const name = await Social.redeemInvite(inp.value, displayName()); codeInput = ''; toast(t('paired_ok', { name: name || '' })); }
+        catch (e) { toast(t(e.message === 'invite_expired' ? 'code_expired' : e.message === 'invite_self' ? 'code_self' : 'code_invalid')); }
+        render(); } }, t('join')))));
+
+  // my feedback
+  if (D.mine.length) wrap.append(h('h2', null, t('my_feedback')), h('div', { class: 'list' }, D.mine.map(r =>
+    h('button', { class: 'li' + (r.status === 'done' && !r.seen ? ' new' : ''), onclick: () => r.status === 'done' ? openFeedback(r) : null },
+      h('span', { class: 'av ' + (r.status === 'done' ? 'ok' : '') }, r.status === 'done' ? html(SVG.check) : '…'),
+      h('div', null, h('b', null, pageLabel(r)), h('span', null, r.status === 'done' ? t('reviewed_by', { name: (r.review && r.review.byName) || '' }) + ' · ' + t('g' + r.review.grade) + (r.review.voice ? ' · 🎙' : '') : t('waiting_review'))),
+      h('span', { class: 'chev' }, r.status === 'done' ? '›' : '')))));
+
+  wrap.append(h('h2', null, t('my_recordings')), recordingsList(null));
+  return wrap;
+}
+function initials(n) { return (n || '?').trim().split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase() || '?'; }
+function pageLabel(r) { return t('page_n', { p: fmtNum(r.page) }) + (r.parts > 1 ? ' · ' + t('part', { k: fmtNum(r.part + 1), n: fmtNum(r.parts) }) : ''); }
+async function shareInvite(code) {
+  const text = t('invite_text', { code, url: location.origin + location.pathname });
+  try { if (navigator.share) { await navigator.share({ text }); return; } } catch (e) { return; }
+  try { await navigator.clipboard.writeText(text); toast(t('copied')); } catch (e) { toast(code); }
+}
+function recordingsList(page) {
+  const box = h('div', { class: 'list' }, h('p', { class: 'sub' }, '…'));
+  listRecordings(page).then(recs => {
+    box.innerHTML = '';
+    if (!recs.length) { box.append(h('p', { class: 'sub' }, t('no_recordings'))); return; }
+    recs.slice(0, 20).forEach(r => {
+      const row = h('div', { class: 'li static' }, h('span', { class: 'av' }, html(SVG.mic)),
+        h('div', null, h('b', null, pageLabel(r)), h('span', null, `${new Date(r.createdAt).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })} · ${fmtDuration(r.duration)}` + (r.grade ? ' · ' + t('g' + r.grade) : ''))),
+        h('button', { class: 'icon-btn', 'aria-label': t('play'), onclick: () => openRecording(r) }, html(ICON.play)));
+      box.append(row);
+    });
+  }).catch(() => { box.innerHTML = ''; box.append(h('p', { class: 'sub' }, t('no_recordings'))); });
+  return box;
+}
+function partAyahs(page, part, parts) { const all = Q.pages[page - 1]; return parts > 1 && part != null ? (splitParts(all, parts)[part] || all) : all; }
+function openRecording(r) {
+  let close;
+  const errs = new Set(r.errors || []);
+  close = sheet(h('div', null,
+    h('div', { class: 'row spread' }, h('h2', { style: 'margin:0' }, pageLabel(r)), h('button', { class: 'icon-btn', onclick: () => close() }, html(SVG.close))),
+    h('p', { class: 'sub' }, t('relisten_hint')),
+    audioEl(r.blob),
+    h('div', { class: 'actions' },
+      Store.user && Social.data.asLearner.length ? h('button', { class: 'btn primary', onclick: async e => { e.target.disabled = true; try { await shareRecording(r, r); toast(t('sent_ok')); close(); } catch (err) { toast(t('send_error')); e.target.disabled = false; } } }, t('send_review')) : null,
+      h('button', { class: 'btn ghost danger', onclick: async () => { await deleteRecording(r.id); close(); render(); } }, t('delete'))),
+    renderPassage(partAyahs(r.page, r.part, r.parts), { errors: errs, onMeaning: (s, a, w) => { close(); openMeaning(s, a, w); } })));
+}
+
+// ---------- reviewer: annotate a recitation ----------
+function openReview(r) { voiceRec.cancel(); screen = 'review'; reviewState = { r, blob: null, errors: new Set(), forgot: new Set(), grade: null, comment: '', voice: null, voiceState: null }; render(); window.scrollTo(0, 0);
+  Social.loadAudio(r).then(b => { if (reviewState && reviewState.r === r) { reviewState.blob = b; render(); } }).catch(() => toast(t('audio_error'))); }
+let reviewState = null;
+function viewReview() {
+  const st = reviewState, r = st.r, ayahs = partAyahs(r.page, r.part, r.parts);
+  const sug = P.gradeFromErrors(st.errors.size, passageWords(ayahs), st.forgot.size > 0);
+  const grade = st.grade || sug;
+  let ta;
+  return h('div', null,
+    h('div', { class: 'session-top' }, h('div', { class: 'topbar' },
+      h('button', { class: 'icon-btn', onclick: () => { voiceRec.cancel(); screen = null; reviewState = null; render(); } }, html(SVG.close)),
+      h('div', { style: 'flex:1' }, h('b', null, r.learnerName || '—'), h('div', { class: 'sub' }, pageLabel(r))))),
+    h('p', { class: 'help' }, t('review_help')),
+    st.blob ? audioEl(st.blob) : h('div', { class: 'card sub' }, t('loading_audio')),
+    h('div', { style: 'height:10px' }),
+    renderPassage(ayahs, { errors: st.errors, forgot: st.forgot, big: true, onMeaning: openMeaning,
+      onWord: i => { st.errors.has(i) ? st.errors.delete(i) : st.errors.add(i); render(); },
+      onAyahEnd: ai => { st.forgot.has(ai) ? st.forgot.delete(ai) : st.forgot.add(ai); render(); } }),
+    h('h2', null, t('your_grade')),
+    h('div', { class: 'grades' }, [4, 3, 2, 1].map(g => h('button', { class: `grade g${g}` + (g === grade ? ' sug' : ''), onclick: () => { st.grade = g; render(); } },
+      h('span', { class: 'gi' }, { 1: '↺', 2: '〰', 3: '✓', 4: '★' }[g]), h('div', null, h('b', null, t('g' + g)), h('span', null, t('g' + g + 'd')))))),
+    h('h2', null, t('comment')),
+    ta = h('textarea', { placeholder: t('comment_ph'), style: 'min-height:90px;font:15px var(--font)', oninput: e => { st.comment = e.target.value; } }, st.comment),
+    voiceCommentBar(st),
+    h('div', { class: 'sticky' }, h('button', { class: 'btn primary block', onclick: async e => {
+      e.target.disabled = true;
+      try {
+        if (voiceRec.recording) await stopVoice();
+        const voice = st.voice ? await Social.sendVoice(r.id, st.voice) : null;
+        await Social.submitReview(r.id, Object.assign({ byName: displayName(), errors: [...st.errors], forgot: [...st.forgot], grade, comment: st.comment.trim() }, voice ? { voice } : {})); toast(t('review_sent')); screen = null; reviewState = null; view = 'buddy'; }
+      catch (err) { console.warn(err); toast(t('send_error')); e.target.disabled = false; }
+      render(); } }, t('send_correction'))));
+}
+
+
+// ---------- reviewer's spoken comment ----------
+const voiceRec = new Recorder(secs => { const el = document.getElementById('voice-time'); if (el) el.textContent = fmtDuration(secs); if (secs >= VOICE_MAX) stopVoice(); });
+const VOICE_MAX = 180;
+async function startVoice() {
+  try { await voiceRec.start(); reviewState.voiceState = 'on'; render(); }
+  catch (e) { console.warn(e); toast(t('mic_denied')); }
+}
+async function stopVoice() {
+  const r = await voiceRec.stop();
+  if (reviewState && r) { reviewState.voice = r; reviewState.voiceState = 'done'; render(); }
+}
+function voiceCommentBar(st) {
+  if (!canRecord()) return null;
+  if (st.voiceState === 'on') return h('div', { class: 'recbar on', style: 'margin-top:10px' }, h('span', { class: 'recdot' }), h('b', null, t('recording')), h('span', { id: 'voice-time', class: 'rectime' }, '0:00'),
+    h('button', { class: 'btn', onclick: stopVoice }, '■ ' + t('stop')));
+  if (st.voiceState === 'done') return h('div', { class: 'voice-box', style: 'margin-top:10px' },
+    h('div', { class: 'row spread' }, h('span', { class: 'voice-lbl' }, html(SVG.mic), t('voice_comment') + ' · ' + fmtDuration(st.voice.duration)),
+      h('button', { class: 'btn ghost', onclick: () => { st.voice = null; st.voiceState = null; render(); } }, t('redo'))),
+    audioEl(st.voice.blob));
+  return h('button', { class: 'recbar idle', style: 'margin-top:10px', onclick: startVoice }, h('span', { class: 'recdot' }), h('span', null, t('record_voice')));
+}
+
+// ---------- learner: read the feedback ----------
+function openFeedback(r) {
+  const rv = r.review || {};
+  if (!r.seen) Social.markSeen(r.id).catch(() => {});
+  let close;
+  close = sheet(h('div', null,
+    h('div', { class: 'row spread' }, h('h2', { style: 'margin:0' }, pageLabel(r)), h('button', { class: 'icon-btn', onclick: () => close() }, html(SVG.close))),
+    h('p', { class: 'sub' }, t('reviewed_by', { name: rv.byName || '' })),
+    h('div', { class: 'card flat' }, h('div', { class: 'row' }, h('span', { class: `grade g${rv.grade}`, style: 'border:0;padding:0;background:none' }, h('span', { class: 'gi' }, { 1: '↺', 2: '〰', 3: '✓', 4: '★' }[rv.grade])),
+      h('div', null, h('b', null, t('g' + rv.grade)), h('div', { class: 'sub' }, t.n('errors', (rv.errors || []).length) + ((rv.forgot || []).length ? ' · ' + t.n('forgot', rv.forgot.length) : '')))),
+      rv.comment ? h('blockquote', { class: 'comment' }, rv.comment) : null,
+      rv.voice ? (() => { const box = h('div', { class: 'voice-box' }, h('div', { class: 'voice-lbl' }, html(SVG.mic), t('voice_from', { name: rv.byName || '' }) + ' · ' + fmtDuration(rv.voice.duration || 0)), h('div', { class: 'sub' }, t('loading_audio')));
+        Social.loadVoice(r).then(b => { box.lastChild.replaceWith(audioEl(b)); }).catch(() => { box.lastChild.textContent = t('audio_error'); });
+        return box; })() : null),
+    h('div', { class: 'actions' }, S.pages[r.page] && S.pages[r.page].status !== 'sabaq' ? h('button', { class: 'btn primary', onclick: () => { reviewTomorrow(r.page); close(); toast(t('planned_tomorrow')); render(); } }, t('review_tomorrow')) : null),
+    renderPassage(partAyahs(r.page, r.part, r.parts), { errors: new Set(rv.errors || []), forgot: new Set(rv.forgot || []), onMeaning: (s, a, w) => { close(); openMeaning(s, a, w); } })));
+}
+function reviewTomorrow(p) {
+  const ps = S.pages[p], d = today();
+  if (!ps || ps.status === 'sabaq') return;
+  ps.last = ps.status === 'sabqi' ? d : d + 1 - P.interval(ps.S);
+  save();
+}
+
+// ---------- mutashabihat ----------
+const DIAC = /[ً-ٰٟۖ-ࣰۭ-ࣲـ]/g;
+const NMAP = { 'ٱ': 'ا', 'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ى': 'ي', 'ة': 'ه', 'ؤ': 'و', 'ئ': 'ي' };
+const normWord = w => w.replace(DIAC, '').replace(/[ٱأإآىةؤئ]/g, c => NMAP[c]);
+let AY = null;
+function ayahIndex() { if (!AY) { AY = {}; Q.pages.forEach((pg, i) => pg.forEach(([s, a, x]) => { AY[s + ':' + a] = { s, a, text: x, page: i + 1 }; })); } return AY; }
+function mutOf(s, a) { return (Q.mut && Q.mut[s + ':' + a]) || []; }
+function mutCountPage(p) { return Q.pages[p - 1].reduce((n, [s, a]) => n + (mutOf(s, a).length ? 1 : 0), 0); }
+/** Indices of words of A that are not in the longest common word subsequence with B. */
+function diffWords(textA, textB) {
+  const A = textA.split(' ').filter(isWord).map(normWord), B = textB.split(' ').filter(isWord).map(normWord);
+  const L = Array.from({ length: A.length + 1 }, () => new Array(B.length + 1).fill(0));
+  for (let i = A.length - 1; i >= 0; i--) for (let j = B.length - 1; j >= 0; j--) L[i][j] = A[i] === B[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const keep = new Set(); let i = 0, j = 0;
+  while (i < A.length && j < B.length) { if (A[i] === B[j]) { keep.add(i); i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++; }
+  const out = new Set(); A.forEach((_, k) => { if (!keep.has(k)) out.add(k); });
+  return out;
+}
+function mutPair(keyA, keyB) {
+  const ix = ayahIndex(), A = ix[keyA], B = ix[keyB];
+  const one = (X, Y) => h('div', { class: 'mut-side' },
+    h('div', { class: 'mut-ref' }, `${surahLabel(X.s)} ${fmtNum(X.s)}:${fmtNum(X.a)} · ${t('page_n', { p: fmtNum(X.page) })}`),
+    renderPassage([[X.s, X.a, X.text]], { showHeaders: false, diff: diffWords(X.text, Y.text), onMeaning: (s, a, w) => { document.querySelectorAll('.sheet-bg').forEach(e => e.remove()); openMeaning(s, a, w); } }));
+  return h('div', { class: 'mut-pair' }, one(A, B), one(B, A));
+}
+function openMutPage(p) {
+  let close;
+  const items = Q.pages[p - 1].filter(([s, a]) => mutOf(s, a).length);
+  close = sheet(h('div', null,
+    h('div', { class: 'row spread' }, h('h2', { style: 'margin:0' }, t('mut_title')), h('button', { class: 'icon-btn', onclick: () => close() }, html(SVG.close))),
+    h('p', { class: 'sub', style: 'margin-bottom:10px' }, t('mut_sub')),
+    items.map(([s, a]) => mutOf(s, a).slice(0, 3).map(([k]) => mutPair(s + ':' + a, k)))));
+}
+/** Pairs where both ayahs are on memorized pages, weakest first. */
+function memorizedMutPairs() {
+  const ix = ayahIndex(), d = today(), seen = new Set(), out = [];
+  const mem = p => S.pages[p] && S.pages[p].status !== 'sabaq';
+  for (const key in Q.mut || {}) {
+    const A = ix[key]; if (!A || !mem(A.page)) continue;
+    for (const [k] of Q.mut[key]) {
+      const B = ix[k]; if (!B || !mem(B.page) || A.page === B.page && Math.abs(A.a - B.a) < 2) continue;
+      const id = [key, k].sort().join('|'); if (seen.has(id)) continue; seen.add(id);
+      if (A.text === B.text) continue; // identical refrains: nothing to tell apart
+      const r = Math.min(P.pageR(S.pages[A.page], d), P.pageR(S.pages[B.page], d));
+      out.push({ a: key, b: k, r });
+    }
+  }
+  return out.sort((x, y) => x.r - y.r);
+}
+function openMutReview() {
+  const pairs = memorizedMutPairs();
+  let i = 0, close;
+  const body = h('div');
+  const draw = () => {
+    body.innerHTML = '';
+    body.append(h('div', { class: 'row spread' }, h('h2', { style: 'margin:0' }, t('mut_review')), h('button', { class: 'icon-btn', onclick: () => close() }, html(SVG.close))));
+    if (!pairs.length) { body.append(h('p', { class: 'sub' }, t('mut_none'))); return; }
+    body.append(h('p', { class: 'sub', style: 'margin-bottom:10px' }, `${fmtNum(i + 1)} / ${fmtNum(pairs.length)} · ${t('mut_review_sub')}`),
+      mutPair(pairs[i].a, pairs[i].b),
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn', disabled: i === 0, onclick: () => { i--; draw(); } }, t('previous')),
+        h('button', { class: 'btn primary', onclick: () => { if (i < pairs.length - 1) { i++; draw(); } else { close(); toast(t('mut_done')); } } }, i < pairs.length - 1 ? t('next') : t('finish'))));
+  };
+  draw();
+  close = sheet(body);
+}
+
+
+function longPress(el, fn) {
+  let tm = null;
+  const start = () => { el._lp = false; tm = setTimeout(() => { el._lp = true; try { navigator.vibrate && navigator.vibrate(15); } catch (e) {} fn(); }, 450); };
+  const cancel = () => clearTimeout(tm);
+  el.addEventListener('pointerdown', start); el.addEventListener('pointerup', cancel); el.addEventListener('pointerleave', cancel); el.addEventListener('pointercancel', cancel);
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+// ================= meaning: translation, tafsir, word by word =================
+const MEANING = new Map();
+function loadMeaning(page) {
+  if (!MEANING.has(page)) MEANING.set(page, fetch(`meaning/${page}.json`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(e => { MEANING.delete(page); throw e; }));
+  return MEANING.get(page);
+}
+const TAFSIRS = [['fr', 'Al-Mukhtasar (FR)'], ['en', 'Al-Mukhtasar (EN)'], ['ar', 'التفسير الميسر']];
+/** Gharib entries look like "﴿phrase﴾: explanation" separated by blank lines. Returns the entries that contain the word. */
+function gharibFor(gh, word) {
+  if (!gh || !word) return [];
+  const w = normWord(word).replace(/^(و|ف)(?=..)/, '');
+  return gh.split(/\n\s*\n/).filter(line => { const m = line.match(/﴿([^﴾]+)﴾/); return m && m[1].split(/\s+/).some(x => { const n = normWord(x); return n === normWord(word) || n.endsWith(w); }); });
+}
+function openMeaning(s, a, wi) {
+  const ix = ayahIndex()[s + ':' + a]; if (!ix) return;
+  const lang = getLang();
+  let tab = prefs.tafsir || (lang === 'ar' ? 'ar' : lang === 'en' ? 'en' : 'fr');
+  let close;
+  const words = ix.text.split(' ').filter(isWord);
+  const body = h('div', null,
+    h('div', { class: 'row spread' }, h('h2', { style: 'margin:0' }, wi != null ? t('word_meaning') : t('verse_meaning')), h('button', { class: 'icon-btn', 'aria-label': t('close'), onclick: () => close() }, html(SVG.close))),
+    h('p', { class: 'sub', style: 'margin:2px 0 10px' }, `${surahLabel(s)} · ${fmtNum(s)}:${fmtNum(a)} · ${t('page_n', { p: fmtNum(ix.page) })}`),
+    renderPassage([[s, a, ix.text]], { showHeaders: false, diff: wi != null ? new Set([wi]) : null, onMeaning: (s2, a2, w2) => { close(); openMeaning(s2, a2, w2); } }),
+    h('div', { class: 'mn-body' }, h('p', { class: 'sub' }, t('loading'))));
+  close = sheet(body);
+  const slot = body.querySelector('.mn-body');
+  loadMeaning(ix.page).then(M => {
+    const m = M[s + ':' + a] || {};
+    slot.innerHTML = '';
+    if (wi != null) {
+      const w = (m.w || [])[wi], gh = gharibFor(m.gh, words[wi]);
+      slot.append(h('div', { class: 'card flat mn-word' },
+        h('div', { class: 'mn-ar' }, words[wi] || ''),
+        w ? h('div', { class: 'mn-tr' }, w[1] ? h('i', null, w[1]) : null, w[0] ? h('b', null, w[0]) : null, lang !== 'en' && w[0] ? h('span', { class: 'sub' }, ' ' + t('in_english')) : null) : null,
+        gh.length ? h('div', { class: 'mn-gh', dir: 'rtl', lang: 'ar' }, gh.map(x => h('p', null, x))) : null,
+        !w && !gh.length ? h('p', { class: 'sub' }, t('no_word_meaning')) : null));
+    }
+    const tr = lang === 'en' ? m.en : lang === 'fr' ? m.fr : null;
+    if (tr) slot.append(h('div', { class: 'mn-sec' }, h('div', { class: 'mn-lbl' }, t('translation')), h('p', { class: 'mn-text' }, tr)));
+    const tafBox = h('div');
+    const drawTaf = () => {
+      tafBox.innerHTML = '';
+      const txt = (m.tf || {})[tab] || '', from = (m.tfFrom || {})[tab];
+      tafBox.append(h('div', { class: 'mn-sec' },
+        h('div', { class: 'mn-lbl' }, t('tafsir')),
+        h('div', { class: 'seg mini' }, TAFSIRS.map(([k, label]) => h('button', { class: tab === k ? 'on' : '', onclick: () => { tab = k; prefs.tafsir = k; savePrefs(); drawTaf(); } }, label))),
+        from ? h('p', { class: 'sub', style: 'font-size:12.5px' }, t('tafsir_grouped', { a: fmtNum(from) })) : null,
+        h('div', { class: 'mn-text', dir: tab === 'ar' ? 'rtl' : 'ltr', lang: tab }, txt ? txt.split(/\n\s*\n|\n/).filter(Boolean).map(p => h('p', null, p)) : h('p', { class: 'sub' }, '—'))));
+    };
+    drawTaf(); slot.append(tafBox,
+      h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => { stopAudio(); player.load([[s, a]], { reciter: S.settings.reciter, repeat: 1, rate: S.settings.rate }); playerKey = 'meaning'; player.play(); } }, '▶ ' + t('listen_ayah'))),
+      h('p', { class: 'sub', style: 'font-size:11.5px;margin-top:14px' }, t('meaning_sources')));
+  }).catch(() => { slot.innerHTML = ''; slot.append(h('p', { class: 'sub' }, t('meaning_offline'))); });
+}
+
 // ---------------- boot ----------------
 async function boot() {
   setLang(prefs.lang || detectLang());
@@ -764,6 +1151,7 @@ async function boot() {
     const qp = fetch('quran.json').then(r => r.json());
     const sp = Store.init().catch(e => { console.warn('firebase init failed', e); Store.enabled = false; });
     Q = await qp;
+    try { Q.mut = await fetch('mutashabihat.json').then(r => r.json()); } catch (e) { Q.mut = {}; }
     await Promise.race([sp, new Promise(r => setTimeout(r, 8000))]);
     Store.onChange(async user => { if (user) await afterSignIn(); else render(); });
     if (Store.user) return afterSignIn();

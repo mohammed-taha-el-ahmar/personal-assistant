@@ -55,6 +55,34 @@ Sur le téléphone, ouvrir l'adresse puis « Ajouter à l'écran d'accueil » (S
 - **Licences** : texte uthmani (The Noble Qur'an Encyclopedia, via quran-json, CC BY-SA 4.0), police Amiri Quran (OFL, voir `fonts/OFL.txt`). L'audio est lu directement depuis EveryAyah : vérifier ses conditions d'utilisation pour un usage public, ou héberger vos propres fichiers et changer `AUDIO_URL` dans `config.js`.
 - **Glyphe modifié** : le texte source encode le tanwin ouvert avec U+065E, qu'Amiri ne contient pas. Il est remplacé par U+08F1 (tanwin damm ouvert). À faire valider par une personne qui maîtrise l'écriture uthmanie.
 
+
+## Nouveautés v2
+
+- **Enregistrer sa récitation** pendant un test « À voix haute », puis se réécouter en suivant le texte. Les enregistrements restent sur l'appareil (IndexedDB, 40 derniers, 4 min max chacun, opus 24 kbit/s).
+- **Binôme / enseignant** (onglet Binôme, compte requis) : le récitant crée un code d'invitation (valable 7 jours), le correcteur le saisit. Le récitant envoie ses enregistrements ; le correcteur écoute, touche les mots erronés et les versets oubliés, donne une note et un commentaire écrit et/ou vocal (3 min max) ; le récitant reçoit la correction et peut replanifier la page pour le lendemain.
+- **Mutashabihat** : 1 539 versets ont au moins un verset très proche (calcul sur le texte sans voyelles, `mutashabihat.json`). Comparaison côte à côte avec les mots différents surlignés, depuis la fiche d'une page, après une erreur sur un verset concerné, et en révision groupée depuis « Mon Coran ».
+
+L'audio partagé est stocké dans Firestore en morceaux base64 (`reviews/{id}/audio/{n}`), ce qui évite Cloud Storage et reste compatible avec l'offre gratuite Spark. Les règles `firestore.rules` limitent la lecture d'une récitation au récitant et à ses correcteurs.
+
+```
+invites/{code}        { owner, ownerName, createdAt, expiresAt }
+pairs/{learner_reviewer} { learner, learnerName, reviewer, reviewerName, code }
+reviews/{id}          { learner, learnerName, reviewers[], page, part, parts, mime, duration, chunks, status, review{by, byName, errors[], forgot[], grade, comment}, seen }
+reviews/{id}/audio/{n} { data }      récitation
+reviews/{id}/comment/{n} { data }    commentaire vocal du correcteur (review.voice = {mime, duration, chunks})
+```
+
+
+## Sens et tafsir
+
+Toucher un mot ou un numéro de verset (pendant l'apprentissage, à la correction, dans la fiche d'une page, le verset du jour…) ouvre son explication ; pendant un test à voix haute, c'est un appui long, pour ne pas gêner le marquage des erreurs. La fiche affiche :
+
+- le mot : translittération, sens mot à mot (anglais) et explication du vocabulaire rare (Al-Muyassar fi Al-Gharib, en arabe) ;
+- la traduction du sens du verset (français : Muhammad Hamidullah, anglais : Saheeh International, via quran-json) ;
+- le tafsir au choix : Al-Mukhtasar en français ou en anglais (Centre de Tafsir pour les études coraniques) ou At-Tafsir Al-Muyassar (arabe).
+
+Les données sont auto-hébergées dans `public/meaning/{page}.json` (604 fichiers, 12 Mo au total, environ 20 Ko par page) et mises en cache hors ligne par le service worker après la première consultation. Sources : [spa5k/tafsir_api](https://github.com/spa5k/tafsir_api) (données QUL / Tarteel, tag v1.2.2), [quran-json](https://www.npmjs.com/package/quran-json), [@kmaslesa/holy-quran-word-by-word-full-data](https://www.npmjs.com/package/@kmaslesa/holy-quran-word-by-word-full-data). **Avant une diffusion publique, vérifier les conditions d'utilisation de chaque tafsir et traduction** (la plupart autorisent un usage non commercial avec attribution). Script de génération : `tools/build_meaning.py`.
+
 ## Données dans Firestore
 
 ```
