@@ -1,5 +1,5 @@
 const assert = require('assert');
-const P = require('../public/js/planner.js');
+const P = require("../public/app/js/planner.js");
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok -', name); };
 
 t('retention is 0.9 at t = S', () => assert(Math.abs(P.retention(10, 10) - 0.9) < 1e-9));

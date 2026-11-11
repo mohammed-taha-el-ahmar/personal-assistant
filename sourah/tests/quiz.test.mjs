@@ -1,8 +1,8 @@
 import assert from 'assert';
 import fs from 'fs';
-import { buildQuiz, norm } from '../public/js/quiz.js';
-const Q = JSON.parse(fs.readFileSync(new URL('../public/quran.json', import.meta.url)));
-Q.mut = JSON.parse(fs.readFileSync(new URL('../public/mutashabihat.json', import.meta.url)));
+import { buildQuiz, norm } from '../public/app/js/quiz.js';
+const Q = JSON.parse(fs.readFileSync(new URL('../public/app/quran.json', import.meta.url)));
+Q.mut = JSON.parse(fs.readFileSync(new URL('../public/app/mutashabihat.json', import.meta.url)));
 const mem = []; for (let p = 582; p <= 604; p++) mem.push({ page: p, R: p % 3 ? 0.95 : 0.75 });
 const q = buildQuiz(Q, mem, 20400, 10);
 assert.strictEqual(q.length, 10, 'ten questions');

@@ -6,8 +6,13 @@ Aucune étape de build : ce sont des fichiers statiques dans `public/`.
 
 ## Structure
 
+Le site a deux parties : la page d'accueil sur `https://sourah.online/` et l'application sur `https://sourah.online/app/`.
+
 ```
 public/
+  index.html            page d'accueil (présentation + installation iPhone, Android, Samsung, ordinateur)
+  assets/               captures d'écran (webp), QR code vers /app/, image de partage og.png
+public/app/
   index.html, manifest.webmanifest, sw.js (hors ligne), privacy.html
   quran.json            texte uthmani + découpage en pages + noms des sourates
   fonts/amiri-quran.woff2
@@ -26,7 +31,7 @@ tests/planner.test.js
 
 ```bash
 npm test                 # tests du planificateur
-npx serve public         # puis ouvrir http://localhost:3000
+npx serve public         # accueil sur http://localhost:3000, app sur /app/
 ```
 
 Sans configuration Firebase, l'app tourne en mode local (progression dans le navigateur).
@@ -36,7 +41,7 @@ Sans configuration Firebase, l'app tourne en mode local (progression dans le nav
 1. **Créer le projet** sur https://console.firebase.google.com (offre gratuite Spark).
 2. **Firestore** : Build > Firestore Database > Créer, mode production, emplacement **europe-west1** (ou multi-région `eur3`). L'emplacement ne peut plus être changé ensuite.
 3. **Authentication** : Build > Authentication > Commencer, puis activer **Google** et **E-mail/Mot de passe**.
-4. **App web** : Paramètres du projet > Vos applications > icône Web `</>`. Copier l'objet `firebaseConfig` dans `public/js/config.js`.
+4. **App web** : Paramètres du projet > Vos applications > icône Web `</>`. Copier l'objet `firebaseConfig` dans `public/app/js/config.js`.
 5. **ID du projet** : le remplacer dans `.firebaserc`.
 6. **Déployer** depuis ce dossier :
    ```bash
@@ -49,10 +54,20 @@ Sans configuration Firebase, l'app tourne en mode local (progression dans le nav
 
 Sur le téléphone, ouvrir l'adresse puis « Ajouter à l'écran d'accueil » (Safari) ou « Installer l'application » (Chrome).
 
+
+## Domaine sourah.online
+
+1. Firebase console > Hosting > **Ajouter un domaine personnalisé** > `sourah.online`, puis `www.sourah.online` en redirection vers `sourah.online`.
+2. Chez votre registrar, créez les enregistrements DNS indiqués par Firebase (TXT de vérification puis A/AAAA). Le certificat HTTPS est fourni automatiquement (compter de quelques minutes à 24 h).
+3. Authentication > Paramètres > **Domaines autorisés** : ajoutez `sourah.online` (sinon la connexion Google échoue).
+4. Dans `public/app/js/config.js`, vous pouvez mettre `authDomain: 'sourah.online'` pour que la fenêtre de connexion Google affiche votre domaine.
+
+L'application s'installe depuis `sourah.online/app` (PWA) : la page d'accueil explique la démarche pour chaque type de téléphone et détecte automatiquement celui du visiteur.
+
 ## Avant d'ouvrir au public
 
-- **Politique de confidentialité** : compléter `public/privacy.html` (responsable du traitement, contact). La progression de hifz révèle une pratique religieuse, donc c'est une donnée sensible au sens du RGPD (article 9). L'app recueille un consentement explicite avant toute synchronisation, et la suppression du compte efface toutes les données.
-- **Licences** : texte uthmani (The Noble Qur'an Encyclopedia, via quran-json, CC BY-SA 4.0), police Amiri Quran (OFL, voir `fonts/OFL.txt`). L'audio est lu directement depuis EveryAyah : vérifier ses conditions d'utilisation pour un usage public, ou héberger vos propres fichiers et changer `AUDIO_URL` dans `config.js`.
+- **Politique de confidentialité** : compléter `public/app/privacy.html` (responsable du traitement, contact). La progression de hifz révèle une pratique religieuse, donc c'est une donnée sensible au sens du RGPD (article 9). L'app recueille un consentement explicite avant toute synchronisation, et la suppression du compte efface toutes les données.
+- **Licences** : texte uthmani (The Noble Qur'an Encyclopedia, via quran-json, CC BY-SA 4.0), police Amiri Quran (OFL, voir `public/app/fonts/`). L'audio est lu directement depuis EveryAyah : vérifier ses conditions d'utilisation pour un usage public, ou héberger vos propres fichiers et changer `AUDIO_URL` dans `config.js`.
 - **Glyphe modifié** : le texte source encode le tanwin ouvert avec U+065E, qu'Amiri ne contient pas. Il est remplacé par U+08F1 (tanwin damm ouvert). À faire valider par une personne qui maîtrise l'écriture uthmanie.
 
 
@@ -81,7 +96,7 @@ Toucher un mot ou un numéro de verset (pendant l'apprentissage, à la correctio
 - la traduction du sens du verset (français : Muhammad Hamidullah, anglais : Saheeh International, via quran-json) ;
 - le tafsir au choix : Al-Mukhtasar en français ou en anglais (Centre de Tafsir pour les études coraniques) ou At-Tafsir Al-Muyassar (arabe).
 
-Les données sont auto-hébergées dans `public/meaning/{page}.json` (604 fichiers, 12 Mo au total, environ 20 Ko par page) et mises en cache hors ligne par le service worker après la première consultation. Sources : [spa5k/tafsir_api](https://github.com/spa5k/tafsir_api) (données QUL / Tarteel, tag v1.2.2), [quran-json](https://www.npmjs.com/package/quran-json), [@kmaslesa/holy-quran-word-by-word-full-data](https://www.npmjs.com/package/@kmaslesa/holy-quran-word-by-word-full-data). **Avant une diffusion publique, vérifier les conditions d'utilisation de chaque tafsir et traduction** (la plupart autorisent un usage non commercial avec attribution). Script de génération : `tools/build_meaning.py`.
+Les données sont auto-hébergées dans `public/app/meaning/{page}.json` (604 fichiers, 12 Mo au total, environ 20 Ko par page) et mises en cache hors ligne par le service worker après la première consultation. Sources : [spa5k/tafsir_api](https://github.com/spa5k/tafsir_api) (données QUL / Tarteel, tag v1.2.2), [quran-json](https://www.npmjs.com/package/quran-json), [@kmaslesa/holy-quran-word-by-word-full-data](https://www.npmjs.com/package/@kmaslesa/holy-quran-word-by-word-full-data). **Avant une diffusion publique, vérifier les conditions d'utilisation de chaque tafsir et traduction** (la plupart autorisent un usage non commercial avec attribution). Script de génération : `tools/build_meaning.py`.
 
 
 ## Mode enfant et suivi parent
