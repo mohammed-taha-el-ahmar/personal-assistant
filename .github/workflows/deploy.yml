@@ -72,7 +72,7 @@ jobs:
           # Static apps, each served under its own folder name.
           # Copy the folder's CONTENTS (the trailing /.), otherwise you get /orato/orato/.
           # Their own CNAME files are dropped: only the root CNAME counts.
-          for app in orato quizlive parley; do
+          for app in orato quizlive parley sourah; do
             mkdir -p "_site/$app"
             cp -r "$app/." "_site/$app/"
             rm -f "_site/$app/CNAME"
