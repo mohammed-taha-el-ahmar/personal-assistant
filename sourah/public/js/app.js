@@ -4,6 +4,7 @@ import { Player } from './audio.js';
 import { RECITERS, PRIVACY_URL } from './config.js';
 import { Recorder, canRecord, saveRecording, listRecordings, deleteRecording, fmtDuration, MAX_SECONDS } from './recorder.js';
 import { Social } from './social.js';
+import { buildQuiz } from './quiz.js';
 
 const P = window.Planner;
 const $app = document.getElementById('app');
@@ -179,6 +180,7 @@ function render() {
   if (screen === 'auth') return $app.append(viewAuth());
   if (screen === 'consent') return $app.append(viewConsent());
   if (screen === 'review' && reviewState) return $app.append(viewReview());
+  if (screen === 'quiz' && quizState) return $app.append(viewQuiz());
   if (!S) return $app.append(viewOnboarding());
   if (session) {
     $app.append(viewSession());
@@ -354,7 +356,7 @@ function viewToday() {
   const d = today();
   const plan = P.buildSession(S, d);
   const pagesState = Object.values(S.pages);
-  const doneRev = pagesState.filter(ps => ps.last === d && ps.status !== 'sabaq' && !(ps.memorized === d && !ps.seeded)).length;
+  const doneRev = pagesState.filter(ps => ps.last === d && ps.status !== 'sabaq' && (ps.reviews || 0) > 0 && !(ps.memorized === d && !ps.seeded)).length;
   const sabaqDone = pagesState.some(ps => ps.lastSabaq === d || (ps.memorized === d && !ps.seeded));
   const memorized = pagesState.filter(ps => ps.status !== 'sabaq').length;
   const Rs = pagesState.map(ps => P.pageR(ps, d)).filter(r => r != null);
@@ -395,6 +397,8 @@ function viewToday() {
     const ahead = nextManzil(d, 5);
     if (ahead.length) wrap.append(h('button', { class: 'btn block', onclick: () => startSession({ sabqi: [], manzil: ahead, sabaq: null }) }, t('ahead')));
   }
+
+  const qc = quizCard(d); if (qc) wrap.append(qc);
 
   const [vs, va, vt] = verseOfDay(d);
   wrap.append(h('div', { class: 'verse', style: 'cursor:pointer', onclick: () => openMeaning(vs, va, null) }, h('div', { class: 'lbl' }, t('verse_of_day')),
@@ -1141,6 +1145,86 @@ function openMeaning(s, a, wi) {
       h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => { stopAudio(); player.load([[s, a]], { reciter: S.settings.reciter, repeat: 1, rate: S.settings.rate }); playerKey = 'meaning'; player.play(); } }, '▶ ' + t('listen_ayah'))),
       h('p', { class: 'sub', style: 'font-size:11.5px;margin-top:14px' }, t('meaning_sources')));
   }).catch(() => { slot.innerHTML = ''; slot.append(h('p', { class: 'sub' }, t('meaning_offline'))); });
+}
+
+
+// ================= daily quiz =================
+let quizState = null;
+const QUIZ_N = 10;
+function memorizedForQuiz() {
+  const d = today();
+  return Object.keys(S.pages).filter(k => S.pages[k].status !== 'sabaq').map(k => ({ page: +k, R: P.pageR(S.pages[k], d) }));
+}
+function quizCard(d) {
+  const mem = memorizedForQuiz();
+  if (!mem.length) return null;
+  const done = S.quiz && S.quiz.day === d;
+  return h('button', { class: 'card quiz-cta' + (done ? ' done' : ''), onclick: () => done ? null : startQuiz() },
+    h('span', { class: 'qi' }, done ? html(SVG.check) : '?'),
+    h('div', null, h('b', null, t('quiz_title')), h('span', { class: 'sub' }, done ? t('quiz_done', { s: fmtNum(S.quiz.score), n: fmtNum(S.quiz.total) }) : t('quiz_sub', { n: fmtNum(QUIZ_N), m: fmtNum(3) }))),
+    done ? null : h('span', { class: 'btn gold', style: 'padding:9px 14px' }, t('quiz_start')));
+}
+function startQuiz() {
+  const qs = buildQuiz(Q, memorizedForQuiz(), today(), QUIZ_N);
+  if (!qs.length) return toast(t('quiz_none'));
+  quizState = { qs, i: 0, picked: null, score: 0, wrong: [], t0: Date.now() };
+  screen = 'quiz'; stopAudio(); render(); window.scrollTo(0, 0);
+}
+function quizPrompt(q) {
+  const ayah = [[q.s, q.a, q.prompt]];
+  return renderPassage(ayah, { showHeaders: false, big: true });
+}
+function viewQuiz() {
+  const st = quizState;
+  if (st.i >= st.qs.length) return viewQuizResult();
+  const q = st.qs[st.i], answered = st.picked != null;
+  const label = { next: 'q_next', prev: 'q_prev', word: 'q_word', surah: 'q_surah' }[q.type];
+  const choiceText = (c, k) => q.type === 'surah' ? h('span', null, h('b', null, surahLabel(c)), getLang() === 'ar' ? null : h('span', { class: 'ar-name' }, Q.surahs[c - 1][1])) : h('span', { class: 'ar-choice' }, c);
+  return h('div', { class: 'quiz' },
+    h('div', { class: 'session-top' }, h('div', { class: 'topbar' },
+      h('button', { class: 'icon-btn', 'aria-label': t('close'), onclick: () => { quizState = null; screen = null; render(); } }, html(SVG.close)),
+      h('div', { class: 'segs' }, st.qs.map((x, i) => h('i', { class: i < st.i ? (st.wrong.includes(i) ? 'bad' : 'done') : i === st.i ? 'cur' : '' }))),
+      h('span', { class: 'sub', style: 'font-weight:700' }, `${fmtNum(st.i + 1)}/${fmtNum(st.qs.length)}`))),
+    h('div', { class: 'q-label' }, t(label)),
+    q.type === 'surah' || q.type === 'word' ? null : h('p', { class: 'sub', style: 'margin:0 0 8px' }, `${surahLabel(q.s)} · ${fmtNum(q.s)}:${fmtNum(q.a)}`),
+    quizPrompt(q),
+    h('div', { class: 'choices' }, q.choices.map((c, k) => {
+      let cls = 'choice';
+      if (answered) cls += k === q.answer ? ' right' : k === st.picked ? ' wrong' : ' faded';
+      return h('button', { class: cls, disabled: answered, onclick: () => pickAnswer(k) }, h('span', { class: 'letter' }, 'ABCD'[k]), choiceText(c, k));
+    })),
+    answered ? h('div', { class: 'q-feedback ' + (st.picked === q.answer ? 'ok' : 'ko') },
+      h('b', null, st.picked === q.answer ? t('correct') : t('wrong_answer')),
+      h('button', { class: 'link', style: 'background:none;border:0;padding:0', onclick: () => openMeaning(q.s, q.type === 'next' || q.type === 'prev' ? +q.target.split(':')[1] : q.a, null) }, t('see_tafsir'))) : null,
+    answered ? h('div', { class: 'sticky' }, h('button', { class: 'btn primary block', onclick: () => { st.i++; st.picked = null; if (st.i >= st.qs.length) finishQuiz(); render(); window.scrollTo(0, 0); } }, st.i < st.qs.length - 1 ? t('next') : t('quiz_see_result'))) : null);
+}
+function pickAnswer(k) {
+  const st = quizState, q = st.qs[st.i];
+  if (st.picked != null) return;
+  st.picked = k;
+  if (k === q.answer) st.score++; else { st.wrong.push(st.i); try { navigator.vibrate && navigator.vibrate(60); } catch (e) {} }
+  render();
+}
+function finishQuiz() {
+  const st = quizState, d = today();
+  S.quiz = { day: d, score: st.score, total: st.qs.length };
+  S.quizLog = (S.quizLog || []).concat([{ day: d, score: st.score, total: st.qs.length }]).slice(-60);
+  const pages = new Set(st.wrong.map(i => st.qs[i].page));
+  pages.forEach(p => { const ps = S.pages[p]; if (ps && ps.status === 'manzil' && ps.last + P.interval(ps.S) > d + 1) reviewTomorrow(p); });
+  markActive(); save();
+  Store.logEvent({ t: Date.now(), k: 'quiz', g: st.score, n: st.qs.length, d: Math.round((Date.now() - st.t0) / 1000), wrong: st.wrong.map(i => st.qs[i].key) });
+}
+function viewQuizResult() {
+  const st = quizState, pct = st.score / st.qs.length;
+  const msg = pct >= 0.9 ? t('quiz_great') : pct >= 0.6 ? t('quiz_good') : t('quiz_low');
+  return h('div', { class: 'celebrate' },
+    ring(pct, 150, 12, pct >= 0.6 ? 'var(--gold)' : 'var(--sabqi)', 'var(--empty)', h('div', null, h('b', { style: 'font-size:34px' }, `${fmtNum(st.score)}/${fmtNum(st.qs.length)}`))),
+    h('h1', null, t('quiz_result')), h('p', { class: 'sub' }, msg),
+    st.wrong.length ? h('div', { class: 'card', style: 'text-align:start' }, h('b', null, t('quiz_missed')),
+      h('div', { class: 'list', style: 'margin-top:8px' }, st.wrong.map(i => { const q = st.qs[i]; return h('button', { class: 'li', onclick: () => openMeaning(q.s, q.a, null) },
+        h('span', { class: 'av' }, '!'), h('div', null, h('b', null, `${surahLabel(q.s)} ${fmtNum(q.s)}:${fmtNum(q.a)}`), h('span', null, t({ next: 'q_next', prev: 'q_prev', word: 'q_word', surah: 'q_surah' }[q.type]))), h('span', { class: 'chev' }, '›')); })),
+      h('p', { class: 'sub', style: 'font-size:13px;margin-top:10px' }, t('quiz_review_note'))) : null,
+    h('button', { class: 'btn primary block', style: 'margin-top:18px', onclick: () => { quizState = null; screen = null; view = 'today'; render(); window.scrollTo(0, 0); } }, t('finish')));
 }
 
 // ---------------- boot ----------------

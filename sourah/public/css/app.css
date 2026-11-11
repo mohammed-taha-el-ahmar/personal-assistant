@@ -344,3 +344,30 @@ textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radiu
 .seg.mini{padding:2px;border-radius:10px;margin:8px 0 4px}
 .seg.mini button{font-size:11.5px;padding:5px 6px;white-space:nowrap}
 .verse .link{font-size:13px}
+
+/* ---------- daily quiz ---------- */
+.quiz-cta{display:flex;align-items:center;gap:12px;width:100%;text-align:start;cursor:pointer;border-color:var(--gold-2);background:linear-gradient(120deg,var(--gold-soft),var(--paper) 70%)}
+.quiz-cta.done{cursor:default;background:var(--paper);border-color:var(--line)}
+.quiz-cta>div{flex:1}
+.quiz-cta b{display:block}
+.quiz-cta .qi{width:44px;height:44px;border-radius:14px;background:var(--gold);color:var(--gold-ink);display:grid;place-items:center;font-weight:800;font-size:22px;flex:none}
+.quiz-cta.done .qi{background:var(--good);color:#fff}
+.q-label{font-size:20px;font-weight:800;margin:12px 0 6px}
+.choices{display:grid;gap:10px;margin-top:14px}
+.choice{display:flex;align-items:center;gap:12px;width:100%;border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:12px 14px;text-align:start;transition:all .15s}
+.choice:not(:disabled):active{transform:scale(.99)}
+.choice .letter{width:30px;height:30px;border-radius:9px;background:var(--empty);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none;color:var(--muted)}
+.choice .ar-choice{font-family:'Amiri Quran',serif;font-size:22px;line-height:1.9;direction:rtl;flex:1;text-align:right}
+.choice .ar-name{font-family:'Amiri Quran',serif;font-size:18px;color:var(--muted);margin-inline-start:10px}
+.choice.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--paper))}
+.choice.right .letter{background:var(--good);color:#fff}
+.choice.wrong{border-color:var(--bad);background:var(--err-bg)}
+.choice.wrong .letter{background:var(--bad);color:#fff}
+.choice.faded{opacity:.55}
+.choice:disabled{color:inherit}
+.q-feedback{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border-radius:14px;font-size:14px}
+.q-feedback.ok{background:color-mix(in srgb,var(--good) 14%,var(--paper));color:var(--good)}
+.q-feedback.ko{background:var(--err-bg);color:var(--bad)}
+.segs i.bad{background:var(--bad)}
+.quiz .mushaf{font-size:25px}
+.celebrate .ring{margin:0 auto}
